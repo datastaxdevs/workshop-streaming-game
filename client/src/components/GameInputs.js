@@ -19,7 +19,7 @@ const GameInputs = ({playerName, playerID, playerX, setPlayerX, playerY, setPlay
         <button onClick={ () => setPlayerY( y => y+1 ) }> &dArr; </button>
       </div>
       <div></div>
-      <div style={{'grid-column': 'span 3', 'font-size': '75%'}}>({playerX}, {playerY})</div>
+      <div style={{gridColumn: 'span 3', fontSize: '75%'}}>({playerX}, {playerY})</div>
     </div>
   </div>)
 }

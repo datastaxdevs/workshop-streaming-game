@@ -19,7 +19,7 @@ const pws = new WebSocket(`ws://localhost:8000/ws/player/${playerID}`)
 const App = () => {
 
   const [playerName, setPlayerName] = useState('player');
-  const [inGame, setInGame] = useState(null);
+  const [inGame, setInGame] = useState(false);
   const [playerMap, setPlayerMap] = useState({});
   const [playerX, setPlayerX] = useState(settings.HALF_SIZE_X-1)
   const [playerY, setPlayerY] = useState(settings.HALF_SIZE_Y-1)
@@ -28,7 +28,13 @@ const App = () => {
     if (inGame) {
       // Entering game
 
-      pws.send(packMessage(playerName, playerX, playerY))
+      if(pws.readyState === 1){
+        pws.send(packMessage(playerName, playerX, playerY))
+      }
+
+      pws.onopen = evt => {
+        pws.send(packMessage(playerName, playerX, playerY))
+      }
 
       wws.onmessage = evt => {
         const thatPlayerUpdate = JSON.parse(evt.data)
@@ -44,8 +50,9 @@ const App = () => {
       // Leaving game
 
       wws.onmessage = evt => {}
+      pws.onopen = evt => {}
 
-      if(inGame !== null){
+      if(pws.readyState === 1){
         pws.send(packMessage(playerName, null, null))
       }
 
