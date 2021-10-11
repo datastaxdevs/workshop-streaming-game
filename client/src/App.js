@@ -57,14 +57,7 @@ const App = () => {
       }
 
     }
-  }, [inGame])
-
-  useEffect( () => {
-    if (inGame) {
-      // Send update about my name/position to the player websocket
-      pws.send(packMessage(playerName, playerX, playerY))
-    }
-  }, [playerX, playerY])
+  }, [inGame, playerName, playerX, playerY])
 
   return (
     <div className="App">
