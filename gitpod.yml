@@ -1,0 +1,23 @@
+tasks:
+  - name: drapetisca
+    init: |
+      cd /workspace/drapetisca/api
+      pip install -r requirements.txt
+    command: |
+      cd /workspace/drapetisca/api
+      echo "API READY"
+github:
+  prebuilds:
+    master: true
+    branches: true
+    pullRequests: true
+    pullRequestsFromForks: false
+    addCheck: true
+    addComment: false
+    addBadge: true
+    addLabel: false
+ports:
+  - port: 3000
+    onOpen: open-preview
+  - port: 8000
+    onOpen: ignore  
