@@ -18,6 +18,17 @@ def getPulsarClient():
     return client
 
 
+consumerCache = {}
+def getConsumer(clientID, puClient):
+    if clientID not in consumerCache:
+        pulsarSubscription = f'sub_{clientID}'
+        consumerCache[clientID] = puClient.subscribe(
+            'persistent://og1/default/t1',
+            pulsarSubscription)
+    #
+    return consumerCache[clientID]
+
+
 def receiveOrNone(consumer, timeout):
     """
     A modified 'receive' function for a Pulsar topic

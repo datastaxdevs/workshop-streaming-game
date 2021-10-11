@@ -11,7 +11,7 @@ import json
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 
-from pulsarTools import getPulsarClient, receiveOrNone
+from pulsarTools import getPulsarClient, getConsumer, receiveOrNone
 from utils import dictMerge, validatePosition
 
 from settings import (HALF_SIZE_X, HALF_SIZE_Y, RECEIVE_TIMEOUTS_MS,
@@ -25,9 +25,10 @@ async def worldWSRoute(worldWS: WebSocket, client_id: str):
     await worldWS.accept()
     #
     pulsarClient = getPulsarClient()
-    pulsarSubscription = f'sub_{client_id}'
-    pulsarConsumer = pulsarClient.subscribe('persistent://og1/default/t1',
-                                            pulsarSubscription)
+    pulsarConsumer = getConsumer(client_id, pulsarClient)
+    # pulsarSubscription = f'sub_{client_id}'
+    # pulsarConsumer = pulsarClient.subscribe('persistent://og1/default/t1',
+                                            # pulsarSubscription)
     #
     pulsarProducer = pulsarClient.create_producer(
         'persistent://og1/default/t1'

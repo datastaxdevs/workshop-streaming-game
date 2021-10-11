@@ -1,9 +1,9 @@
 const settings = require('../settings')
 
-const PlayerForm = ({playerName, setPlayerName, inGame, setInGame, setPlayerMap, playerID, setPlayerX, setPlayerY}) => {
+const PlayerForm = ({apiLocation, setApiLocation, playerName, setPlayerName, inGame, setInGame, setPlayerMap, playerID, setPlayerX, setPlayerY}) => {
 
-  return (
-    <div>
+  return (<div>
+    {!inGame && <div>
       <p>
         Your name:
         <input
@@ -17,19 +17,30 @@ const PlayerForm = ({playerName, setPlayerName, inGame, setInGame, setPlayerMap,
         Your ID:
         <input type="text" name="id" disabled="1" value={playerID} />
       </p>
-      {!inGame && <button onClick={() => {
+      <p>
+        API Location:
+        <input
+          type="text"
+          name="apilocation"
+          value={apiLocation}
+          onChange={(e) => setApiLocation(e.target.value)}
+        />
+      </p>
+      <button onClick={() => {
         setInGame(true)
         setPlayerMap({})
         setPlayerX(settings.HALF_SIZE_X - 1)
         setPlayerY(settings.HALF_SIZE_Y - 1)
       }}>
-        Enter
-      </button>}
-      {inGame && <button onClick={() => setInGame(false)}>
-        Leave
-      </button>}
-    </div>
-  )
+        Enter Game
+      </button>
+    </div>}
+    {inGame && <div>
+      <button onClick={() => setInGame(false)}>
+        Leave Game
+      </button>
+    </div>}
+  </div>)
 
 }
 

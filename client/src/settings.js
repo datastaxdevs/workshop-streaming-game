@@ -3,5 +3,6 @@
 
 module.exports = Object.freeze({
   HALF_SIZE_X: 16,
-  HALF_SIZE_Y: 12
+  HALF_SIZE_Y: 12,
+  DEFAULT_API_LOCATION: 'localhost:8000'
 })

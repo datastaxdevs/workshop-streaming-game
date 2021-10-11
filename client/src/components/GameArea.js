@@ -1,9 +1,9 @@
 import GameInputs from "./GameInputs"
 import GameField from "./GameField"
 
-const GameArea = ({playerName, playerID, playerMap, playerX, setPlayerX, playerY, setPlayerY, boardWidth, boardHeight}) => {
+const GameArea = ({playerName, playerID, playerMap, playerX, setPlayerX, playerY, setPlayerY, boardWidth, boardHeight, handleKeyDown}) => {
 
-  return (<div>
+  return (<div onKeyDown={handleKeyDown}>
     <GameInputs
       playerName={playerName}
       playerID={playerID}
