@@ -1,5 +1,8 @@
 """
     api.py
+    Run with:
+        source ../.env
+        uvicorn api:app --reload
 """
 
 import asyncio
@@ -11,8 +14,8 @@ from fastapi.responses import HTMLResponse
 from pulsarTools import getPulsarClient, receiveOrNone
 from utils import dictMerge, validatePosition
 
-from settings import (HALF_SIZE_X, HALF_SIZE_Y, SLEEP_BETWEEN_READS_MS,
-                      SLEEP_BETWEEN_READS_S)
+from settings import (HALF_SIZE_X, HALF_SIZE_Y, RECEIVE_TIMEOUTS_MS,
+                      SLEEP_BETWEEN_READS_MS)
 
 app = FastAPI()
 
@@ -33,13 +36,12 @@ async def worldWSRoute(worldWS: WebSocket, client_id: str):
     #
     try:
         while True:
-            worldUpdateMsg = receiveOrNone(pulsarConsumer,
-                                           SLEEP_BETWEEN_READS_MS / 1000)
+            worldUpdateMsg = receiveOrNone(pulsarConsumer, RECEIVE_TIMEOUTS_MS)
             if worldUpdateMsg is not None:
                 # We forward any update from Pulsar into the 'world' websocket
                 # for all clients out there:
                 await worldWS.send_text(worldUpdateMsg.data().decode())
-            await asyncio.sleep(SLEEP_BETWEEN_READS_S)
+            await asyncio.sleep(SLEEP_BETWEEN_READS_MS / 1000)
     except WebSocketDisconnect:
         pulsarConsumer.close()
 

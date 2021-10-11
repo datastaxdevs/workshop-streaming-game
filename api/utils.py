@@ -9,7 +9,7 @@ def dictMerge(main, default):
     """
     if isinstance(main, dict):
         return {
-            k: deep_merge(
+            k: dictMerge(
                 main[k],
                 default=({} if default is None else default).get(k),
             ) if k in main else default[k]
@@ -31,7 +31,7 @@ def validatePosition(posDict, halfX, halfY):
         else:
             return max(minv, min(val, maxv))
 
-    return deep_merge(
+    return dictMerge(
         {
             'x': _constrainNoneAware(posDict['x'], 0, 2*halfX - 2),
             'y': _constrainNoneAware(posDict['y'], 0, 2*halfY - 2),
