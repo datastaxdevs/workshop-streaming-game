@@ -1,0 +1,3 @@
+fastapi==0.68.1
+pulsar-client==2.7.2
+uvicorn==0.15.0
