@@ -19,5 +19,7 @@ github:
 ports:
   - port: 3000
     onOpen: open-preview
+    visibility: public
   - port: 8000
-    onOpen: ignore  
+    onOpen: ignore
+    visibility: public
