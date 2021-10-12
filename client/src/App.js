@@ -86,6 +86,7 @@ const App = () => {
         }
       }
     }
+  // eslint-disable-next-line
   }, [inGame])
 
   useEffect( () => {
@@ -96,7 +97,7 @@ const App = () => {
       }
   
     }
-  }, [playerName, playerX, playerY])
+  }, [inGame, playerName, playerX, playerY])
 
   useEffect(() => {
 
@@ -105,6 +106,7 @@ const App = () => {
     return function cleanup() {
       document.removeEventListener('keydown', handleKeyDown);
     }
+  // eslint-disable-next-line
   }, []);
 
   return (
