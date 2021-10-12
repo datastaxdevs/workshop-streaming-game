@@ -50,8 +50,8 @@ const App = () => {
       if(wws === null || pws === null){
         // we must create the websockets and attach callbacks to them
 
-        wws = new WebSocket(`ws://${apiLocation}/ws/world/${playerID}`)
-        pws = new WebSocket(`ws://${apiLocation}/ws/player/${playerID}`)
+        wws = new WebSocket(`${apiLocation}/ws/world/${playerID}`)
+        pws = new WebSocket(`${apiLocation}/ws/player/${playerID}`)
 
         pws.onopen = evt => {
           pws.send(packMessage(playerName, playerX, playerY))
