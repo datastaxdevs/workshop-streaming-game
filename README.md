@@ -27,6 +27,10 @@ for this app.
     <img src="https://github.com/hemidactylus/drapetisca/raw/main/images/astra_create_streaming_topic.gif?raw=true" />
 </details>
 
+While we are at it, let's have a look at the information needed to connect to the topic
+from the API code. While still in the tenant dashboard, find the "Connect" tab and click on it.
+You will later need the "Broker Service URL" and the "Token" values (the latter is hidden but can be copied nevertheless).
+
 Your topic is created almost in real-time, ready to receive and dispatch a stream of messages that will make your game work!
 Time to prepare some code to be run...
 
