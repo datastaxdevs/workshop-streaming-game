@@ -2,14 +2,14 @@ tasks:
   - name: open-readme
     command: gp open README.md
   - name: setup-api
-    init: |
+    before: |
       cd /workspace/drapetisca/api
       pip install -r requirements.txt
     command: |
       cd /workspace/drapetisca/api
       echo "API READY TO START"
   - name: setup-client
-    init: |
+    before: |
       cd /workspace/drapetisca/client
       nvm install 16.11.1
       npm install -g npm@latest
