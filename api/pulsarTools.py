@@ -13,12 +13,13 @@ client = pulsar.Client(service_url,
                        authentication=pulsar.AuthenticationToken(token),
                        tls_trust_certs_file_path=trust_certs)
 
+consumerCache = {}
+
 
 def getPulsarClient():
     return client
 
 
-consumerCache = {}
 def getConsumer(clientID, puClient):
     if clientID not in consumerCache:
         pulsarSubscription = f'sub_{clientID}'

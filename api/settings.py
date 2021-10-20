@@ -9,3 +9,8 @@ HALF_SIZE_Y = 12
 # Timeouts and waiting times
 RECEIVE_TIMEOUTS_MS = 5
 SLEEP_BETWEEN_READS_MS = 1
+
+# Streaming topic settings
+STREAMING_TENANT = 'gameserver'
+STREAMING_NAMESPACE = 'default'
+STREAMING_TOPIC = 'worldupdates'

@@ -1,6 +1,6 @@
 tasks:
   - name: open-readme
-    command: gp open README.md
+    command: gp preview https://github.com/hemidactylus/drapetisca#readme
   - name: setup-api
     before: |
       cd /workspace/drapetisca/api
@@ -17,7 +17,7 @@ tasks:
       npm install astra-setup
       npm install
     command: |
-      cd /workspace/drapetisca/api
+      cd /workspace/drapetisca/client
       echo "CLIENT READY TO START"
 github:
   prebuilds:

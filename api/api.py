@@ -17,7 +17,15 @@ from utils import dictMerge, validatePosition
 from settings import (HALF_SIZE_X, HALF_SIZE_Y, RECEIVE_TIMEOUTS_MS,
                       SLEEP_BETWEEN_READS_MS)
 
+from settings import (STREAMING_TENANT, STREAMING_NAMESPACE, STREAMING_TOPIC)
+
 app = FastAPI()
+
+streamingTopic = 'persistent://{tenant}/{namespace}/{topic}'.format(
+    tenant=STREAMING_TENANT,
+    namespace=STREAMING_NAMESPACE,
+    topic=STREAMING_TOPIC,
+)
 
 
 @app.websocket("/ws/world/{client_id}")
@@ -26,13 +34,8 @@ async def worldWSRoute(worldWS: WebSocket, client_id: str):
     #
     pulsarClient = getPulsarClient()
     pulsarConsumer = getConsumer(client_id, pulsarClient)
-    # pulsarSubscription = f'sub_{client_id}'
-    # pulsarConsumer = pulsarClient.subscribe('persistent://og1/default/t1',
-                                            # pulsarSubscription)
     #
-    pulsarProducer = pulsarClient.create_producer(
-        'persistent://og1/default/t1'
-    )
+    pulsarProducer = pulsarClient.create_producer(streamingTopic)
     pulsarProducer.close()
     #
     try:
@@ -52,9 +55,7 @@ async def playerWSRoute(playerWS: WebSocket, client_id: str):
     await playerWS.accept()
     #
     pulsarClient = getPulsarClient()
-    pulsarProducer = pulsarClient.create_producer(
-        'persistent://og1/default/t1'
-    )
+    pulsarProducer = pulsarClient.create_producer(streamingTopic)
     #
     while True:
         try:
