@@ -1,11 +1,23 @@
 tasks:
-  - name: drapetisca
+  - name: open-readme
+    command: gp open README.md
+  - name: setup-api
     init: |
       cd /workspace/drapetisca/api
       pip install -r requirements.txt
     command: |
       cd /workspace/drapetisca/api
-      echo "API READY"
+      echo "API READY TO START"
+  - name: setup-client
+    init: |
+      cd /workspace/drapetisca/client
+      nvm install 16.11.1
+      npm install -g npm@latest
+      npm install astra-setup
+      npm install
+    command: |
+      cd /workspace/drapetisca/api
+      echo "CLIENT READY TO START"
 github:
   prebuilds:
     master: true

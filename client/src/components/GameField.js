@@ -16,7 +16,6 @@ const GameField = ({playerMap, playerID, boardWidth, boardHeight}) => {
       { Object.entries(playerMap).map( ([thatPlayerID, thatPlayerInfo]) => {
         const patternName = thatPlayerID === playerID ? 'lyco_self' : 'lyco_other'
         return (<g key={thatPlayerID} transform={`translate(${thatPlayerInfo.x * 100},${thatPlayerInfo.y * 100})`}>
-          {/*<circle cx="50" cy="50" r="40" fill={plColor} />*/}
           <g transform='translate(50,50)'>
             <circle cx="0" cy="0" r="50" fill={`url(#${patternName})`}></circle>
             <g transform='translate(0,50)'>
