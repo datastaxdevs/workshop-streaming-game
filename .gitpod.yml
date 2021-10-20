@@ -1,6 +1,6 @@
 tasks:
   - name: open-readme
-    command: gp preview https://github.com/hemidactylus/drapetisca#readme
+    command: gp open README.md
   - name: setup-api
     before: |
       cd /workspace/drapetisca/api

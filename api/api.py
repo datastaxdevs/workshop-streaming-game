@@ -11,21 +11,14 @@ import json
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 
-from pulsarTools import getPulsarClient, getConsumer, receiveOrNone
+from pulsarTools import (getPulsarClient, getConsumer, getProducer,
+                         receiveOrNone)
 from utils import dictMerge, validatePosition
 
 from settings import (HALF_SIZE_X, HALF_SIZE_Y, RECEIVE_TIMEOUTS_MS,
                       SLEEP_BETWEEN_READS_MS)
 
-from settings import (STREAMING_TENANT, STREAMING_NAMESPACE, STREAMING_TOPIC)
-
 app = FastAPI()
-
-streamingTopic = 'persistent://{tenant}/{namespace}/{topic}'.format(
-    tenant=STREAMING_TENANT,
-    namespace=STREAMING_NAMESPACE,
-    topic=STREAMING_TOPIC,
-)
 
 
 @app.websocket("/ws/world/{client_id}")
@@ -34,9 +27,6 @@ async def worldWSRoute(worldWS: WebSocket, client_id: str):
     #
     pulsarClient = getPulsarClient()
     pulsarConsumer = getConsumer(client_id, pulsarClient)
-    #
-    pulsarProducer = pulsarClient.create_producer(streamingTopic)
-    pulsarProducer.close()
     #
     try:
         while True:
@@ -55,7 +45,7 @@ async def playerWSRoute(playerWS: WebSocket, client_id: str):
     await playerWS.accept()
     #
     pulsarClient = getPulsarClient()
-    pulsarProducer = pulsarClient.create_producer(streamingTopic)
+    pulsarProducer = getProducer(pulsarClient)
     #
     while True:
         try:
