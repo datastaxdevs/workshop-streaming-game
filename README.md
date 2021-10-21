@@ -38,10 +38,12 @@ to open this project in Gitpod. Then wait a couple of minutes for the
 installations to complete.
 
 <details><summary>What does this Gitpod click do?</summary>
-    - An IDE is started on a virtual machine in the cloud
-    - this repo is cloned there
-    - some initialization scripts are run (mainly dependencies are installed)
-    - you can work there, edit files, run commands in the console, use an internal browser, etc.
+
+- An IDE is started on a virtual machine in the cloud
+- this repo is cloned there
+- some initialization scripts are run (mainly dependencies are installed)
+- you can work there, edit files, run commands in the console, use an internal browser, etc.
+
 </details>
 
 For this repo, Gitpod is configured to start with two shells open:
