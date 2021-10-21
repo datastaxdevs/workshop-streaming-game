@@ -2,16 +2,13 @@
 
 A sample multiplayer game using Astra Streaming, FastAPI, React and Websockets
 
+## Astra setup
 
-## Barebones steps
-
-### Astra setup
-
-#### Create your Astra DB instance
+### Create your Astra DB instance
 
 the usual. At the moment the DB is not even used (but we have to create it anyway).
 
-#### Create your Astra Streaming
+### Create your Astra Streaming
 
 Now it's time to create a new Astra Streaming topic, that will convey all messages
 for this app.
@@ -23,7 +20,7 @@ for this app.
 
 > Note: technically you can name your tenant, namespace and topic anything you want - but then you have to make sure the settings in your API code are changed accordingly.
 
-- <details><summary>Show me the steps</summary>
+<details><summary>Show me the steps</summary>
     <img src="https://github.com/hemidactylus/drapetisca/raw/main/images/astra_create_streaming_topic.gif?raw=true" />
 </details>
 
@@ -34,22 +31,29 @@ You will later need the "Broker Service URL" and the "Token" values (the latter 
 Your topic is created almost in real-time, ready to receive and dispatch a stream of messages that will make your game work!
 Time to prepare some code to be run...
 
-### Gitpod
+## Gitpod
 
 (Ctrl+)Click [this](https://gitpod.io/#https://github.com/hemidactylus/drapetisca)
-to open this project in Gitpod. Then wait a few minutes.
+to open this project in Gitpod. Then wait a couple of minutes for the
+installations to complete.
 
-_What does this Gitpod click do? ..._
+<details><summary>What does this Gitpod click do?</summary>
+    - An IDE is started on a virtual machine in the cloud
+    - this repo is cloned there
+    - some initialization scripts are run (mainly dependencies are installed)
+    - you can work there, edit files, run commands in the console, use an internal browser, etc.
+</details>
 
-Gitpod starts with two shells open: api and client, "almost" ready to go. We will have stuff running on both.
+For this repo, Gitpod is configured to start with two shells open:
+api and client, "almost" ready to go. We will have stuff running on both.
 
-#### API shell
+### API shell
 
 Create a file `.env` by copying the `.env.sample` in the same directory and filling it with values found
 on your Astra Streaming "Connect" tab:
 
 - `SERVICE_URL`: it looks like `pulsar+ssl://pulsar-aws-useast2.streaming.datastax.com:6651`
-- `ASTRA_TOKEN`: a very long (about 500 chars) string of characters. To view it, click "Show" on that same page. Guard your token as a secret!
+- `ASTRA_TOKEN`: a very long string (about 500 random-looking chars). You can copy it without showing it. Guard your token as a secret!
 
 Make sure you are in the API shell.
 Make these environment variables available to the shell by typing:
@@ -64,7 +68,7 @@ Launch the API with:
 
 you will see the API start, happily ready to accept requests. Leave it run
 
-#### Client shell
+### Client shell
 
 Switch to the client shell. We took care of preinstalling all required dependencies for you.
 
@@ -89,7 +93,7 @@ above `localhost` address to something such as
 
 _Explanations on how the client works ..._
 
-#### Play the game!
+### Play the game!
 
 We have a client and an API ready to accept (Websocket) connections:
 it is time to play!
@@ -121,7 +125,7 @@ coordinates) to demonstrate that the checks and validation occurs on the API lay
 It is the API that sends updates on the world state back to the client, and
 rightly so -- think about cheaters in online games!
 
-But this is a _multiplayer_ game, isn't it? So Let us simply open a new
+But this is a _multiplayer_ game, isn't it? So Let us open a new
 browser tab and enter the same client URL as above (the one on port 3000).
 Enter a different player name and the same API Location you built above, then
 hit "Enter Game". Hooray! As soon as you move around with this new player,
@@ -133,20 +137,36 @@ you will see the whole architecture at work:
 - API broadcasts updates on any player to all connected clients through the "world websocket"
 - at each such update, the client's game arena is adjusted
 
-What is really cool is that you can give this URL to your friends and have them
+What is really cool is that **you can give this URL to your friends** and have them
 enter your very own multiplayer game!
 
 _Please do this and tell the world about how easy it is to build a multiplayer real-time
 game with Astra Streaming!_
 
-#### Fun with the Streaming UI
+## Fun with the Streaming UI
 
-(manually connecting to the topic in the Astra Streaming UI and seeing the messages pour in)
+The Astra Streaming interface makes it possible to eavesdrop on the topic and
+observe the messages passing through it. This may prove very useful for
+debugging.
 
-(then, sending a crafted message pretending to be a player update and see the effect on the gameplay!)
+In the Astra Streaming UI, head to the "Try Me" tab and make sure the namespace
+and the (producer, consumer) topics are set to the values used earlier. Also
+ensure the connection is of type "Consume" before clicking "Connect".
 
-#### Finally
+![astra-ui-topic-connection](images/eavesdrop-marked.png)
 
-Now let me give you all MY address and let us run like crazy around my arena!
+Now, if you move your player around in the client app, you will see the
+corresponding messages flowing through the Streaming topic.
 
-"Now form a circle shape! Now a smiley..."
+Of course now we want to "hack the system"! Indeed this same interface lets
+you produce messages into the topic: let us insert a message such as
+
+    {"playerName": "INTRUDER", "playerID": "1n7rud3r", "y": 3, "x": 3}
+
+and check what happens on the game arena!
+
+## Finally
+
+_Let me give you all MY address and let us run like crazy around my arena!_
+
+_"Now form a circle shape! Now a smiley..."_

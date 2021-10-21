@@ -1,7 +1,5 @@
 const GameField = ({playerMap, playerID, boardWidth, boardHeight}) => {
 
-  // const plColor = thatPlayerID === playerID ? '#b0b0f0' : '#b0f0b0'
-
   return (
     <svg width="600" height="450" viewBox={`0 0 ${100 * boardWidth} ${100 * boardHeight}`}>
       <defs>
