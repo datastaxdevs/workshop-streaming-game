@@ -1,6 +1,7 @@
 const GameInputs = ({playerName, playerID, playerX, setPlayerX, playerY, setPlayerY}) => {
 
   return (<div>
+    <div>At ({playerX}, {playerY})</div>
     <div className="grid-container">
       <div></div>
       <div>
@@ -19,7 +20,14 @@ const GameInputs = ({playerName, playerID, playerX, setPlayerX, playerY, setPlay
         <button onClick={ () => setPlayerY( y => y+1 ) }> &dArr; </button>
       </div>
       <div></div>
-      <div style={{gridColumn: 'span 3', fontSize: '75%'}}>({playerX}, {playerY})</div>
+    </div>
+    <div className="astra-logo">
+      Powered by
+    </div>
+    <div>
+      <a className="astra-logo" href="https://astra.datastax.com/" target="_blank">
+        <img src="astra-streaming-stacked-pos.png" />
+      </a>
     </div>
   </div>)
 }
