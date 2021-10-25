@@ -8,6 +8,7 @@ import GameArea from "./components/GameArea"
 
 import packMessage from "./utils/messages"
 import replaceValue from "./utils/replaceValue"
+import guessAPILocation from "./utils/guessAPILocation"
 
 const settings = require('./settings')
 const uuid = require('uuid');
@@ -19,8 +20,10 @@ let pws = null;
 
 const App = () => {
 
+  const proposedAPILocation = guessAPILocation(window.location.href, settings.DEFAULT_API_LOCATION);
+
   const [playerName, setPlayerName] = useState('player');
-  const [apiLocation, setApiLocation] = useState(settings.DEFAULT_API_LOCATION);
+  const [apiLocation, setApiLocation] = useState(proposedAPILocation);
   const [inGame, setInGame] = useState(false);
   const [playerMap, setPlayerMap] = useState({});
   const [playerX, setPlayerX] = useState(settings.HALF_SIZE_X-1)

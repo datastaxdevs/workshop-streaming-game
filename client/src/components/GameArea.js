@@ -4,8 +4,8 @@ import GameField from "./GameField"
 const GameArea = ({playerName, playerID, playerMap, playerX, setPlayerX, playerY, setPlayerY, boardWidth, boardHeight, handleKeyDown}) => {
 
   return (
-    <div class="container" onKeyDown={handleKeyDown} tabindex="0">
-      <div class="sidebar">
+    <div className="container" onKeyDown={handleKeyDown} tabIndex="0">
+      <div className="sidebar">
         <GameInputs
           playerName={playerName}
           playerID={playerID}

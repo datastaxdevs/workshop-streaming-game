@@ -103,16 +103,20 @@ it is time to play!
 The client lets you customize your player name and gives you a unique player ID.
 
 It also needs the address to reach the API. Now, if you are running locally you
-would be good to go, but since we are working within Gitpod you have to adapt
+would be simply find the API at `ws://localhost:8000`, but since
+we are working within Gitpod it is necessary to modify
 the "API Location" to reflect the Gitpod-provided domain.
 
-You can either run the command `gp url 8000 | sed s/https/wss/` and copy
+Fortunately, the client does that for you and the field is pre-filled
+with a Websocket address corresponding to the API running in your Gitpod
+instance.
+
+> To obtain the above, in any case, you can either run the command
+`gp url 8000 | sed s/https/wss/` and copy
 the output or simply take the client address as in the example above and replace
 `3000` with `8000` (the API listen on port 8000), and `https` with `wss`
 (we are using the secure Websocket protocol). Your API Location will look
-something like:
-
-    wss://8000-tan-swallow-2yz174hp.ws-eu17.gitpod.io
+something like `wss://8000-tan-swallow-2yz174hp.ws-eu17.gitpod.io`.
 
 You can finally click "Enter game". At this point the client establishes
 Websocket connections to the API, after which you will see your player appear
