@@ -9,6 +9,7 @@ import GameArea from "./components/GameArea"
 import packMessage from "./utils/messages"
 import replaceValue from "./utils/replaceValue"
 import guessAPILocation from "./utils/guessAPILocation"
+import getRandomSpiderName from "./utils/names"
 
 const settings = require('./settings')
 const uuid = require('uuid');
@@ -22,7 +23,7 @@ const App = () => {
 
   const proposedAPILocation = guessAPILocation(window.location.href, settings.DEFAULT_API_LOCATION);
 
-  const [playerName, setPlayerName] = useState('player');
+  const [playerName, setPlayerName] = useState(getRandomSpiderName());
   const [apiLocation, setApiLocation] = useState(proposedAPILocation);
   const [inGame, setInGame] = useState(false);
   const [playerMap, setPlayerMap] = useState({});
