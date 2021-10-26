@@ -12,6 +12,9 @@ const PlayerForm = (props) => {
   const playerID = props.playerID
   const setPlayerX = props.setPlayerX
   const setPlayerY = props.setPlayerY
+  const setLastSent = props.setLastSent
+  const setLastReceived = props.setLastReceived
+  const setGeneration = props.setGeneration
 
   return (<div>
     {!inGame && <div>
@@ -42,6 +45,9 @@ const PlayerForm = (props) => {
         setPlayerMap({})
         setPlayerX(settings.HALF_SIZE_X - 1)
         setPlayerY(settings.HALF_SIZE_Y - 1)
+        setGeneration(0)
+        setLastReceived(null)
+        setLastSent(null)
       }}>
         Enter Game
       </button>

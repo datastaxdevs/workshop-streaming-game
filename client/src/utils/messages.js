@@ -1,6 +1,7 @@
 // utility to serialize a standard player info message (name, position)
-const packMessage = (playerName, x, y) => {
+const packMessage = (generation, playerName, x, y) => {
   return JSON.stringify({
+    generation,
     playerName,
     x,
     y
