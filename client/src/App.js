@@ -29,6 +29,9 @@ const App = () => {
   const [playerX, setPlayerX] = useState(settings.HALF_SIZE_X-1)
   const [playerY, setPlayerY] = useState(settings.HALF_SIZE_Y-1)
 
+  const [lastSent, setLastSent] = useState(null)
+  const [lastReceived, setLastReceived] = useState(null)
+
   // keyboard-controlled movements
   const handleKeyDown = ev => {
     if(inGame){
@@ -57,10 +60,13 @@ const App = () => {
         pws = new WebSocket(`${apiLocation}/ws/player/${playerID}`)
 
         pws.onopen = evt => {
-          pws.send(packMessage(playerName, playerX, playerY))
+          const msg = packMessage(playerName, playerX, playerY)
+          setLastSent(msg)
+          pws.send(msg)
         }
 
         wws.onmessage = evt => {
+          setLastReceived(evt.data)
           const thatPlayerUpdate = JSON.parse(evt.data)
           // Received update on some player through the 'world' websocket
           const thatPlayerID = thatPlayerUpdate.playerID
@@ -76,7 +82,9 @@ const App = () => {
         // it is time to disconnect the websockets
 
         if(pws && pws.readyState === 1){
-          pws.send(packMessage('', null, null))
+          const msg = packMessage('', null, null)
+          setLastSent(msg)
+          pws.send(msg)
         }
 
         if(wws === null){
@@ -96,7 +104,9 @@ const App = () => {
     if (inGame) {
 
       if(pws && pws.readyState === 1){
-        pws.send(packMessage(playerName, playerX, playerY))
+        const msg = packMessage(playerName, playerX, playerY)
+        setLastSent(msg)
+        pws.send(msg)
       }
   
     }
@@ -139,6 +149,8 @@ const App = () => {
         boardWidth={2 * settings.HALF_SIZE_X - 1}
         boardHeight={2 * settings.HALF_SIZE_Y - 1}
         handleKeyDown={handleKeyDown}
+        lastSent={lastSent}
+        lastReceived={lastReceived}
       />}
     </div>
   );

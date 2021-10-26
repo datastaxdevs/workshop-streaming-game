@@ -1,27 +1,50 @@
 import GameInputs from "./GameInputs"
 import GameField from "./GameField"
 
-const GameArea = ({playerName, playerID, playerMap, playerX, setPlayerX, playerY, setPlayerY, boardWidth, boardHeight, handleKeyDown}) => {
+const GameArea = (props) => {
+
+  const playerName = props.playerName
+  const playerID = props.playerID
+  const playerMap = props.playerMap
+  const playerX = props.playerX
+  const setPlayerX = props.setPlayerX
+  const playerY = props.playerY
+  const setPlayerY = props.setPlayerY
+  const boardWidth = props.boardWidth
+  const boardHeight = props.boardHeight
+  const handleKeyDown = props.handleKeyDown
+  const lastSent = props.lastSent
+  const lastReceived = props.lastReceived
 
   return (
-    <div className="container" onKeyDown={handleKeyDown} tabIndex="0">
-      <div className="sidebar">
-        <GameInputs
-          playerName={playerName}
-          playerID={playerID}
-          playerX={playerX}
-          setPlayerX={setPlayerX}
-          playerY={playerY}
-          setPlayerY={setPlayerY}
-        />
+    <div>
+      <div className="container" onKeyDown={handleKeyDown} tabIndex="0">
+        <div className="sidebar">
+          <GameInputs
+            playerName={playerName}
+            playerID={playerID}
+            playerX={playerX}
+            setPlayerX={setPlayerX}
+            playerY={playerY}
+            setPlayerY={setPlayerY}
+          />
+        </div>
+        <div className="content">
+          <GameField
+            playerMap={playerMap}
+            playerID={playerID}
+            boardWidth={boardWidth}
+            boardHeight={boardHeight}
+          />
+        </div>
       </div>
-      <div class="content">
-        <GameField
-          playerMap={playerMap}
-          playerID={playerID}
-          boardWidth={boardWidth}
-          boardHeight={boardHeight}
-        />
+      <div className="statusbar">
+        <p>Last sent: <code className="game-message">
+          {lastSent}
+        </code></p>
+        <p>Last received: <code className="game-message">
+          {lastReceived}
+        </code></p>
       </div>
     </div>
   );

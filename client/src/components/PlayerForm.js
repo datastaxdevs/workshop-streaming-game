@@ -1,6 +1,17 @@
 const settings = require('../settings')
 
-const PlayerForm = ({apiLocation, setApiLocation, playerName, setPlayerName, inGame, setInGame, setPlayerMap, playerID, setPlayerX, setPlayerY}) => {
+const PlayerForm = (props) => {
+
+  const apiLocation = props.apiLocation
+  const setApiLocation = props.setApiLocation
+  const playerName = props.playerName
+  const setPlayerName = props.setPlayerName
+  const inGame = props.inGame
+  const setInGame = props.setInGame
+  const setPlayerMap = props.setPlayerMap
+  const playerID = props.playerID
+  const setPlayerX = props.setPlayerX
+  const setPlayerY = props.setPlayerY
 
   return (<div>
     {!inGame && <div>

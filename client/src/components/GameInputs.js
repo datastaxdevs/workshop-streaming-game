@@ -26,7 +26,7 @@ const GameInputs = ({playerName, playerID, playerX, setPlayerX, playerY, setPlay
     </div>
     <div>
       <a className="astra-logo" href="https://astra.datastax.com/" target="_blank" rel="noreferrer">
-        <img src="astra-streaming-stacked-pos.png" />
+        <img src="astra-streaming-stacked-pos.png" alt="Astra Streaming" />
       </a>
     </div>
   </div>)
