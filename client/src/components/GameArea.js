@@ -15,6 +15,7 @@ const GameArea = (props) => {
   const handleKeyDown = props.handleKeyDown
   const lastSent = props.lastSent
   const lastReceived = props.lastReceived
+  const setPlayerH = props.setPlayerH
 
   return (
     <div>
@@ -27,6 +28,7 @@ const GameArea = (props) => {
             setPlayerX={setPlayerX}
             playerY={playerY}
             setPlayerY={setPlayerY}
+            setPlayerH={setPlayerH}
           />
         </div>
         <div className="content">

@@ -28,6 +28,7 @@ const App = () => {
   const [playerMap, setPlayerMap] = useState({});
   const [playerX, setPlayerX] = useState(settings.HALF_SIZE_X-1)
   const [playerY, setPlayerY] = useState(settings.HALF_SIZE_Y-1)
+  const [playerH, setPlayerH] = useState(false)
   const [generation, setGeneration] = useState(0)
   const [lastSent, setLastSent] = useState(null)
   const [lastReceived, setLastReceived] = useState(null)
@@ -43,15 +44,22 @@ const App = () => {
     if(inGame){
       if ( ev.keyCode === 37 ){
         setPlayerX( x => x-1 )
+        setPlayerH(false)
       }
       if ( ev.keyCode === 38 ){
         setPlayerY( y => y-1 )
+        setPlayerH(false)
       }
       if ( ev.keyCode === 39 ){
         setPlayerX( x => x+1 )
+        setPlayerH(false)
       }
       if ( ev.keyCode === 40 ){
         setPlayerY( y => y+1 )
+        setPlayerH(false)
+      }
+      if( ev.keyCode === 72 ){
+        setPlayerH(h => !h)
       }
     }
   }
@@ -66,7 +74,7 @@ const App = () => {
         pws = new WebSocket(`${apiLocation}/ws/player/${playerID}`)
 
         pws.onopen = evt => {
-          const msg = packMessage(generationRef.current, playerName, playerX, playerY)
+          const msg = packMessage(generationRef.current, playerName, playerX, playerY, playerH)
           setLastSent(msg)
           pws.send(msg)
         }
@@ -94,7 +102,7 @@ const App = () => {
         // it is time to disconnect the websockets
 
         if(pws && pws.readyState === 1){
-          const msg = packMessage(generationRef.current, '', null, null)
+          const msg = packMessage(generationRef.current, '', null, null, false)
           setLastSent(msg)
           pws.send(msg)
         }
@@ -116,7 +124,7 @@ const App = () => {
     if (inGame) {
 
       if(pws && pws.readyState === 1){
-        const msg = packMessage(generationRef.current, playerName, playerX, playerY)
+        const msg = packMessage(generationRef.current, playerName, playerX, playerY, playerH)
         setLastSent(msg)
         pws.send(msg)
       }
@@ -126,7 +134,7 @@ const App = () => {
     }
   // we are handle generation increase in this hook:
   // eslint-disable-next-line
-  }, [inGame, playerName, playerX, playerY])
+  }, [inGame, playerName, playerX, playerY, playerH])
 
   useEffect(() => {
 
@@ -155,6 +163,7 @@ const App = () => {
           setLastSent={setLastSent}
           setLastReceived={setLastReceived}
           setGeneration={setGeneration}
+          setPlayerH={setPlayerH}
         />
       </header>
       {inGame && <GameArea
@@ -171,6 +180,7 @@ const App = () => {
         lastSent={lastSent}
         lastReceived={lastReceived}
         setGeneration={setGeneration}
+        setPlayerH={setPlayerH}
       />}
     </div>
   );

@@ -1,23 +1,23 @@
-const GameInputs = ({playerName, playerID, playerX, setPlayerX, playerY, setPlayerY}) => {
+const GameInputs = ({playerName, playerID, playerX, setPlayerX, playerY, setPlayerY, setPlayerH}) => {
 
   return (<div>
     <div>At ({playerX}, {playerY})</div>
     <div className="grid-container">
       <div></div>
       <div>
-        <button onClick={ () => setPlayerY( y => y-1 ) }> &uArr; </button>
+        <button onClick={ () => {setPlayerY( y => y-1 ); setPlayerH(false)} }> &uArr; </button>
       </div>
       <div></div>
       <div>
-        <button onClick={ () => setPlayerX( x => x-1 ) }> &lArr; </button>
+        <button onClick={ () => {setPlayerX( x => x-1 ); setPlayerH(false)} }> &lArr; </button>
       </div>
       <div></div>
       <div>
-        <button onClick={ () => setPlayerX( x => x+1 ) }> &rArr; </button>
+        <button onClick={ () => {setPlayerX( x => x+1 ); setPlayerH(false)} }> &rArr; </button>
       </div>
       <div></div>
       <div>
-        <button onClick={ () => setPlayerY( y => y+1 ) }> &dArr; </button>
+        <button onClick={ () => {setPlayerY( y => y+1 ); setPlayerH(false)} }> &dArr; </button>
       </div>
       <div></div>
     </div>

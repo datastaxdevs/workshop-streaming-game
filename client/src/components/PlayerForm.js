@@ -15,6 +15,7 @@ const PlayerForm = (props) => {
   const setLastSent = props.setLastSent
   const setLastReceived = props.setLastReceived
   const setGeneration = props.setGeneration
+  const setPlayerH = props.setPlayerH
 
   return (<div>
     {!inGame && <div>
@@ -45,6 +46,7 @@ const PlayerForm = (props) => {
         setPlayerMap({})
         setPlayerX(settings.HALF_SIZE_X - 1)
         setPlayerY(settings.HALF_SIZE_Y - 1)
+        setPlayerH(false)
         setGeneration(0)
         setLastReceived(null)
         setLastSent(null)
