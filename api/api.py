@@ -50,14 +50,20 @@ async def playerWSRoute(playerWS: WebSocket, client_id: str):
     while True:
         try:
             # Any update from a player coming through the 'player' websocket
-            playerUpdateMsg = await playerWS.receive_text()
-            playerUpdateReq = json.loads(playerUpdateMsg)
-            # ... is then validated, enriched ...
-            playerUpdate = validatePosition(playerUpdateReq, HALF_SIZE_X,
-                                            HALF_SIZE_Y)
-            fullUpdate = dictMerge(playerUpdate, {'playerID': client_id})
-            # ... and finally sent to Pulsar
-            pulsarProducer.send((json.dumps(fullUpdate)).encode('utf-8'))
+            updateMsgBlob = await playerWS.receive_text()
+            updateMsg = json.loads(updateMsgBlob)
+            if updateMsg['messageType'] == 'player':
+                # if it is a player position update ...
+                # ... is then validated, enriched ...
+                playerUpdate = validatePosition(updateMsg, HALF_SIZE_X,
+                                                HALF_SIZE_Y)
+                fullUpdate = dictMerge(playerUpdate, {'playerID': client_id})
+                # ... and finally sent to Pulsar
+                pulsarProducer.send((json.dumps(fullUpdate)).encode('utf-8'))
+            else:
+                # other types of message undergo no validation whatsoever
+                fullUpdate = dictMerge(updateMsg, {'playerID': client_id})
+                pulsarProducer.send((json.dumps(fullUpdate)).encode('utf-8'))
         except WebSocketDisconnect:
             # In this case we issue the "goodbye message" (i.e. null position)
             # on behalf of the client, and we send it to Pulsar for everyone:

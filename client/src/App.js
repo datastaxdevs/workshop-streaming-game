@@ -5,8 +5,7 @@ import { useEffect, useState, useRef } from "react"
 import PlayerForm from "./components/PlayerForm"
 import GameArea from "./components/GameArea"
 
-
-import packMessage from "./utils/messages"
+import packPlayerMessage from "./utils/messages"
 import replaceValue from "./utils/replaceValue"
 import guessAPILocation from "./utils/guessAPILocation"
 import getRandomSpiderName from "./utils/names"
@@ -75,25 +74,32 @@ const App = () => {
         pws = new WebSocket(`${apiLocation}/ws/player/${playerID}`)
 
         pws.onopen = evt => {
-          const msg = packMessage(generationRef.current, playerName, playerX, playerY, playerH)
+          const msg = packPlayerMessage(generationRef.current, playerName, playerX, playerY, playerH)
           setLastSent(msg)
           pws.send(msg)
         }
 
         wws.onmessage = evt => {
           setLastReceived(evt.data)
-          const thatPlayerUpdate = JSON.parse(evt.data)
-          // Received update on some player through the 'world' websocket
-          const thatPlayerID = thatPlayerUpdate.playerID
-          setPlayerMap(plMap => {
-            const newPlMap = replaceValue(plMap, thatPlayerID, thatPlayerUpdate)
-            return newPlMap
-          })
-          // We compare generations before receiving an update to self, to avoid update loops
-          // from player updates delivered back to us asynchronously:
-          if ((thatPlayerID === playerID) && (thatPlayerUpdate.generation >= generationRef.current - 1)){
-            setPlayerX(thatPlayerUpdate.x)
-            setPlayerY(thatPlayerUpdate.y)
+          const updateMsg = JSON.parse(evt.data)
+
+          if ( updateMsg.messageType === 'player' ){
+
+            // Received update on some player through the 'world' websocket
+            const thatPlayerID = updateMsg.playerID
+            setPlayerMap(plMap => {
+              const newPlMap = replaceValue(plMap, thatPlayerID, updateMsg.payload)
+              return newPlMap
+            })
+            // We compare generations before receiving an update to self, to avoid update loops
+            // from player updates delivered back to us asynchronously:
+            if ((thatPlayerID === playerID) && (updateMsg.payload.generation >= generationRef.current - 1)){
+              setPlayerX(updateMsg.payload.x)
+              setPlayerY(updateMsg.payload.y)
+            }
+          } else {
+            // another messageType
+            console.log(`Ignoring messageType = ${updateMsg.messageType} ... for now`)
           }
         }
       }
@@ -103,7 +109,7 @@ const App = () => {
         // it is time to disconnect the websockets
 
         if(pws && pws.readyState === 1){
-          const msg = packMessage(generationRef.current, playerName, null, null, playerH)
+          const msg = packPlayerMessage(generationRef.current, playerName, null, null, playerH)
           setLastSent(msg)
           pws.send(msg)
         }
@@ -125,7 +131,7 @@ const App = () => {
     if (inGame) {
 
       if(pws && pws.readyState === 1){
-        const msg = packMessage(generationRef.current, playerName, playerX, playerY, playerH)
+        const msg = packPlayerMessage(generationRef.current, playerName, playerX, playerY, playerH)
         setLastSent(msg)
         pws.send(msg)
       }

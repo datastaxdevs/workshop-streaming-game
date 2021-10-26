@@ -19,7 +19,7 @@ def dictMerge(main, default):
         return main
 
 
-def validatePosition(posDict, halfX, halfY):
+def validatePosition(updDict, halfX, halfY):
     """
     Utility function to keep the 'x' and 'y' in a dict
     bound within the game field, respecting null values and other keys
@@ -31,10 +31,13 @@ def validatePosition(posDict, halfX, halfY):
         else:
             return max(minv, min(val, maxv))
 
+    payload = {
+        'x': _constrainNoneAware(updDict['payload']['x'], 0, 2*halfX - 2),
+        'y': _constrainNoneAware(updDict['payload']['y'], 0, 2*halfY - 2),
+    }
     return dictMerge(
         {
-            'x': _constrainNoneAware(posDict['x'], 0, 2*halfX - 2),
-            'y': _constrainNoneAware(posDict['y'], 0, 2*halfY - 2),
+            'payload': payload,
         },
-        default=posDict,
+        default=updDict,
     )
