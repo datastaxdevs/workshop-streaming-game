@@ -103,7 +103,7 @@ const App = () => {
         // it is time to disconnect the websockets
 
         if(pws && pws.readyState === 1){
-          const msg = packMessage(generationRef.current, '', null, null, false)
+          const msg = packMessage(generationRef.current, playerName, null, null, playerH)
           setLastSent(msg)
           pws.send(msg)
         }
@@ -130,6 +130,7 @@ const App = () => {
         pws.send(msg)
       }
 
+      // we increment the generation number to recognize and ignore 'stale' player updates bouncing back to us
       setGeneration( g => g+1 )
   
     }
