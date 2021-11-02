@@ -2,6 +2,10 @@
 
 A sample multiplayer game using Astra Streaming, FastAPI, React and Websockets
 
+Note: some basic knowledge of how React.js works is assumed in this tutorial.
+If you are new to React, please have a look at
+[this excellent introduction](https://github.com/datastaxdevs/react-basics).
+
 ## Astra setup
 
 ### Create your Astra DB instance
@@ -18,7 +22,7 @@ for this app.
 - You'll shortly see the dashboard for your newly-created Tenant. Go to the "Topics" tab to create a new one (we will stay in the "default" namespace)
 - In the "Topics" tab, click "Add Topic" and name it `worldupdates` (persistent = yes, partitioned = no). Click "Save" to confirm topic creation
 
-> Note: technically you can name your tenant, namespace and topic anything you want - but then you have to make sure the settings in your API code are changed accordingly.
+> Note: technically you can name your tenant, namespace and topic anything you want - but then you have to make sure the `settings.py` in your API code are changed accordingly.
 
 <details><summary>Show me the steps</summary>
     <img src="https://github.com/hemidactylus/drapetisca/raw/main/images/astra_create_streaming_topic.gif?raw=true" />
@@ -41,8 +45,8 @@ installations to complete.
 
 - An IDE is started on a virtual machine in the cloud
 - this repo is cloned there
-- some initialization scripts are run (mainly dependencies are installed)
-- you can work there, edit files, run commands in the console, use an internal browser, etc.
+- some initialization scripts are run (some dependencies get installed)
+- Gitpod offers a full IDE: you can work there, edit files, run commands in the console, use an internal browser, etc.
 
 </details>
 
@@ -51,14 +55,18 @@ api and client, "almost" ready to go. We will have stuff running on both.
 
 ### API shell
 
-Create a file `.env` by copying the `.env.sample` in the same directory and filling it with values found
+Create a file `.env` by copying the `.env.sample` in the same directory,
+
+    cp ../.env.sample ../.env
+    gp open ../.env
+
+and filling it with the values found earlier
 on your Astra Streaming "Connect" tab:
 
-- `SERVICE_URL`: it looks like `pulsar+ssl://pulsar-aws-useast2.streaming.datastax.com:6651`
-- `ASTRA_TOKEN`: a very long string (about 500 random-looking chars). You can copy it without showing it. Guard your token as a secret!
+- `SERVICE_URL`: it looks similar to `pulsar+ssl://pulsar-aws-useast2.streaming.datastax.com:6651`
+- `ASTRA_TOKEN`: a very long string (about 500 random-looking chars). You can copy it without showing it. _Guard your token as a secret!_
 
-Make sure you are in the API shell.
-Make these environment variables available to the shell by typing:
+Make sure you are in the API shell. Export these environment variables:
 
     . ../.env
 
@@ -68,13 +76,12 @@ Launch the API with:
 
     uvicorn api:app --reload
 
-you will see the API start, happily ready to accept requests. Leave it run
+you will see the API start, happily ready to accept requests. Leave it running and let's turn to the client.
 
 ### Client shell
 
-Switch to the client shell. We took care of preinstalling all required dependencies for you.
-
-Nevertheless, let us ensure all dependencies are installed:
+Switch to the client shell. We took care of preinstalling all required dependencies for you;
+nevertheless, let us ensure all required dependencies are there:
 
     npm install
 
@@ -82,9 +89,9 @@ Now you simply have to start the client, which will open in the "simple browser"
 
     npm start
 
-If you are running everything locally on your computer, you would be able
-to open the client on `http://localhost:3000` at this point and use the
-default API location of `ws://localhost:8000` to enter the game.
+> If you are running everything locally on your computer, you would be able
+> to open the client on `http://localhost:3000` at this point and use the
+> default API location of `ws://localhost:8000` to enter the game.
 
 However, we are working within Gitpod, which wraps locally-exposed ports
 and makes them potentially accessible over the Internet.
@@ -103,7 +110,7 @@ it is time to play!
 The client lets you customize your player name and gives you a unique player ID.
 
 It also needs the address to reach the API. Now, if you are running locally you
-would be simply find the API at `ws://localhost:8000`, but since
+would find the API at `ws://localhost:8000`, but since
 we are working within Gitpod it is necessary to modify
 the "API Location" to reflect the Gitpod-provided domain.
 
@@ -112,11 +119,11 @@ with a Websocket address corresponding to the API running in your Gitpod
 instance.
 
 > To obtain the above, in any case, you can either run the command
-`gp url 8000 | sed s/https/wss/` and copy
-the output or simply take the client address as in the example above and replace
-`3000` with `8000` (the API listen on port 8000), and `https` with `wss`
-(we are using the secure Websocket protocol). Your API Location will look
-something like `wss://8000-tan-swallow-2yz174hp.ws-eu17.gitpod.io`.
+> `gp url 8000 | sed s/https/wss/` and copy
+> the output or simply take the client address as in the example above and replace
+> `3000` with `8000` (the API listen on port 8000), and `https` with `wss`
+> (we are using the secure Websocket protocol). Your API Location will look
+> something like `wss://8000-tan-swallow-2yz174hp.ws-eu17.gitpod.io`.
 
 You can finally click "Enter game". At this point the client establishes
 Websocket connections to the API, after which you will see your player appear
