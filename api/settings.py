@@ -3,7 +3,7 @@
 """
 
 # Game field (half) size
-HALF_SIZE_X = 16
+HALF_SIZE_X = 20
 HALF_SIZE_Y = 12
 
 # Timeouts and waiting times

@@ -1,4 +1,4 @@
-const settings = require('../settings')
+// const settings = require('../settings')
 
 const PlayerForm = (props) => {
 
@@ -10,12 +10,9 @@ const PlayerForm = (props) => {
   const setInGame = props.setInGame
   const setPlayerMap = props.setPlayerMap
   const playerID = props.playerID
-  const setPlayerX = props.setPlayerX
-  const setPlayerY = props.setPlayerY
   const setLastSent = props.setLastSent
   const setLastReceived = props.setLastReceived
   const setGeneration = props.setGeneration
-  const setPlayerH = props.setPlayerH
 
   return (<div>
     {!inGame && <div>
@@ -44,9 +41,6 @@ const PlayerForm = (props) => {
       <button onClick={() => {
         setInGame(true)
         setPlayerMap({})
-        setPlayerX(settings.HALF_SIZE_X - 1)
-        setPlayerY(settings.HALF_SIZE_Y - 1)
-        setPlayerH(false)
         setGeneration(0)
         setLastReceived(null)
         setLastSent(null)

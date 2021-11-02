@@ -13,7 +13,8 @@ from fastapi.responses import HTMLResponse
 
 from pulsarTools import (getPulsarClient, getConsumer, getProducer,
                          receiveOrNone)
-from utils import dictMerge, validatePosition
+from utils import dictMerge
+from messaging import validatePosition, makeGoodbyeUpdate, makeGeometryUpdate
 
 from settings import (HALF_SIZE_X, HALF_SIZE_Y, RECEIVE_TIMEOUTS_MS,
                       SLEEP_BETWEEN_READS_MS)
@@ -29,6 +30,9 @@ async def worldWSRoute(worldWS: WebSocket, client_id: str):
     pulsarConsumer = getConsumer(client_id, pulsarClient)
     #
     try:
+        # first we tell this client how the game-field looks like
+        geomUpdate = makeGeometryUpdate(HALF_SIZE_X, HALF_SIZE_Y)
+        await worldWS.send_text(json.dumps(geomUpdate))
         while True:
             worldUpdateMsg = receiveOrNone(pulsarConsumer, RECEIVE_TIMEOUTS_MS)
             if worldUpdateMsg is not None:
@@ -67,11 +71,6 @@ async def playerWSRoute(playerWS: WebSocket, client_id: str):
         except WebSocketDisconnect:
             # In this case we issue the "goodbye message" (i.e. null position)
             # on behalf of the client, and we send it to Pulsar for everyone:
-            fullUpdate = {
-                'playerName': '',
-                'playerID': client_id,
-                'x': None,
-                'y': None,
-            }
-            pulsarProducer.send((json.dumps(fullUpdate)).encode('utf-8'))
+            goodbyeUpdate = makeGoodbyeUpdate(client_id)
+            pulsarProducer.send((json.dumps(goodbyeUpdate)).encode('utf-8'))
             return

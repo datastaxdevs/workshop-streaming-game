@@ -26,8 +26,10 @@ const App = () => {
   const [apiLocation, setApiLocation] = useState(proposedAPILocation);
   const [inGame, setInGame] = useState(false);
   const [playerMap, setPlayerMap] = useState({});
-  const [playerX, setPlayerX] = useState(settings.HALF_SIZE_X-1)
-  const [playerY, setPlayerY] = useState(settings.HALF_SIZE_Y-1)
+  const [playerX, setPlayerX] = useState(null);
+  const [playerY, setPlayerY] = useState(null);
+  const [halfSizeX, setHalfSizeX] = useState(null);
+  const [halfSizeY, setHalfSizeY] = useState(null);
   const [playerH, setPlayerH] = useState(false)
   const [generation, setGeneration] = useState(0)
   const [lastSent, setLastSent] = useState(null)
@@ -38,6 +40,13 @@ const App = () => {
   // see https://stackoverflow.com/questions/57847594/react-hooks-accessing-up-to-date-state-from-within-a-callback
   const generationRef = useRef()
   generationRef.current = generation
+  // Same for the player position/status, since it will be accessed within callbacks:
+  const playerXRef = useRef()
+  playerXRef.current = playerX
+  const playerYRef = useRef()
+  playerYRef.current = playerY
+  const playerHRef = useRef()
+  playerHRef.current = playerH
 
   // keyboard-controlled movements
   const handleKeyDown = ev => {
@@ -74,7 +83,7 @@ const App = () => {
         pws = new WebSocket(`${apiLocation}/ws/player/${playerID}`)
 
         pws.onopen = evt => {
-          const msg = packPlayerMessage(generationRef.current, playerName, playerX, playerY, playerH)
+          const msg = packPlayerMessage(generationRef.current, playerName, playerXRef.current, playerYRef.current, playerHRef.current)
           setLastSent(msg)
           pws.send(msg)
         }
@@ -94,9 +103,18 @@ const App = () => {
             // We compare generations before receiving an update to self, to avoid update loops
             // from player updates delivered back to us asynchronously:
             if ((thatPlayerID === playerID) && (updateMsg.payload.generation >= generationRef.current - 1)){
-              setPlayerX(updateMsg.payload.x)
-              setPlayerY(updateMsg.payload.y)
+              if ( updateMsg.payload.x !== null){
+                setPlayerX(updateMsg.payload.x)
+                setPlayerY(updateMsg.payload.y)
+              }
             }
+          } else if ( updateMsg.messageType === 'geometry' ) {
+            // we received initial geometry info from the API
+            setHalfSizeX(updateMsg.payload.halfSizeX)
+            setHalfSizeY(updateMsg.payload.halfSizeY)
+            setPlayerX(updateMsg.payload.halfSizeX)
+            setPlayerY(updateMsg.payload.halfSizeY)
+            setPlayerH(false)
           } else {
             // another messageType
             console.log(`Ignoring messageType = ${updateMsg.messageType} ... for now`)
@@ -106,14 +124,16 @@ const App = () => {
 
     }else{
       if(wws !== null || pws !== null){
-        // it is time to disconnect the websockets
 
+        // we notify the API that we are leaving
         if(pws && pws.readyState === 1){
           const msg = packPlayerMessage(generationRef.current, playerName, null, null, playerH)
           setLastSent(msg)
           pws.send(msg)
         }
+        setGeneration( g => g+1 )
 
+        // it is time to disconnect the websockets
         if(wws === null){
           wws.disconnect()
           wws = null;
@@ -140,7 +160,7 @@ const App = () => {
       setGeneration( g => g+1 )
   
     }
-  // we are handle generation increase in this hook:
+  // we are handling generation increase explicitly within this hook, so we don't react to it:
   // eslint-disable-next-line
   }, [inGame, playerName, playerX, playerY, playerH])
 
@@ -166,12 +186,9 @@ const App = () => {
           setInGame ={setInGame}
           setPlayerMap={setPlayerMap}
           playerID={playerID}
-          setPlayerX={setPlayerX}
-          setPlayerY={setPlayerY}
           setLastSent={setLastSent}
           setLastReceived={setLastReceived}
           setGeneration={setGeneration}
-          setPlayerH={setPlayerH}
         />
       </header>
       {inGame && <GameArea
@@ -182,13 +199,15 @@ const App = () => {
         setPlayerX={setPlayerX}
         playerY={playerY}
         setPlayerY={setPlayerY}
-        boardWidth={2 * settings.HALF_SIZE_X - 1}
-        boardHeight={2 * settings.HALF_SIZE_Y - 1}
+        boardWidth={2 * halfSizeX - 1}
+        boardHeight={2 * halfSizeY - 1}
         handleKeyDown={handleKeyDown}
         lastSent={lastSent}
         lastReceived={lastReceived}
         setGeneration={setGeneration}
         setPlayerH={setPlayerH}
+        halfSizeX={halfSizeX}
+        halfSizeY={halfSizeY}
       />}
     </div>
   );
