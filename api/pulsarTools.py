@@ -7,9 +7,17 @@ import pulsar
 
 from settings import (STREAMING_TENANT, STREAMING_NAMESPACE, STREAMING_TOPIC)
 
-service_url = os.environ['SERVICE_URL']
-trust_certs = os.environ['TRUST_CERTS']
-token = os.environ['ASTRA_TOKEN']
+try:
+    service_url = os.environ['SERVICE_URL']
+    trust_certs = os.environ['TRUST_CERTS']
+    token = os.environ['ASTRA_TOKEN']
+    #
+    client = pulsar.Client(service_url,
+                           authentication=pulsar.AuthenticationToken(token),
+                           tls_trust_certs_file_path=trust_certs)
+except KeyError:
+    raise KeyError('Environment variables not detected. Perhaps you forgot to '
+          'source the ".env" file with ". ../.env" ?')
 
 streamingTopic = 'persistent://{tenant}/{namespace}/{topic}'.format(
     tenant=STREAMING_TENANT,
@@ -17,9 +25,6 @@ streamingTopic = 'persistent://{tenant}/{namespace}/{topic}'.format(
     topic=STREAMING_TOPIC,
 )
 
-client = pulsar.Client(service_url,
-                       authentication=pulsar.AuthenticationToken(token),
-                       tls_trust_certs_file_path=trust_certs)
 
 consumerCache = {}
 

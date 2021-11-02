@@ -20,7 +20,7 @@ const GameField = ({playerMap, playerID, boardWidth, boardHeight}) => {
           <g transform='translate(50,50)'>
             <rect x="-50" y="-50" height="100" width="100" fill={`url(#${patternName})`}></rect>
             {thatPlayerInfo.h && <rect x="-50" y="-50" width="100" height="100" fill='url(#hearts)'></rect>}
-            <g transform='translate(0,70)'>
+            <g transform={`translate(0,${thatPlayerInfo.y + 1 >= boardHeight? -70 : 70})`}>
               <text textAnchor='middle' fill='#404040' fontSize='40'>
                 {thatPlayerInfo.playerName}
               </text>
