@@ -16,6 +16,8 @@ const GameArea = (props) => {
   const lastSent = props.lastSent
   const lastReceived = props.lastReceived
   const setPlayerH = props.setPlayerH
+  const chatItems = props.chatItems
+  const sendChatItem = props.sendChatItem
 
   return (
     <div>
@@ -29,6 +31,8 @@ const GameArea = (props) => {
             playerY={playerY}
             setPlayerY={setPlayerY}
             setPlayerH={setPlayerH}
+            chatItems={chatItems}
+            sendChatItem={sendChatItem}
           />
         </div>
         <div className="content">

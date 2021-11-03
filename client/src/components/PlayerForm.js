@@ -1,5 +1,3 @@
-// const settings = require('../settings')
-
 const PlayerForm = (props) => {
 
   const apiLocation = props.apiLocation

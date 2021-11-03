@@ -65,7 +65,8 @@ async def playerWSRoute(playerWS: WebSocket, client_id: str):
                 # ... and finally sent to Pulsar
                 pulsarProducer.send((json.dumps(fullUpdate)).encode('utf-8'))
             else:
-                # other types of message undergo no validation whatsoever
+                # other types of message undergo no validation whatsoever:
+                # we simply add the player ID to the message and publish
                 fullUpdate = dictMerge(updateMsg, {'playerID': client_id})
                 pulsarProducer.send((json.dumps(fullUpdate)).encode('utf-8'))
         except WebSocketDisconnect:

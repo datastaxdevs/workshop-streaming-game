@@ -31,12 +31,14 @@ body {
   margin: 5px;
 }
 
+.game-inputs {
+}
+
 .grid-container {
   display: grid;
   grid-template-columns: auto auto auto;
   grid-gap: 2px;
-  padding: 2px;
-  width: 90px;
+  padding: 0 60px;
 }
 
 .grid-container > div {
@@ -45,8 +47,8 @@ body {
 }
 
 .container {
-    display: flex;
-    flex-direction: row;
+  display: flex;
+  flex-direction: row;
 }
 
 .game-field {
@@ -71,7 +73,7 @@ body {
 
 .sidebar {
     flex-grow: 1;
-    min-width: 90px;
+    min-width: 240px;
 }
 
 .content {
@@ -89,6 +91,20 @@ body {
   width: 90px;
 }
 
+.player-position {
+  border-radius: 8px;
+  border: 1px solid #777;
+  padding: 10px;
+  margin: 0;
+}
+
+.chat-area {
+  margin-top: 60px;
+  border-radius: 8px;
+  padding: 20px;
+  background: #f9ffbb;
+}
+
 .statusbar {
   background: #98bcd4;
   font-size: 70%;
@@ -103,4 +119,36 @@ body {
   color: blue;
   font-weight: bold;
   font-size: 110%;
+}
+
+.chat-title {
+  font-size: 150%;
+  color: blue;
+  font-variant: small-caps;
+}
+
+.chat-list {
+  text-align: left;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  padding-bottom: 15px;
+  padding-top: 10px;
+  min-height: 100px;
+}
+
+.chat-item {
+  font-size: 75%
+}
+
+.chat-player-name {
+  font-style: italic;
+}
+
+.player-self {
+  color: #10b010;
+}
+
+.player-other {
+  color: #bf99ff;
 }

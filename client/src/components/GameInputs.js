@@ -1,7 +1,9 @@
-const GameInputs = ({playerName, playerID, playerX, setPlayerX, playerY, setPlayerY, setPlayerH}) => {
+import ChatArea from "./ChatArea"
 
-  return (<div>
-    <div>At ({playerX}, {playerY})</div>
+const GameInputs = ({playerName, playerID, playerX, setPlayerX, playerY, setPlayerY, setPlayerH, chatItems, sendChatItem}) => {
+
+  return (<div className="game-inputs">
+    <div className="player-position">Position: ({playerX}, {playerY})</div>
     <div className="grid-container">
       <div></div>
       <div>
@@ -29,6 +31,11 @@ const GameInputs = ({playerName, playerID, playerX, setPlayerX, playerY, setPlay
         <img src="astra-streaming-stacked-pos.png" alt="Astra Streaming" />
       </a>
     </div>
+    <ChatArea
+      chatItems={chatItems}
+      sendChatItem={sendChatItem}
+      playerID={playerID}
+    />
   </div>)
 }
 

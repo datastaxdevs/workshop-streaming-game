@@ -5,7 +5,7 @@ import { useEffect, useState, useRef } from "react"
 import PlayerForm from "./components/PlayerForm"
 import GameArea from "./components/GameArea"
 
-import packPlayerMessage from "./utils/messages"
+import {packPlayerMessage, packChatMessage} from "./utils/messages"
 import replaceValue from "./utils/replaceValue"
 import guessAPILocation from "./utils/guessAPILocation"
 import getRandomSpiderName from "./utils/names"
@@ -34,6 +34,7 @@ const App = () => {
   const [generation, setGeneration] = useState(0)
   const [lastSent, setLastSent] = useState(null)
   const [lastReceived, setLastReceived] = useState(null)
+  const [chatItems, setChatItems] = useState([])
 
   // With useRef we can make the updated state accessible from within the callback
   // that we will attach to the websocket.
@@ -115,6 +116,12 @@ const App = () => {
             setPlayerX(updateMsg.payload.halfSizeX)
             setPlayerY(updateMsg.payload.halfSizeY)
             setPlayerH(false)
+          } else if ( updateMsg.messageType === 'chat' ) {
+            // we received a new chat item. Let's make room for it
+            // first we add the playerID to the chat-item object
+            const chatPayload = {...updateMsg.payload, ...{playerID: updateMsg.playerID}}
+            // then we concatenate it to the items to display (discarding the oldest if necessary)
+            setChatItems( items => items.concat([chatPayload]).slice(-settings.MAX_ITEMS_IN_CHAT) )
           } else {
             // another messageType
             console.log(`Ignoring messageType = ${updateMsg.messageType} ... for now`)
@@ -122,7 +129,7 @@ const App = () => {
         }
       }
 
-    }else{
+    } else {
       if(wws !== null || pws !== null){
 
         // we notify the API that we are leaving
@@ -146,6 +153,15 @@ const App = () => {
     }
   // eslint-disable-next-line
   }, [inGame])
+
+  const sendChatItem = text => {
+    const ttext = text.trim()
+    if (ttext !== '' && pws && pws.readyState === 1){
+      const msg = packChatMessage(playerName, text)
+      setLastSent(msg)
+      pws.send(msg)
+    }
+  }
 
   useEffect( () => {
     if (inGame) {
@@ -208,6 +224,8 @@ const App = () => {
         setPlayerH={setPlayerH}
         halfSizeX={halfSizeX}
         halfSizeY={halfSizeY}
+        chatItems={chatItems}
+        sendChatItem={sendChatItem}
       />}
     </div>
   );
