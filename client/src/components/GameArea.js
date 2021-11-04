@@ -33,6 +33,8 @@ const GameArea = (props) => {
             setPlayerH={setPlayerH}
             chatItems={chatItems}
             sendChatItem={sendChatItem}
+            boardWidth={boardWidth}
+            boardHeight={boardHeight}
           />
         </div>
         <div className="content" onKeyDown={handleKeyDown} tabIndex="0">

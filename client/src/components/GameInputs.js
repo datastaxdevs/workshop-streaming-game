@@ -1,9 +1,12 @@
 import ChatArea from "./ChatArea"
 
-const GameInputs = ({playerName, playerID, playerX, setPlayerX, playerY, setPlayerY, setPlayerH, chatItems, sendChatItem}) => {
+const GameInputs = ({playerName, playerID, playerX, setPlayerX, playerY, setPlayerY, setPlayerH, chatItems, sendChatItem, boardWidth, boardHeight}) => {
 
   return (<div className="game-inputs">
-    <div className="player-position">Position: ({playerX}, {playerY})</div>
+    <div className="player-position">
+      Position: ({playerX}, {playerY})
+      <span className="reference-position"> / ({boardWidth}, {boardHeight})</span>
+    </div>
     <div className="grid-container" title="Click on the game area to use your keyboard's arrow keys">
       <div></div>
       <div>
