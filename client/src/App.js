@@ -180,16 +180,6 @@ const App = () => {
   // eslint-disable-next-line
   }, [inGame, playerName, playerX, playerY, playerH])
 
-  useEffect(() => {
-
-    document.addEventListener('keydown', handleKeyDown);
-
-    return function cleanup() {
-      document.removeEventListener('keydown', handleKeyDown);
-    }
-  // eslint-disable-next-line
-  }, []);
-
   return (
     <div className="App">
       <header className="App-header">

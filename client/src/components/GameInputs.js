@@ -4,22 +4,22 @@ const GameInputs = ({playerName, playerID, playerX, setPlayerX, playerY, setPlay
 
   return (<div className="game-inputs">
     <div className="player-position">Position: ({playerX}, {playerY})</div>
-    <div className="grid-container">
+    <div className="grid-container" title="Click on the game area to use your keyboard's arrow keys">
       <div></div>
       <div>
-        <button onClick={ () => {setPlayerY( y => y-1 ); setPlayerH(false)} }> &uArr; </button>
+        <button className="arrow-key" onClick={ () => {setPlayerY( y => y-1 ); setPlayerH(false)} }> &uArr; </button>
       </div>
       <div></div>
       <div>
-        <button onClick={ () => {setPlayerX( x => x-1 ); setPlayerH(false)} }> &lArr; </button>
+        <button className="arrow-key" onClick={ () => {setPlayerX( x => x-1 ); setPlayerH(false)} }> &lArr; </button>
       </div>
       <div></div>
       <div>
-        <button onClick={ () => {setPlayerX( x => x+1 ); setPlayerH(false)} }> &rArr; </button>
+        <button className="arrow-key" onClick={ () => {setPlayerX( x => x+1 ); setPlayerH(false)} }> &rArr; </button>
       </div>
       <div></div>
       <div>
-        <button onClick={ () => {setPlayerY( y => y+1 ); setPlayerH(false)} }> &dArr; </button>
+        <button className="arrow-key" onClick={ () => {setPlayerY( y => y+1 ); setPlayerH(false)} }> &dArr; </button>
       </div>
       <div></div>
     </div>

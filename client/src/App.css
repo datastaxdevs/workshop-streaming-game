@@ -84,7 +84,7 @@ body {
 }
 
 .astra-logo {
-  padding-top: 100px;
+  padding-top: 40px;
 }
 
 .astra-logo > img {
@@ -95,7 +95,7 @@ body {
   border-radius: 8px;
   border: 1px solid #777;
   padding: 10px;
-  margin: 0;
+  margin: 0 0 20px 0;
 }
 
 .chat-area {
@@ -151,4 +151,14 @@ body {
 
 .player-other {
   color: #bf99ff;
+}
+
+.arrow-key {
+  background-color: #10b010;
+  border: 1px solid black;
+  color: black;
+  padding: 10px;
+  margin: 5px;
+  text-align: center;
+  font-size: 25px;
 }

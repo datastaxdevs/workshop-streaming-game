@@ -21,7 +21,7 @@ const GameArea = (props) => {
 
   return (
     <div>
-      <div className="container" onKeyDown={handleKeyDown} tabIndex="0">
+      <div className="container">
         <div className="sidebar">
           <GameInputs
             playerName={playerName}
@@ -35,7 +35,7 @@ const GameArea = (props) => {
             sendChatItem={sendChatItem}
           />
         </div>
-        <div className="content">
+        <div className="content" onKeyDown={handleKeyDown} tabIndex="0">
           <GameField
             playerMap={playerMap}
             playerID={playerID}
