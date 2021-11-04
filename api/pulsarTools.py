@@ -5,9 +5,12 @@
 import os
 import pulsar
 
-from settings import (STREAMING_TENANT, STREAMING_NAMESPACE, STREAMING_TOPIC)
+
 
 try:
+    STREAMING_TENANT = os.environ['STREAMING_TENANT']
+    STREAMING_NAMESPACE = os.environ['STREAMING_NAMESPACE']
+    STREAMING_TOPIC = os.environ['STREAMING_TOPIC']
     service_url = os.environ['SERVICE_URL']
     trust_certs = os.environ['TRUST_CERTS']
     token = os.environ['ASTRA_TOKEN']

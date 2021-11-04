@@ -21,8 +21,8 @@ A simple multiplayer online game featuring
 * Understand the architecture of a streaming-based application
 * Learn how Apache Pulsar works
 * Learn about Websockets on client- and server-side
-* Understand the structure of a Websocket React.js application
 * Understand how a FastAPI server can bridge Pulsar topics and WebSockets
+* Understand the structure of a Websocket React.js application
 * **gain your very own online gaming platform to share with your friends!**
 
 ## Frequently asked questions
@@ -81,8 +81,11 @@ That's it, you are done! Expect an email in a few days!
 
 ## Table of contents
 
-1. [Create Astra Streaming Instance](#1-login-or-register-to-astradb-and-create-database)
-2. [Create Astra Streaming topic](#2-create-a-security-token)
+1. [Create your Astra Streaming instance](#1-login-or-register-to-astradb-and-create-database)
+2. [Load the project into Gitpod](#2-)
+3. [Set up the API](#3-)
+4. [Set up the client](#4-)
+
 3. [Create table **genre** with GraphQL](#3-create-table-genre-with-graphql)
 4. [Insert data in **genre**  with GraphQL](#4-insert-data-in-the-table-with-graphql)
 5. [Retrieve values of **genre** table](#5-retrieving-list-of-values)
@@ -129,101 +132,133 @@ Once registered and logged in, you will be able to create a streaming for use in
 
 Now it's time to create a new Astra Streaming topic, that will convey all messages for this app.
 
-- Go to your Astra console, locate the "Create Streaming" button on the left and click on it
-- Set up a new Tenant (remember Pulsar has a multi-tenant architecture): call it `gameserver` and pick the provider/region you like. Hit "Create Tenant"
-- You'll shortly see the dashboard for your newly-created Tenant. Go to the "Topics" tab to create a new one (we will stay in the "default" namespace)
-- In the "Topics" tab, click "Add Topic" and name it `worldupdates` (persistent = yes, partitioned = no). Click "Save" to confirm topic creation
+- Go to your Astra console, locate the "Create Streaming" button on the left and click on it.
+- Set up a new Tenant (remember Pulsar has a multi-tenant architecture): _you have to find a globally unique name for it_,
+so for instance if `gameserver` is already taken by someone, try `gameserver0`, `gameserver-abc` or something similar.
+Pick the provider-region you like and finally hit "Create Tenant". **Remember the name of your tenant for the API setup step later**.
+- You'll shortly see the dashboard for your newly-created Tenant. Go to the "Topics" tab to create a new one (we will stay in the "default" namespace).
+- In the "Topics" tab, click "Add Topic" and name it `worldupdates` (persistent = yes, partitioned = no). Click "Save" to confirm topic creation.
 
-> Note: technically you can name your tenant, namespace and topic anything you want - but then you have to make sure the `settings.py` in your API code are changed accordingly.
+> Note: technically you can name your namespace and topic anything you want - but then you have to make sure
+> the environment settings for your API code are changed accordingly (see later).
 
 <details><summary>Show me the steps</summary>
     <img src="https://github.com/hemidactylus/drapetisca/raw/main/images/astra_create_streaming_topic.gif?raw=true" />
 </details>
 
-While we are at it, let's have a look at the information needed to connect to the topic
+#### 1c. Check connection details
+
+While you are at it, have a look at the information needed to connect to the topic
 from the API code. While still in the tenant dashboard, find the "Connect" tab and click on it: you will see a listing of "Tenant Details".
 You will later need the "Broker Service URL" and the "Token" values (the latter is hidden but can be copied nevertheless).
 
-Your topic is created almost in real-time, ready to receive and dispatch a stream of messages that will make your game work!
-Time to prepare some code to be run...
+<details><summary>Show me the topic connection details</summary>
+    <img src="https://github.com/hemidactylus/drapetisca/raw/main/images/topic_connect.png?raw=true" />
+</details>
 
+Congratulations! Your topic is being created, which takes less than one minute, and is now ready to receive and
+dispatch the stream of messages that will make your game work!
+_Time to prepare some code to be run..._
+
+
+### 2. Load the project into Gitpod
+
+Development and running will be done within a Gitpod instance (more on that in a second).
+
+#### 2a. Open Gitpod
+
+To load the whole project (API + client) in your personal Gitpod workspace, please
+Ctrl-click (or right-click and open in new tab) on the following button:
+
+<a href="https://gitpod.io/#https://github.com/hemidactylus/drapetisca"><img src="images/open_in_gitpod_button.svg" /></a>
+
+(You may have to authenticate with Github or other providers along the process).
+Then wait a couple of minutes for the installations to complete, at which point you
+will see a message such as `CLIENT/API READY TO START` in the Gitpod console.
+
+<details><summary>Show me what the Gitpod button does</summary>
+
+- An IDE is started on a virtual machine in the cloud
+- this repo is cloned there
+- some initialization scripts are run (in particular, dependencies get installed)
+- Gitpod offers a full IDE: you can work there, edit files, run commands in the console, use an internal browser, etc.
+
+</details>
+
+> In case you prefer to work _on your local computer_, no fear! You can simply keep
+> a console open to run the React client (`cd client`) and another for the
+> Python API (`cd api`). For the former
+> you will have to `npm install` and for the latter (preferrably in a virtual environment
+> to keep things tidy and clean) you will have to install the required dependencies
+> e.g. with `pip install -r requirements.txt`. The rest of this readme will draw your
+> attention to the occasional differences between the Gitpod and the local routes, but
+> we'll generally assume that if you work locally you know what you are doing. Good luck!
+
+#### 2b. Gitpod interface
+
+Gitpod works as an in-browser IDE: 
+
+This project is composed of two parts: client and API. For this reason, Gitpod
+is configured to spawn _three_ different consoles: the "default" one for
+general-purpose actions, an "api" console and a "client" console (these two
+will start in the `api` and `client` subdirectories for you).
+**You can switch between consoles by clicking on the items in the lower-right panels in your Gitpod**.
+
+<details><summary>Show me a map of the Gitpod starting layout</summary>
+    <img src="https://github.com/hemidactylus/drapetisca/raw/main/images/gitpod_view.png?raw=true" />
+    1 = file explorer, 2 = editor, 3 = panel for console(s), 4 = console switcher.
+</details>
+
+> Note: for your convenience, you find this very README open within the Gitpod
+> text editor.
+
+### 3. API setup
+
+There are a couple of things to do before you can launch the API:
+
+#### 3a. Environment variables
+
+You need to pass the connection URL and secret to the API for it to be able
+to speak to the Streaming topic. To do so, first **go to the API console**.
+
+Then create a file `.env` by copying the `.env.sample` in the same directory,
+with the commands
+
+    cp ../.env.sample ../.env
+    gp open ../.env
+
+(the second will simply open the `.env` file in the editor)
+and filling it with the values found earlier
+on your Astra Streaming "Connect" tab (leave the other lines unchanged):
+
+- `TENANT_NAME`: your very own tenant name as chosen earlier when creating the topic (step `1b`).
+- `SERVICE_URL`: it looks similar to `pulsar+ssl://pulsar-aws-useast2.streaming.datastax.com:6651`
+- `ASTRA_TOKEN`: a very long string (about 500 random-looking chars), see step `1c`. You can copy it without showing it.
+
+> Note: treat your token as a personal secret: do not share it, do not commit it to the repo, store it in a safe place!
+
+Make sure you are in the API shell. Export these environment variables for the API to pick them up when it starts:
+
+    . ../.env
+
+> Note: in case you gave a different namespace/name to your topic, update `.env` correspondingly.
+> If, moreover, you work locally with a CentOS distribution you may have to check the `TRUST_CERTS` variable as well:
+> check the "Connect" tab on your Astra Streaming console, looking for the Python/Consumer code sample there.
+
+#### 3b. Settings file
+
+=========================
+=========================
+=========================
+=========================
 =========================
 
 
 
 
 
-
-✅ Choose "Start Free Now"
-
-Choose the "Start Free Now" plan, then "Get Started" to work in the free tier.
-
-> If this is not enough for you, congratulations! You are most likely running a mid- to large-sized business! In that case you should switch to a paid plan.
-
-(You can follow this [guide](https://docs.datastax.com/en/astra/docs/creating-your-astra-database.html) to set up your free-tier database with the $25 monthly credit.)
-
-<a href="https://astra.dev/11-17"><img src="images/create_astra.png" /></a>
-- <details><summary>Show me!</summary>
-    <img src="https://github.com/datastaxdevs/workshop-spring-stargate/raw/main/images/tutorials/astra-create-db.gif?raw=true" />
-</details>
-
-### Create your Astra Streaming
-
-Now it's time to create a new Astra Streaming topic, that will convey all messages
-for this app.
-
-- Go to your Astra console, locate the "Create Streaming" button on the left and click on it
-- Set up a new Tenant (remember Pulsar has a multi-tenant architecture): call it `gameserver` and pick the provider/region you like. Hit "Create Tenant"
-- You'll shortly see the dashboard for your newly-created Tenant. Go to the "Topics" tab to create a new one (we will stay in the "default" namespace)
-- In the "Topics" tab, click "Add Topic" and name it `worldupdates` (persistent = yes, partitioned = no). Click "Save" to confirm topic creation
-
-> Note: technically you can name your tenant, namespace and topic anything you want - but then you have to make sure the `settings.py` in your API code are changed accordingly.
-
-<details><summary>Show me the steps</summary>
-    <img src="https://github.com/hemidactylus/drapetisca/raw/main/images/astra_create_streaming_topic.gif?raw=true" />
-</details>
-
-While we are at it, let's have a look at the information needed to connect to the topic
-from the API code. While still in the tenant dashboard, find the "Connect" tab and click on it: you will see a listing of "Tenant Details".
-You will later need the "Broker Service URL" and the "Token" values (the latter is hidden but can be copied nevertheless).
-
-Your topic is created almost in real-time, ready to receive and dispatch a stream of messages that will make your game work!
-Time to prepare some code to be run...
-
-## Gitpod
-
-(Ctrl+)Click [this](https://gitpod.io/#https://github.com/hemidactylus/drapetisca)
-to open this project in Gitpod. Then wait a couple of minutes for the
-installations to complete.
-
-<details><summary>What does this Gitpod click do?</summary>
-
-- An IDE is started on a virtual machine in the cloud
-- this repo is cloned there
-- some initialization scripts are run (some dependencies get installed)
-- Gitpod offers a full IDE: you can work there, edit files, run commands in the console, use an internal browser, etc.
-
-</details>
-
-For this repo, Gitpod is configured to start with two shells open:
-api and client, "almost" ready to go. We will have stuff running on both.
-
 ### API shell
 
-Create a file `.env` by copying the `.env.sample` in the same directory,
-
-    cp ../.env.sample ../.env
-    gp open ../.env
-
-and filling it with the values found earlier
-on your Astra Streaming "Connect" tab:
-
-- `SERVICE_URL`: it looks similar to `pulsar+ssl://pulsar-aws-useast2.streaming.datastax.com:6651`
-- `ASTRA_TOKEN`: a very long string (about 500 random-looking chars). You can copy it without showing it. _Guard your token as a secret!_
-
-Make sure you are in the API shell. Export these environment variables:
-
-    . ../.env
 
 _Explanations on how the API works..._
 
