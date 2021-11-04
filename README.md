@@ -83,16 +83,9 @@ That's it, you are done! Expect an email in a few days!
 
 1. [Create your Astra Streaming instance](#1-login-or-register-to-astradb-and-create-database)
 2. [Load the project into Gitpod](#2-)
-3. [Set up the API](#3-)
-4. [Set up the client](#4-)
-
-3. [Create table **genre** with GraphQL](#3-create-table-genre-with-graphql)
-4. [Insert data in **genre**  with GraphQL](#4-insert-data-in-the-table-with-graphql)
-5. [Retrieve values of **genre** table](#5-retrieving-list-of-values)
-6. [Create **movie** table](#6-creating-a-movies-table)
-7. [Insert values in **movie** table](#7-insert-values-in-movie-table)
-8. [Retrieve values from **movie** table](#8-retrieve-values-from-movie-tables)
-9. [Load a CSV DataSet](#9-load-a-csv-dataset)
+3. [Set up/start the API](#3-)
+4. [Set up/start the client](#4-)
+5. [Play!](#5-)
 
 ## Astra setup
 
@@ -237,108 +230,165 @@ on your Astra Streaming "Connect" tab (leave the other lines unchanged):
 
 > Note: treat your token as a personal secret: do not share it, do not commit it to the repo, store it in a safe place!
 
-Make sure you are in the API shell. Export these environment variables for the API to pick them up when it starts:
-
-    . ../.env
-
 > Note: in case you gave a different namespace/name to your topic, update `.env` correspondingly.
 > If, moreover, you work locally with a CentOS distribution you may have to check the `TRUST_CERTS` variable as well:
 > check the "Connect" tab on your Astra Streaming console, looking for the Python/Consumer code sample there.
 
-#### 3b. Settings file
+#### 3b. Start the API
 
-=========================
-=========================
-=========================
-=========================
-=========================
+Make sure you are in the API console. Export these environment variables for the API to pick them up when it starts:
 
+    . ../.env
 
-
-
-
-### API shell
-
-
-_Explanations on how the API works..._
-
-Launch the API with:
+You can now *start the API* in this console:
 
     uvicorn api:app --reload
 
-you will see the API start, happily ready to accept requests. Leave it running and let's turn to the client.
+You should see the API start and log some messages in the console, in particular
 
-### Client shell
+    INFO:     Application startup complete.
 
-Switch to the client shell. We took care of preinstalling all required dependencies for you;
-nevertheless, let us ensure all required dependencies are there:
+Congratulations: they API is up and is ready to accept client requests.
+Leave it running and turn your attention to the client.
+
+> Note: this is how you start the API in a development environment. To deploy
+> to production, you should set up a multi-process system service for `uvicorn`
+> with the `--workers` option and put the whole thing behind an HTTP/2-capable
+> reverse proxy. This is _not covered_ here.
+
+### 4. Client setup
+
+Make sure you **go to the client console** for the following.
+
+#### 4a. Install dependencies
+
+First ensure all required dependencies are installed:
 
     npm install
 
-Now you simply have to start the client, which will open in the "simple browser" within Gitpod:
+> Note: the command would take a few minutes; we secretly instructed Gitpod
+> to preinstall them just to save you some time in this step - still, we want
+> you to go through it. Obviously, if you are working on your local environment,
+> this will be slower.
+
+#### 4b. Start the client
+
+The client is ready to go! Launch it in development mode with:
 
     npm start
 
-> If you are running everything locally on your computer, you would be able
-> to open the client on `http://localhost:3000` at this point and use the
-> default API location of `ws://localhost:8000` to enter the game.
+Let's assume you are working within Gitpod, which wraps locally-exposed ports
+and makes them accessible through ordinary HTTPS domain names.
+As the client is available, Gitpod will automatically open it in its "simple browser",
+using a domain such as `https://3000-tan-swallow-2yz174hp.ws-eu17.gitpod.io`.
+This URL can be obtained also by typing, in the general-purpose Gitpod console,
 
-However, we are working within Gitpod, which wraps locally-exposed ports
+    gp url 3000
+
+(3000 being the port number locally used by npm to serve the client).
+This will match the URL shown in the address bar of your simple browser.
+
+Note that you can also take this URL and open the application in a new tab,
+**which you are encouraged to do to use your full screen**.
+
+> Note: we set up this workshop to make this URL accessible by anyone, to allow you
+> to paste the link to your friends, thereby inviting them to your own game instance!
+
 and makes them potentially accessible over the Internet.
 Have a look at the address bar
 in Gitpod's simple browser: it has been automatically converted from the
 above `localhost` address to something such as
 `https://3000-tan-swallow-2yz174hp.ws-eu17.gitpod.io`.
 
-_Explanations on how the client works ..._
+> If you are running everything locally on your computer, instead, you can
+> open the client on `http://localhost:3000` and use the
+> default API location of `ws://localhost:8000` to enter the game.
 
-### Play the game!
+### 5. Play the game!
 
-We have a client and an API ready to accept (Websocket) connections:
-it is time to play!
+We finally have all pieces in place:
 
-The client lets you customize your player name and gives you a unique player ID.
+- an Astra Streaming topic;
+- an API bridging it to ...
+- ... a client ready to establish WebSocket connections.
 
-It also needs the address to reach the API. Now, if you are running locally you
-would find the API at `ws://localhost:8000`, but since
-we are working within Gitpod it is necessary to modify
-the "API Location" to reflect the Gitpod-provided domain.
+It is time to play!
 
-Fortunately, the client does that for you and the field is pre-filled
-with a Websocket address corresponding to the API running in your Gitpod
-instance.
+#### 5a. Enter the game
 
-> To obtain the above, in any case, you can either run the command
-> `gp url 8000 | sed s/https/wss/` and copy
-> the output or simply take the client address as in the example above and replace
-> `3000` with `8000` (the API listen on port 8000), and `https` with `wss`
-> (we are using the secure Websocket protocol). Your API Location will look
-> something like `wss://8000-tan-swallow-2yz174hp.ws-eu17.gitpod.io`.
+Change your name if you desire (a spider name is drawn at random for you).
+You will also see that you are given a (read-only) unique player ID and that an API address
+is configured for the client to establish WebSocket connections to.
 
-You can finally click "Enter game". At this point the client establishes
-Websocket connections to the API, after which you will see your player appear
-in the center of the arena.
+> The API location points to the instance of the API running alongside the client:
+> you should generally not have to change it (but please notice the protocol is
+> either `ws` or `wss`, which stand for WebSocket and Secure WebSocket respectively).
 
-Try to move the player with the arrow buttons: you can control your movements
-in the game!
+To enter the game, click the "Enter Game" button.
 
-Now try to go beyond the boundaries of the arena: what happens? We purposefully
-left all checks out of the client (which blindly increases/decreases your X and Y
-coordinates) to demonstrate that the checks and validation occurs on the API layer.
-It is the API that sends updates on the world state back to the client, and
-rightly so -- think about cheaters in online games!
+<details><summary>Show me the "Enter Game" form</summary>
+    <img src="https://github.com/hemidactylus/drapetisca/raw/main/images/drapetisca_2.png?raw=true" />
+</details>
 
-But this is a _multiplayer_ game, isn't it? So Let us open a new
-browser tab and enter the same client URL as above (the one on port 3000).
-Enter a different player name and the same API Location you built above, then
-hit "Enter Game". Hooray! As soon as you move around with this new player,
+Well done: you are in the game! You should see your player appear in the arena!
+
+<details><summary>Show me the player after entering the game</summary>
+    <img src="https://github.com/hemidactylus/drapetisca/raw/main/images/drapetisca_3.png?raw=true" />
+</details>
+
+- To control your player, either use the on-screen arrow buttons or, after bringing the game field into focus, your keyboard's arrow keys;
+- you can use the in-game chat box on the left;
+
+Anything your player does is sent to the API through a WebSocket in the form of an "update message";
+from there, it is published to the Astra Streaming topic. The API will then pick up the update
+and broadcast to all players, whose client will process it, eventually leading to a refresh of the game status
+on the front-end. All this happens in a near-real-time fashion at every action by every player.
+
+> Note that the game shows the last sent message and the last received messages for you to better inspect
+> the messaging pattern at play.
+
+#### 5b. Try to cheat
+
+Let's be honest: there's no multiplayer game without cheaters - at least, cheat attempts.
+So try to walk beyond the boundaries of the play area, to see what happens.
+Notice the "Position" caption on the left sidebar? If you keep an arrow key pressed
+long enough, you will sure be able to bring that position to an illegal value such as `(-10, 0)`.
+But as soon as you release the key, the position bounces back to a valid state.
+
+Here's the trick: this "position", shown in the client, is nothing more than a variable
+in the client's memory. Every update (including `(-10, 0)`) is sent to the API, which
+is the sole actor in charge of validation: an illegal value will be corrected and sent back
+to all clients. In particular, your own client will adjust knowledge of its own position
+based on this feedback from the API - which is why you see the illegal value only briefly.
+
+All of this must happen asynchronously, as is the nature of the communication between client
+and API. There is a lesson here, which has been hard-earned by online game devs over the years:
+_never leave validity checks in the hand of the client_.
+
+> Remember the hordes of cheaters in ... er ... Diablo I ?
+
+Unfortunately such an architecture is more complex to achieve, but you cannot do without it.
+For instance, one has to introduce a "generation counter" to avoid accidentally triggering
+infinite loops of spurious player-position updates.
+
+**Relevant parts of the code**:
+
+- API: `playerUpdate = validatePosition(updateMsg, HALF_SIZE_X, HALF_SIZE_Y)` in `api.py`
+- Client: `setPlayerX(updateMsg.payload.x)` (and surrounding lines) in `App.js`.
+
+#### 5c. "Hell is other people"
+
+But wait ... this is a _multiplayer_ game, isn't it? So, go ahead and open a new
+browser tab, then enter the game as someone else.
+
+Hooray! As soon as you move around with this new player,
 you will see the whole architecture at work:
 
 - client sends updates on your player's position through the "player websocket"
-- API validates this update and writes it to the Astra Streaming topic
+- API validates this update and publishes it to the Astra Streaming topic
 - API receives new messages by listening to this same Astra Streaming topic
 - API broadcasts updates on any player to all connected clients through the "world websocket"
-- at each such update, the client's game arena is adjusted
+- at each such update, the client's game arena is adjusted (for all connected clients)
 
 What is really cool is that **you can give this URL to your friends** and have them
 enter your very own multiplayer game!
@@ -346,7 +396,11 @@ enter your very own multiplayer game!
 _Please do this and tell the world about how easy it is to build a multiplayer real-time
 game with Astra Streaming!_
 
+**NOTE** Please stop here for now.
+
 ## Fun with the Streaming UI
+
+**NOTE**: this is not yet WORKING (I changed the message protocol and have to re-adapt my notes here)
 
 The Astra Streaming interface makes it possible to eavesdrop on the topic and
 observe the messages passing through it. This may prove very useful for
@@ -368,8 +422,6 @@ you produce messages into the topic: let us insert a message such as
 
 and check what happens on the game arena!
 
-## Finally
+## Some more details on this game's messaging architecture
 
-_Let me give you all MY address and let us run like crazy around my arena!_
-
-_"Now form a circle shape! Now a smiley..."_
+geometry, chat, updates + special update for leaving

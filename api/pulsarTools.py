@@ -38,7 +38,7 @@ def getPulsarClient():
 
 def getConsumer(clientID, puClient):
     if clientID not in consumerCache:
-        pulsarSubscription = f'sub_{clientID}'
+        pulsarSubscription = f'xsub_{clientID}'
         consumerCache[clientID] = puClient.subscribe(streamingTopic,
                                                      pulsarSubscription)
     #

@@ -5,7 +5,7 @@ const GameInputs = ({playerName, playerID, playerX, setPlayerX, playerY, setPlay
   return (<div className="game-inputs">
     <div className="player-position">
       Position: ({playerX}, {playerY})
-      <span className="reference-position"> / ({boardWidth}, {boardHeight})</span>
+      <span className="reference-position"> / ({boardWidth - 1}, {boardHeight - 1})</span>
     </div>
     <div className="grid-container" title="Click on the game area to use your keyboard's arrow keys">
       <div></div>

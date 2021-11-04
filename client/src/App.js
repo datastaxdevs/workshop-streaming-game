@@ -113,8 +113,8 @@ const App = () => {
             // we received initial geometry info from the API
             setHalfSizeX(updateMsg.payload.halfSizeX)
             setHalfSizeY(updateMsg.payload.halfSizeY)
-            setPlayerX(updateMsg.payload.halfSizeX)
-            setPlayerY(updateMsg.payload.halfSizeY)
+            setPlayerX(updateMsg.payload.halfSizeX - 1)
+            setPlayerY(updateMsg.payload.halfSizeY - 1)
             setPlayerH(false)
           } else if ( updateMsg.messageType === 'chat' ) {
             // we received a new chat item. Let's make room for it
