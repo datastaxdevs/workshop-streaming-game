@@ -417,7 +417,7 @@ in-game chat box, you will see the corresponding messages flow through the
 Streaming topic.
 
 Now you can **hack the system**! Indeed, this same interface lets you
-produce messages into the topic ("Send" button on the Streaming UI).
+produce surreptitious messages into the topic ("Send" button on the Streaming UI).
 Try to insert a message such as:
 
         {"playerID": "nonexistent1", "messageType": "chat", "payload": {"text": "Booo!", "id": "000", "playerName": "Phantom Player"}}
