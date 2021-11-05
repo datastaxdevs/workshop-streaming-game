@@ -8,7 +8,7 @@ tasks:
       pip install -r requirements.txt
     command: |
       cd /workspace/drapetisca/api
-      echo "API READY TO START"
+      echo -e "\n\n*** API READY TO START***\n"
   - name: setup-client
     before: |
       cd /workspace/drapetisca/client
@@ -18,7 +18,7 @@ tasks:
       npm install
     command: |
       cd /workspace/drapetisca/client
-      echo "CLIENT READY TO START"
+      echo -e "\n\n*** CLIENT READY TO START***\n"
 github:
   prebuilds:
     master: true

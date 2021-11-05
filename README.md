@@ -23,7 +23,7 @@ A simple multiplayer online game featuring
 * Learn about Websockets on client- and server-side
 * Understand how a FastAPI server can bridge Pulsar topics and WebSockets
 * Understand the structure of a Websocket React.js application
-* **gain your very own online gaming platform to share with your friends!**
+* **get your very own online gaming platform to share with your friends!**
 
 ## Frequently asked questions
 
@@ -33,15 +33,15 @@ A simple multiplayer online game featuring
 > If you do so, you will need
 > * git installed on your local system
 > * [node 15 and npm 7 or later](https://www.whitesourcesoftware.com/free-developer-tools/blog/update-node-js/)
-> * Python v3.8+ installed on your local system
+> * [Python v3.8+ installed on your local system](https://www.python.org/downloads/)
 >
 > In this readme, we try to provide instructions for local development as well - but keep in mind that
 > the main focus is development on Gitpod, hence **We can't guarantee live support** about local development
 > in order to keep on track with the schedule. However, we will do our best to give you the info you need to succeed.
 
 - *What other prerequisites are there?*
-> * You will need a github account
-> * You will also need an Astra DB account: don't worry, we'll work through that in the following
+> * You will need a GitHub account
+> * You will also need an Astra account: don't worry, we'll work through that in the following
 
 - *Do I need to pay for anything for this workshop?*
 > * **No.** All tools and services we provide here are FREE.
@@ -128,9 +128,12 @@ Now it's time to create a new Astra Streaming topic, that will convey all messag
 - Go to your Astra console, locate the "Create Streaming" button on the left and click on it.
 - Set up a new Tenant (remember Pulsar has a multi-tenant architecture): _you have to find a globally unique name for it_,
 so for instance if `gameserver` is already taken by someone, try `gameserver0`, `gameserver-abc` or something similar.
-Pick the provider-region you like and finally hit "Create Tenant". **Remember the name of your tenant for the API setup step later**.
+Pick the provider/region you like (_try to have it close to you for reduced latency_) and finally hit "Create Tenant". **Remember the name of your tenant for the API setup step later**.
 - You'll shortly see the dashboard for your newly-created Tenant. Go to the "Topics" tab to create a new one (we will stay in the "default" namespace).
 - In the "Topics" tab, click "Add Topic" and name it `worldupdates` (persistent = yes, partitioned = no). Click "Save" to confirm topic creation.
+
+Congratulations! Your topic is being created, which takes less than one minute, and is now ready to receive and
+dispatch the stream of messages that will make your game work!
 
 > Note: technically you can name your namespace and topic anything you want - but then you have to make sure
 > the environment settings for your API code are changed accordingly (see later).
@@ -149,10 +152,7 @@ You will later need the "Broker Service URL" and the "Token" values (the latter 
     <img src="https://github.com/hemidactylus/drapetisca/raw/main/images/topic_connect.png?raw=true" />
 </details>
 
-Congratulations! Your topic is being created, which takes less than one minute, and is now ready to receive and
-dispatch the stream of messages that will make your game work!
 _Time to prepare some code to be run..._
-
 
 ### 2. Load the project into Gitpod
 
@@ -171,8 +171,8 @@ will see a message such as `CLIENT/API READY TO START` in the Gitpod console.
 
 <details><summary>Show me what the Gitpod button does</summary>
 
-- An IDE is started on a virtual machine in the cloud
-- this repo is cloned there
+- An IDE is started on a containerized machine image in the cloud
+- there, this repo is cloned
 - some initialization scripts are run (in particular, dependencies get installed)
 - Gitpod offers a full IDE: you can work there, edit files, run commands in the console, use an internal browser, etc.
 
@@ -198,8 +198,9 @@ will start in the `api` and `client` subdirectories for you).
 **You can switch between consoles by clicking on the items in the lower-right panels in your Gitpod**.
 
 <details><summary>Show me a map of the Gitpod starting layout</summary>
-    <img src="https://github.com/hemidactylus/drapetisca/raw/main/images/gitpod_view.png?raw=true" />
-    1 = file explorer, 2 = editor, 3 = panel for console(s), 4 = console switcher.
+1 = file explorer, 2 = editor, 3 = panel for console(s), 4 = console switcher.
+
+<img src="https://github.com/hemidactylus/drapetisca/raw/main/images/gitpod_view.png?raw=true" />
 </details>
 
 > Note: for your convenience, you find this very README open within the Gitpod
@@ -220,8 +221,8 @@ with the commands
     cp ../.env.sample ../.env
     gp open ../.env
 
-(the second will simply open the `.env` file in the editor)
-and filling it with the values found earlier
+(the second will simply open the `.env` file in the editor).
+Fill the file with the values found earlier
 on your Astra Streaming "Connect" tab (leave the other lines unchanged):
 
 - `TENANT_NAME`: your very own tenant name as chosen earlier when creating the topic (step `1b`).
@@ -242,13 +243,14 @@ Make sure you are in the API console. Export these environment variables for the
 
 You can now *start the API* in this console:
 
-    uvicorn api:app --reload
+    uvicorn api:app
 
 You should see the API start and log some messages in the console, in particular
 
     INFO:     Application startup complete.
+    INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
 
-Congratulations: they API is up and is ready to accept client requests.
+Congratulations: the API is up and is ready to accept client requests.
 Leave it running and turn your attention to the client.
 
 > Note: this is how you start the API in a development environment. To deploy
@@ -258,7 +260,8 @@ Leave it running and turn your attention to the client.
 
 ### 4. Client setup
 
-Make sure you **go to the client console** for the following.
+Make sure you **go to the client console** for the following
+(to switch consoles, look at the lower-right panel in your Gitpod layout).
 
 #### 4a. Install dependencies
 
@@ -266,7 +269,7 @@ First ensure all required dependencies are installed:
 
     npm install
 
-> Note: the command would take a few minutes; we secretly instructed Gitpod
+> Note: the command would take a few minutes on a fresh directory; we secretly instructed Gitpod
 > to preinstall them just to save you some time in this step - still, we want
 > you to go through it. Obviously, if you are working on your local environment,
 > this will be slower.
@@ -291,14 +294,8 @@ This will match the URL shown in the address bar of your simple browser.
 Note that you can also take this URL and open the application in a new tab,
 **which you are encouraged to do to use your full screen**.
 
-> Note: we set up this workshop to make this URL accessible by anyone, to allow you
+> Note: we set up Gitpod for this workshop so as to make this URL accessible by anyone, to allow you
 > to paste the link to your friends, thereby inviting them to your own game instance!
-
-and makes them potentially accessible over the Internet.
-Have a look at the address bar
-in Gitpod's simple browser: it has been automatically converted from the
-above `localhost` address to something such as
-`https://3000-tan-swallow-2yz174hp.ws-eu17.gitpod.io`.
 
 > If you are running everything locally on your computer, instead, you can
 > open the client on `http://localhost:3000` and use the
@@ -334,14 +331,14 @@ To enter the game, click the "Enter Game" button.
     <img src="https://github.com/hemidactylus/drapetisca/raw/main/images/drapetisca_2.png?raw=true" />
 </details>
 
-Well done: you are in the game! You should see your player appear in the arena!
+Well done: you are in the game. You should see your player appear in the arena!
+
+- To control your player, either use the on-screen arrow buttons or, after bringing the game field into focus, your keyboard's arrow keys;
+- you can use the in-game chat box on the left;
 
 <details><summary>Show me the player after entering the game</summary>
     <img src="https://github.com/hemidactylus/drapetisca/raw/main/images/drapetisca_3.png?raw=true" />
 </details>
-
-- To control your player, either use the on-screen arrow buttons or, after bringing the game field into focus, your keyboard's arrow keys;
-- you can use the in-game chat box on the left;
 
 Anything your player does is sent to the API through a WebSocket in the form of an "update message";
 from there, it is published to the Astra Streaming topic. The API will then pick up the update
@@ -356,11 +353,11 @@ on the front-end. All this happens in a near-real-time fashion at every action b
 Let's be honest: there's no multiplayer game without cheaters - at least, cheat attempts.
 So try to walk beyond the boundaries of the play area, to see what happens.
 Notice the "Position" caption on the left sidebar? If you keep an arrow key pressed
-long enough, you will sure be able to bring that position to an illegal value such as `(-10, 0)`.
+long enough, you will sure be able to bring that position to an illegal value such as `(-1, 0)`.
 But as soon as you release the key, the position bounces back to a valid state.
 
 Here's the trick: this "position", shown in the client, is nothing more than a variable
-in the client's memory. Every update (including `(-10, 0)`) is sent to the API, which
+in the client's memory. Every update (including `(-1, 0)`) is sent to the API, which
 is the sole actor in charge of validation: an illegal value will be corrected and sent back
 to all clients. In particular, your own client will adjust knowledge of its own position
 based on this feedback from the API - which is why you see the illegal value only briefly.
@@ -371,11 +368,12 @@ _never leave validity checks in the hand of the client_.
 
 > Remember the hordes of cheaters in ... er ... Diablo I ?
 
-Unfortunately such an architecture is more complex to achieve, but you cannot do without it.
+Unfortunately such an all-server architecture is more complex to achieve.
 For instance, one has to introduce a "generation counter" to avoid accidentally triggering
-infinite loops of spurious player-position updates.
+infinite loops of spurious player-position updates - you can see this
+ever-increasing generation counter if you inspect the player-position updates at the bottom of the application.
 
-**Relevant parts of the code**:
+**Relevant parts of the code** for the server-side position validation:
 
 - API: `playerUpdate = validatePosition(updateMsg, HALF_SIZE_X, HALF_SIZE_Y)` in `api.py`
 - Client: `setPlayerX(updateMsg.payload.x)` (and surrounding lines) in `App.js`.
