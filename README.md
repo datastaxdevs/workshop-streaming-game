@@ -15,7 +15,7 @@ A simple multiplayer online game featuring
 
 <!--- ENDEXCLUDE --->
 
-![Drapetisca screenshot](images/drapetisca_1.png)
+![Drapetisca screenshot](images/drapetisca_intro.png)
 
 ## Objectives
 * Understand the architecture of a streaming-based application
