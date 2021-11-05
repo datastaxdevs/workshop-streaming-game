@@ -444,4 +444,4 @@ your badge, and see you next time!
 
 > DataStax Developers
 
-[!Theridion grallator](images/Theridion_grallator.png)
+![Theridion grallator](images/Theridion_grallator.png)
