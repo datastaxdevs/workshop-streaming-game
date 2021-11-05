@@ -62,7 +62,6 @@ body {
     display: flex;
     flex-direction: column;
     background: #98bcd4;
-    /*color: #fff;*/
     align-items: center;
     min-height: 500px;
     border-radius: 4px;
@@ -73,7 +72,7 @@ body {
 
 .sidebar {
     flex-grow: 1;
-    min-width: 240px;
+    min-width: 300px;
 }
 
 .content {

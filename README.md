@@ -81,11 +81,11 @@ That's it, you are done! Expect an email in a few days!
 
 ## Table of contents
 
-1. [Create your Astra Streaming instance](#1-login-or-register-to-astradb-and-create-database)
-2. [Load the project into Gitpod](#2-)
-3. [Set up/start the API](#3-)
-4. [Set up/start the client](#4-)
-5. [Play!](#5-)
+1. [Create your Astra Streaming instance](#astra-setup)
+2. [Load the project into Gitpod](#2-load-the-project-into-gitpod)
+3. [Set up/start the API](#3-api-setup)
+4. [Set up/start the client](#4-client-setup)
+5. [Play!](#5-play-the-game)
 
 ## Astra setup
 
@@ -254,7 +254,7 @@ Leave it running and turn your attention to the client.
 > Note: this is how you start the API in a development environment. To deploy
 > to production, you should set up a multi-process system service for `uvicorn`
 > with the `--workers` option and put the whole thing behind an HTTP/2-capable
-> reverse proxy. This is _not covered_ here.
+> reverse proxy. _This is not covered here_.
 
 ### 4. Client setup
 
@@ -303,6 +303,10 @@ above `localhost` address to something such as
 > If you are running everything locally on your computer, instead, you can
 > open the client on `http://localhost:3000` and use the
 > default API location of `ws://localhost:8000` to enter the game.
+
+> Note: this is how you launch the client in development mode. For deploying
+> to production, you should first build the project and then serve it from
+> a static Web server. _This is not covered here_.
 
 ### 5. Play the game!
 
@@ -396,11 +400,7 @@ enter your very own multiplayer game!
 _Please do this and tell the world about how easy it is to build a multiplayer real-time
 game with Astra Streaming!_
 
-**NOTE** Please stop here for now.
-
-## Fun with the Streaming UI
-
-**NOTE**: this is not yet WORKING (I changed the message protocol and have to re-adapt my notes here)
+#### 5d. Fun with the Streaming UI
 
 The Astra Streaming interface makes it possible to eavesdrop on the topic and
 observe the messages passing through it. This may prove very useful for
@@ -410,18 +410,40 @@ In the Astra Streaming UI, head to the "Try Me" tab and make sure the namespace
 and the (producer, consumer) topics are set to the values used earlier. Also
 ensure the connection is of type "Consume" before clicking "Connect".
 
-![astra-ui-topic-connection](images/eavesdrop-marked.png)
+<details><summary>Show me the "Try Me" interface</summary>
+    <img src="https://github.com/hemidactylus/drapetisca/raw/main/images/eavesdrop-marked.png?raw=true" />
+</details>
 
-Now, if you move your player around in the client app, you will see the
-corresponding messages flowing through the Streaming topic.
+If you move your player around in the client app, or enter a message in the
+in-game chat box, you will see the corresponding messages flow through the
+Streaming topic.
 
-Of course now we want to "hack the system"! Indeed this same interface lets
-you produce messages into the topic: let us insert a message such as
+Now you can **hack the system**! Indeed, this same interface lets you
+produce messages into the topic ("Send" button on the Streaming UI).
+Try to insert a message such as:
 
-    {"playerName": "INTRUDER", "playerID": "1n7rud3r", "y": 3, "x": 3}
+        {"playerID": "nonexistent1", "messageType": "chat", "payload": {"text": "Booo!", "id": "000", "playerName": "Phantom Player"}}
 
-and check what happens on the game arena!
+Or even something like
 
-## Some more details on this game's messaging architecture
+        {"playerID": "nonexistent2", "messageType": "player", "payload": {"h": false, "x": 2, "generation": 0, "y": 2, "playerName": "Phantom Player"}}
 
-geometry, chat, updates + special update for leaving
+What happens in the game UI?
+
+You just had a little fun, but this ability to manually intervene in the stream
+of messages makes for a valuable debugging tool.
+
+## The End
+
+Congratulations, you made it to the end! Please share the URL to your game with
+your friends: who does not love a little cozy spider gathering?
+
+_(Please notice that after some inactivity your Gitpod instance will be hibernated:
+you will need to re-start client and server to be able to play again.)_
+
+Don't forget to complete and submit your [homework](#homework) to claim
+your badge, and see you next time!
+
+> DataStax Developers
+
+[!Theridion grallator](images/Theridion_grallator.png)
