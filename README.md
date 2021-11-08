@@ -191,8 +191,6 @@ will see a message such as `CLIENT/API READY TO START` in the Gitpod console.
 
 #### 2b. Gitpod interface
 
-Gitpod works as an in-browser IDE: 
-
 This project is composed of two parts: client and API. For this reason, Gitpod
 is configured to spawn _three_ different consoles: the "default" one for
 general-purpose actions, an "api" console and a "client" console (these two
@@ -333,7 +331,7 @@ To enter the game, click the "Enter Game" button.
 Well done: you are in the game. You should see your player appear in the arena!
 
 - To control your player, either use the on-screen arrow buttons or, after bringing the game field into focus, your keyboard's arrow keys;
-- you can use the in-game chat box on the left;
+- you can use the in-game chat box on the left.
 
 <details><summary>Show me the player after entering the game</summary>
     <img src="https://github.com/hemidactylus/drapetisca/raw/main/images/drapetisca_3.png?raw=true" />
@@ -370,7 +368,7 @@ _never leave validity checks in the hand of the client_.
 Unfortunately such an all-server architecture is more complex to achieve.
 For instance, one has to introduce a "generation counter" to avoid accidentally triggering
 infinite loops of spurious player-position updates - you can see this
-ever-increasing generation counter if you inspect the player-position updates at the bottom of the application.
+ever-increasing generation counter (`generation`) if you inspect the player-position updates at the bottom of the application.
 
 **Relevant parts of the code** for the server-side position validation:
 
@@ -392,7 +390,7 @@ you will see the whole architecture at work:
 - at each such update, the client's game arena is adjusted (for all connected clients)
 
 What is really cool is that **you can give this URL to your friends** and have them
-enter your very own multiplayer game!
+enter your very own game!
 
 _Please do this and tell the world about how easy it is to build a multiplayer real-time
 game with Astra Streaming!_
@@ -411,11 +409,13 @@ ensure the connection is of type "Consume" before clicking "Connect".
     <img src="https://github.com/hemidactylus/drapetisca/raw/main/images/eavesdrop-marked.png?raw=true" />
 </details>
 
-If you move your player around in the client app, or enter a message in the
-in-game chat box, you will see the corresponding messages flow through the
-Streaming topic.
+You now have a privileged view over the messages flowing through the Streaming
+topic. Now try writing something in the Chat box: can you see the corresponding
+message in the Streaming UI?
 
-Now you can **hack the system**! Indeed, this same interface lets you
+What kind of message do you see, instead, if you move you player?
+
+But wait, there's more: now you can **hack the system**! Indeed, this same interface lets you
 produce surreptitious messages into the topic ("Send" button on the Streaming UI).
 Try to insert a message such as:
 
@@ -432,7 +432,7 @@ of messages makes for a valuable debugging tool.
 
 ## The End
 
-Congratulations, you made it to the end! Please share the URL to your game with
+Congratulations, you made it to the end! Please share the URL of your game with
 your friends: who does not love a little cozy spider gathering?
 
 _(Please notice that after some inactivity your Gitpod instance will be hibernated:
