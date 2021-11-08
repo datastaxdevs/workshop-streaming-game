@@ -183,7 +183,9 @@ will see a message such as `CLIENT/API READY TO START` in the Gitpod console.
 > Python API (`cd api`). For the former
 > you will have to `npm install` and for the latter (preferrably in a virtual environment
 > to keep things tidy and clean) you will have to install the required dependencies
-> e.g. with `pip install -r requirements.txt`. The rest of this readme will draw your
+> e.g. with `pip install -r requirements.txt`.
+> (Mac users will also have to do a `brew install libpulsar` for the API to work.)
+> The rest of this readme will draw your
 > attention to the occasional differences between the Gitpod and the local routes, but
 > we'll generally assume that if you work locally you know what you are doing. Good luck!
 
@@ -218,10 +220,10 @@ to speak to the Streaming topic. To do so, first **go to the API console**.
 Then create a file `.env` by copying the `.env.sample` in the same directory,
 with the commands
 
-    cp ../.env.sample ../.env
-    gp open ../.env
+    cp .env.sample .env
+    gp open .env
 
-(the second will simply open the `.env` file in the editor).
+(the second line will simply open the `.env` file in the editor).
 Fill the file with the values found earlier
 on your Astra Streaming "Connect" tab (leave the other lines unchanged):
 
@@ -232,16 +234,13 @@ on your Astra Streaming "Connect" tab (leave the other lines unchanged):
 > Note: treat your token as a personal secret: do not share it, do not commit it to the repo, store it in a safe place!
 
 > Note: in case you gave a different namespace/name to your topic, update `.env` correspondingly.
-> If, moreover, you work locally with a CentOS distribution you may have to check the `TRUST_CERTS` variable as well:
-> check the "Connect" tab on your Astra Streaming console, looking for the Python/Consumer code sample there.
+> If, moreover, you work locally you may have to check the `TRUST_CERTS` variable as well, depending
+> on your distribution. Look into the `.env` file for some suggestions.
 
 #### 3b. Start the API
 
-Make sure you are in the API console. Export these environment variables for the API to pick them up when it starts:
-
-    . ../.env
-
-You can now *start the API* in this console:
+Make sure you are in the API console.
+You can now **start the API**:
 
     uvicorn api:app
 
@@ -276,7 +275,7 @@ First ensure all required dependencies are installed:
 
 #### 4b. Start the client
 
-The client is ready to go! Launch it in development mode with:
+The client is ready to go! **Launch it** in development mode with:
 
     npm start
 

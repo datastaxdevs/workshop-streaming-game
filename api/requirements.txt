@@ -1,4 +1,5 @@
 fastapi==0.68.1
 pulsar-client==2.7.3
+python-dotenv==0.19.1
 uvicorn==0.15.0
 websockets==10.0
