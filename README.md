@@ -104,7 +104,7 @@ For more information on Apache Pulsar, here is [the documentation](https://pulsa
 
 #### 1a. Register
 
-Register and sign in to Astra at `https://astra.datastax.com` by clicking this button:
+Register and sign in to Astra at `https://astra.datastax.com` by clicking this button (better in a new tab with Ctrl-click or right-click):
 
 <a href="https://astra.dev/11-17"><img src="images/create_astra_button.png" /></a>
 
@@ -118,7 +118,7 @@ You may be asked to verify your email, so make sure you have access to it._
 
 #### 1b. Create streaming
 
-Once registered and logged in, you will be able to create a streaming for use in this workshop.
+Once registered and logged in, you will be able to create a streaming topic for use in this workshop.
 
 > Heads up! Astra lets you also create Databases in the cloud (based on Apache Cassandra); in this workshop we will not need to,
 > but keep that in mind. You can also effortlessly connect your streaming topics and an Astra DB instance to enrich your app!
@@ -225,7 +225,7 @@ with the commands
 Fill the file with the values found earlier
 on your Astra Streaming "Connect" tab (leave the other lines unchanged):
 
-- `TENANT_NAME`: your very own tenant name as chosen earlier when creating the topic (step `1b`).
+- `STREAMING_TENANT`: your very own tenant name as chosen earlier when creating the topic (step `1b`).
 - `SERVICE_URL`: it looks similar to `pulsar+ssl://pulsar-aws-useast2.streaming.datastax.com:6651`
 - `ASTRA_TOKEN`: a very long string (about 500 random-looking chars), see step `1c`. You can copy it without showing it.
 
