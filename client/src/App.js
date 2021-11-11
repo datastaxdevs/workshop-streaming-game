@@ -91,41 +91,49 @@ const App = () => {
 
         wws.onmessage = evt => {
           setLastReceived(evt.data)
-          const updateMsg = JSON.parse(evt.data)
 
-          if ( updateMsg.messageType === 'player' ){
+          try {
 
-            // Received update on some player through the 'world' websocket
-            const thatPlayerID = updateMsg.playerID
-            setPlayerMap(plMap => {
-              const newPlMap = replaceValue(plMap, thatPlayerID, updateMsg.payload)
-              return newPlMap
-            })
-            // We compare generations before receiving an update to self, to avoid update loops
-            // from player updates delivered back to us asynchronously:
-            if ((thatPlayerID === playerID) && (updateMsg.payload.generation >= generationRef.current - 1)){
-              if ( updateMsg.payload.x !== null){
-                setPlayerX(updateMsg.payload.x)
-                setPlayerY(updateMsg.payload.y)
+            const updateMsg = JSON.parse(evt.data)
+
+            if ( updateMsg.messageType === 'player' ){
+
+              // Received update on some player through the 'world' websocket
+              const thatPlayerID = updateMsg.playerID
+              setPlayerMap(plMap => {
+                const newPlMap = replaceValue(plMap, thatPlayerID, updateMsg.payload)
+                return newPlMap
+              })
+              // We compare generations before receiving an update to self, to avoid update loops
+              // from player updates delivered back to us asynchronously:
+              if ((thatPlayerID === playerID) && (updateMsg.payload.generation >= generationRef.current - 1)){
+                if ( updateMsg.payload.x !== null){
+                  setPlayerX(updateMsg.payload.x)
+                  setPlayerY(updateMsg.payload.y)
+                }
               }
+            } else if ( updateMsg.messageType === 'geometry' ) {
+              // we received initial geometry info from the API
+              setHalfSizeX(updateMsg.payload.halfSizeX)
+              setHalfSizeY(updateMsg.payload.halfSizeY)
+              setPlayerX(updateMsg.payload.halfSizeX - 1)
+              setPlayerY(updateMsg.payload.halfSizeY - 1)
+              setPlayerH(false)
+            } else if ( updateMsg.messageType === 'chat' ) {
+              // we received a new chat item. Let's make room for it
+              // first we add the playerID to the chat-item object
+              const chatPayload = {...updateMsg.payload, ...{playerID: updateMsg.playerID}}
+              // then we concatenate it to the items to display (discarding the oldest if necessary)
+              setChatItems( items => items.concat([chatPayload]).slice(-settings.MAX_ITEMS_IN_CHAT) )
+            } else {
+              // another messageType
+              console.log(`Ignoring messageType = ${updateMsg.messageType} ... for now`)
             }
-          } else if ( updateMsg.messageType === 'geometry' ) {
-            // we received initial geometry info from the API
-            setHalfSizeX(updateMsg.payload.halfSizeX)
-            setHalfSizeY(updateMsg.payload.halfSizeY)
-            setPlayerX(updateMsg.payload.halfSizeX - 1)
-            setPlayerY(updateMsg.payload.halfSizeY - 1)
-            setPlayerH(false)
-          } else if ( updateMsg.messageType === 'chat' ) {
-            // we received a new chat item. Let's make room for it
-            // first we add the playerID to the chat-item object
-            const chatPayload = {...updateMsg.payload, ...{playerID: updateMsg.playerID}}
-            // then we concatenate it to the items to display (discarding the oldest if necessary)
-            setChatItems( items => items.concat([chatPayload]).slice(-settings.MAX_ITEMS_IN_CHAT) )
-          } else {
-            // another messageType
-            console.log(`Ignoring messageType = ${updateMsg.messageType} ... for now`)
+
+          } catch (e) {
+            console.log(`Error "${e}" while receiving message "${evt.data}". Ignoring message, the show must go on`)
           }
+
         }
       }
 

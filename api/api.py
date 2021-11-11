@@ -74,4 +74,3 @@ async def playerWSRoute(playerWS: WebSocket, client_id: str):
             # on behalf of the client, and we send it to Pulsar for everyone:
             goodbyeUpdate = makeGoodbyeUpdate(client_id)
             pulsarProducer.send((json.dumps(goodbyeUpdate)).encode('utf-8'))
-            return
