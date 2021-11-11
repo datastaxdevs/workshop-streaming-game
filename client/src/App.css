@@ -73,6 +73,7 @@ body {
 .sidebar {
     flex-grow: 1;
     min-width: 300px;
+    max-width: 350px;
 }
 
 .content {
@@ -142,7 +143,7 @@ body {
 }
 
 .chat-item {
-  font-size: 75%
+  font-size: 75%;
 }
 
 .chat-player-name {
@@ -151,10 +152,16 @@ body {
 
 .player-self {
   color: #10b010;
+  fill:  #10b010;
 }
 
 .player-other {
   color: #bf99ff;
+  fill: #bf99ff;
+}
+
+.player-name {
+  fill: #404040;
 }
 
 .arrow-key {

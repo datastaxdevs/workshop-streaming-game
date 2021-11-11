@@ -14,7 +14,8 @@ from fastapi.responses import HTMLResponse
 from pulsarTools import (getPulsarClient, getConsumer, getProducer,
                          receiveOrNone)
 from utils import dictMerge
-from messaging import validatePosition, makeGoodbyeUpdate, makeGeometryUpdate
+from messaging import (validatePosition, makeGoodbyeUpdate, makeGeometryUpdate,
+                       makeWelcomeUpdate)
 
 from settings import (HALF_SIZE_X, HALF_SIZE_Y, RECEIVE_TIMEOUTS_MS,
                       SLEEP_BETWEEN_READS_MS)
@@ -32,6 +33,8 @@ async def worldWSRoute(worldWS: WebSocket, client_id: str):
     try:
         # first we tell this client how the game-field looks like
         geomUpdate = makeGeometryUpdate(HALF_SIZE_X, HALF_SIZE_Y)
+        # Note: this message is built here (i.e. no Pulsar involved)
+        # and directly sent to a single client, the one who just connected:
         await worldWS.send_text(json.dumps(geomUpdate))
         while True:
             worldUpdateMsg = receiveOrNone(pulsarConsumer, RECEIVE_TIMEOUTS_MS)

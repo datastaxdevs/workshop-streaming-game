@@ -16,12 +16,13 @@ const GameField = ({playerMap, playerID, boardWidth, boardHeight}) => {
       <rect width={100 * boardWidth} height={100 * boardHeight} style={{fill: '#f9ffbb'}} />
       { Object.entries(playerMap).map( ([thatPlayerID, thatPlayerInfo]) => {
         const patternName = thatPlayerID === playerID ? 'lyco_self' : 'lyco_other'
+        const playerClassName = thatPlayerID === playerID ? 'player-self' : 'player-other'
         return (<g key={thatPlayerID} transform={`translate(${thatPlayerInfo.x * 100},${thatPlayerInfo.y * 100})`}>
           <g transform='translate(50,50)'>
             <rect x="-50" y="-50" height="100" width="100" fill={`url(#${patternName})`}></rect>
             {thatPlayerInfo.h && <rect x="-50" y="-50" width="100" height="100" fill='url(#hearts)'></rect>}
             <g transform={`translate(0,${thatPlayerInfo.y + 1 >= boardHeight? -70 : 70})`}>
-              <text textAnchor='middle' fill='#404040' fontSize='40'>
+              <text className="player-name" textAnchor='middle' fontSize='40'>
                 {thatPlayerInfo.playerName}
               </text>
             </g>

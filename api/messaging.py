@@ -2,6 +2,8 @@
     messaging.py
 """
 
+from uuid import uuid4
+
 from utils import dictMerge
 
 
@@ -44,6 +46,21 @@ def makeGoodbyeUpdate(client_id):
             'generation': 0,
             'playerName': '',
         },
+    }
+
+
+def makeWelcomeUpdate(client_id):
+    """
+    A server-generated chat message to greet a new player
+    """
+    return {
+        'messageType': 'chat',
+        'payload': {
+            'id': str(uuid4()),
+            'playerName': '** API **',
+            'text': 'Welcome to the game!',
+        },
+        'playerID': '_api_server_',
     }
 
 
