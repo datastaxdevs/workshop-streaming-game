@@ -68,12 +68,12 @@ It doesn't matter if you join our workshop live or you prefer to do at your own 
 
 <img src="images/streaming-badge.png?raw=true" width="200" align="right" />
 
-Don't forget to complete your upgrade and get your verified skill badge! Finish and submit your homework!
+Don't forget to complete your assignment and get your verified skill badge! Finish and submit your homework!
 
-1. Complete the practice steps from this repository as described below.
-2. TODO
-3. TAKE A SCREENSHOT
-5. Submit your homework [here](https://www.youtube.com/watch?v=dQw4w9WgXcQ) TODO
+1. Complete the practice steps as described below until you have your own app running in Gitpod
+2. Now roll up your sleeves and modify the code in two ways: (1) we want the API to send a greeting to each new player in the chat box, and (2) we want the player names in the game area to match the icon color. _Please read the detailed guidance found [below](#6-homework-instructions)_.
+3. Take a SCREENSHOT of the running app modified this way. _Note: you will have to restart the API and reload the client to see all changes!_
+4. Submit your homework [here](https://dtsx.io/streaming-spiders-homework).
 
 That's it, you are done! Expect an email in a few days!
 
@@ -86,6 +86,8 @@ That's it, you are done! Expect an email in a few days!
 3. [Set up/start the API](#3-api-setup)
 4. [Set up/start the client](#4-client-setup)
 5. [Play!](#5-play-the-game)
+6. [Homework instructions](#6-homework-instructions)
+7. [Selected topics](#7-selected-topics)
 
 ## Astra setup
 
@@ -429,6 +431,53 @@ What happens in the game UI?
 
 You just had a little fun, but this ability to manually intervene in the stream
 of messages makes for a valuable debugging tool.
+
+### 6. Homework instructions
+
+Here are some more details on how to do the homework. We require two modifications
+to the code, one on the API and one on the client. Once you change both, and restart,
+you will be able to take a screenshot showing the new game appearance and submit
+it to us!
+
+#### 6a. Server side
+
+We want a greeting message to be sent from the API to a new client right after
+they join. To do so, the `api.py` already imports a function `makeWelcomeUpdate`
+that returns a "chat message" ready to be sent through the WebSocket.
+
+**You should add a line in the function `worldWSRoute` that creates the welcome
+chat message and sends it to the WebSocket**. _Suggestion: this is really not
+so different from the geometry update any new client receives upon connecting._
+
+#### 6b. Client side
+
+We want the player names on the game field to have the same color as the player
+icons instead of always dark grey as they are now. If you look into `GameField.js`,
+you'll notice that the SVG `text` element currently has a class name `"player-name"`.
+
+**Make it so that players (self/other) use different class names in their `text`
+element and have a color matching their icon**. _Suggestion: the right class name
+is already calculated a few lines above for you to use (you can check in `App.css` as well)_.
+
+#### 6c. Restart, test and take a screenshot
+
+Remember to stop and restart the API: go to its console, hit Ctrl-C and
+re-run `uvicorn api:app` to do so. All current WebSocket connections will
+be lost.
+
+The client is running in development mode, so it should pick up any changes
+live and be immediately ready to serve the new version: reloading the app page
+(and re-entering the game) should be enough.
+
+At that point you should be playing the improved game: homework completed!
+
+<details><summary>Show me the new features in the game</summary>
+    <img src="https://github.com/hemidactylus/drapetisca/raw/main/images/drapetisca_homework.png?raw=true" />
+</details>
+
+### 7. Selected topics
+
+TODO
 
 ## The End
 
