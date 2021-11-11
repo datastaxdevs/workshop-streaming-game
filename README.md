@@ -1,7 +1,7 @@
 <!--- STARTEXCLUDE --->
 # Drapetisca: a multiplayer online game with Astra Streaming and Websockets
 
-[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/hemidactylus/drapetisca)
+[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/datastaxdevs/workshop-streaming-game)
 [![License Apache2](https://img.shields.io/hexpm/l/plug.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Discord](https://img.shields.io/discord/685554030159593522)](https://discord.com/widget?id=685554030159593522&theme=dark)
 
@@ -115,7 +115,7 @@ Choose a password with minimum 8 characters, containing upper and lowercase lett
 You may be asked to verify your email, so make sure you have access to it._
 
 <details><summary>Show me the steps</summary>
-    <img src="https://github.com/hemidactylus/drapetisca/raw/main/images/astra_signup.gif?raw=true" />
+    <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/astra_signup.gif?raw=true" />
 </details>
 
 #### 1b. Create streaming
@@ -141,7 +141,7 @@ dispatch the stream of messages that will make your game work!
 > the environment settings for your API code are changed accordingly (see later).
 
 <details><summary>Show me the steps</summary>
-    <img src="https://github.com/hemidactylus/drapetisca/raw/main/images/astra_create_streaming_topic.gif?raw=true" />
+    <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/astra_create_streaming_topic.gif?raw=true" />
 </details>
 
 #### 1c. Check connection details
@@ -151,7 +151,7 @@ from the API code. While still in the tenant dashboard, find the "Connect" tab a
 You will later need the "Broker Service URL" and the "Token" values (the latter is hidden but can be copied nevertheless).
 
 <details><summary>Show me the topic connection details</summary>
-    <img src="https://github.com/hemidactylus/drapetisca/raw/main/images/topic_connect.png?raw=true" />
+    <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/topic_connect.png?raw=true" />
 </details>
 
 _Time to prepare some code to be run..._
@@ -165,7 +165,7 @@ Development and running will be done within a Gitpod instance (more on that in a
 To load the whole project (API + client) in your personal Gitpod workspace, please
 Ctrl-click (or right-click and open in new tab) on the following button:
 
-<a href="https://gitpod.io/#https://github.com/hemidactylus/drapetisca"><img src="images/open_in_gitpod_button.svg" /></a>
+<a href="https://gitpod.io/#https://github.com/datastaxdevs/workshop-streaming-game"><img src="images/open_in_gitpod_button.svg" /></a>
 
 (You may have to authenticate with Github or other providers along the process).
 Then wait a couple of minutes for the installations to complete, at which point you
@@ -202,7 +202,7 @@ will start in the `api` and `client` subdirectories for you).
 <details><summary>Show me a map of the Gitpod starting layout</summary>
 1 = file explorer, 2 = editor, 3 = panel for console(s), 4 = console switcher.
 
-<img src="https://github.com/hemidactylus/drapetisca/raw/main/images/gitpod_view.png?raw=true" />
+<img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/gitpod_view.png?raw=true" />
 </details>
 
 > Note: for your convenience, you find this very README open within the Gitpod
@@ -327,7 +327,7 @@ is configured for the client to establish WebSocket connections to.
 To enter the game, click the "Enter Game" button.
 
 <details><summary>Show me the "Enter Game" form</summary>
-    <img src="https://github.com/hemidactylus/drapetisca/raw/main/images/drapetisca_2.png?raw=true" />
+    <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/drapetisca_2.png?raw=true" />
 </details>
 
 Well done: you are in the game. You should see your player appear in the arena!
@@ -336,7 +336,7 @@ Well done: you are in the game. You should see your player appear in the arena!
 - you can use the in-game chat box on the left.
 
 <details><summary>Show me the player after entering the game</summary>
-    <img src="https://github.com/hemidactylus/drapetisca/raw/main/images/drapetisca_3.png?raw=true" />
+    <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/drapetisca_3.png?raw=true" />
 </details>
 
 Anything your player does is sent to the API through a WebSocket in the form of an "update message";
@@ -413,7 +413,7 @@ and the (producer, consumer) topics are set to the values used earlier. Also
 ensure the connection is of type "Consume" before clicking "Connect".
 
 <details><summary>Show me the "Try Me" interface</summary>
-    <img src="https://github.com/hemidactylus/drapetisca/raw/main/images/eavesdrop-marked.png?raw=true" />
+    <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/eavesdrop-marked.png?raw=true" />
 </details>
 
 You now have a privileged view over the messages flowing through the Streaming
@@ -477,7 +477,7 @@ live and be immediately ready to serve the new version: reloading the app page
 At that point you will be playing the improved game: homework completed!
 
 <details><summary>Show me the new features in the game</summary>
-    <img src="https://github.com/hemidactylus/drapetisca/raw/main/images/drapetisca_homework.png?raw=true" />
+    <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/drapetisca_homework.png?raw=true" />
 </details>
 
 ### 7. Selected topics
