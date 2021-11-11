@@ -70,7 +70,7 @@ It doesn't matter if you join our workshop live or you prefer to do at your own 
 
 Don't forget to complete your assignment and get your verified skill badge! Finish and submit your homework!
 
-1. Complete the practice steps as described below until you have your own app running in Gitpod
+1. Complete the practice steps as described below until you have your own app running in Gitpod.
 2. Now roll up your sleeves and modify the code in two ways: (1) we want the API to send a greeting to each new player in the chat box, and (2) we want the player names in the game area to match the icon color. _Please read the detailed guidance found [below](#6-homework-instructions)_.
 3. Take a SCREENSHOT of the running app modified this way. _Note: you will have to restart the API and reload the client to see all changes!_
 4. Submit your homework [here](https://dtsx.io/streaming-spiders-homework).
@@ -367,17 +367,22 @@ _never leave validity checks in the hand of the client_.
 
 > Remember the hordes of cheaters in ... er ... Diablo I ?
 
+**Implications on the architecture**
+
 Unfortunately such an all-server architecture is more complex to achieve.
-For instance, one has to introduce a "generation counter" to avoid accidentally triggering
+One has to introduce a "generation counter" to avoid accidentally triggering
 infinite loops of spurious player-position updates - you can see this
-ever-increasing generation counter (`generation`) if you inspect the player-position updates at the bottom of the application.
+ever-increasing generation counter (`generation`) if you inspect the
+player-position updates shown at the bottom of the application.
 
-**Relevant parts of the code** for the server-side position validation:
+In the client code, the crucial bit is to accept updates to your-own-position
+coming from the server, _only if they are recent enough_. For further inspection,
+have a look at:
 
-- API: `playerUpdate = validatePosition(updateMsg, HALF_SIZE_X, HALF_SIZE_Y)` in `api.py`
-- Client: `setPlayerX(updateMsg.payload.x)` (and surrounding lines) in `App.js`.
+- API: usage of `validatePosition` at lines 65-66 of `api.py`;
+- Client: condition on `generation` at line 109 of `App.js` before invoking `setPlayerX` and `setPlayerY`.
 
-#### 5c. "Hell is other people"
+#### 5c. Bring your friends
 
 But wait ... this is a _multiplayer_ game, isn't it? So, go ahead and open a new
 browser tab, then enter the game as someone else.
@@ -469,7 +474,7 @@ The client is running in development mode, so it should pick up any changes
 live and be immediately ready to serve the new version: reloading the app page
 (and re-entering the game) should be enough.
 
-At that point you should be playing the improved game: homework completed!
+At that point you will be playing the improved game: homework completed!
 
 <details><summary>Show me the new features in the game</summary>
     <img src="https://github.com/hemidactylus/drapetisca/raw/main/images/drapetisca_homework.png?raw=true" />
