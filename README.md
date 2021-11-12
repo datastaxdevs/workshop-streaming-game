@@ -73,7 +73,7 @@ Don't forget to complete your assignment and get your verified skill badge! Fini
 1. Complete the practice steps as described below until you have your own app running in Gitpod.
 2. Now roll up your sleeves and modify the code in two ways: (1) we want the API to send a greeting to each new player in the chat box, and (2) we want the player names in the game area to match the icon color. _Please read the detailed guidance found [below](#6-homework-instructions)_.
 3. Take a SCREENSHOT of the running app modified this way. _Note: you will have to restart the API and reload the client to see all changes!_
-4. Submit your homework [here](https://dtsx.io/streaming-spiders-homework).
+4. Submit your homework [here](https://dtsx.io/streaming-game-homework).
 
 That's it, you are done! Expect an email in a few days!
 
