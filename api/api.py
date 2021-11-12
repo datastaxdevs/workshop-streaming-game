@@ -42,6 +42,7 @@ async def worldWSRoute(worldWS: WebSocket, client_id: str):
                 # We forward any update from Pulsar into the 'world' websocket
                 # for all clients out there:
                 await worldWS.send_text(worldUpdateMsg.data().decode())
+                pulsarConsumer.acknowledge(worldUpdateMsg)
             await asyncio.sleep(SLEEP_BETWEEN_READS_MS / 1000)
     except WebSocketDisconnect:
         pulsarConsumer.close()

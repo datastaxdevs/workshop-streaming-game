@@ -350,7 +350,7 @@ on the front-end. All this happens in a near-real-time fashion at every action b
 #### 5b. Try to cheat
 
 Let's be honest: there's no multiplayer game without cheaters - at least, cheat attempts.
-So try to walk beyond the boundaries of the play area, to see what happens.
+So, for example, try to _walk beyond the boundaries of the play area_, to see what happens.
 Notice the "Position" caption on the left sidebar? If you keep an arrow key pressed
 long enough, you will sure be able to bring that position to an illegal value such as `(-1, 0)`.
 But as soon as you release the key, the position bounces back to a valid state.
@@ -379,7 +379,7 @@ In the client code, the crucial bit is to accept updates to your-own-position
 coming from the server, _only if they are recent enough_. For further inspection,
 have a look at:
 
-- API: usage of `validatePosition` at lines 65-66 of `api.py`;
+- API: usage of `validatePosition` at line 66 of `api.py`;
 - Client: condition on `generation` at line 109 of `App.js` before invoking `setPlayerX` and `setPlayerY`.
 
 #### 5c. Bring your friends
@@ -426,15 +426,33 @@ But wait, there's more: now you can **hack the system**! Indeed, this same inter
 produce surreptitious messages into the topic ("Send" button on the Streaming UI).
 Try to insert a message such as:
 
-        {"playerID": "nonexistent1", "messageType": "chat", "payload": {"text": "Booo!", "id": "000", "playerName": "Phantom Player"}}
+    {
+        "playerID": "nonexistent",
+        "messageType": "chat",
+        "payload": {
+            "id": "000",
+            "playerName": "Phantom Player",
+            "text": "Booo!"
+        }
+    }
 
 Or even something like
 
-        {"playerID": "nonexistent2", "messageType": "player", "payload": {"h": false, "x": 2, "generation": 0, "y": 2, "playerName": "Phantom Player"}}
+    {
+        "playerID": "nonexistent",
+        "messageType": "player",
+        "payload": {
+            "h": false,
+            "x": 2,
+            "y": 2,
+            "generation": 0,
+            "playerName": "Phantom Player"
+        }
+    }
 
-What happens in the game UI?
+What happens in the game UI when you to this?
 
-You just had a little fun, but this ability to manually intervene in the stream
+Now, you just had a little fun: but this ability to manually intervene in the stream
 of messages makes for a valuable debugging tool.
 
 ### 6. Homework instructions
