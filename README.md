@@ -500,7 +500,81 @@ At that point you will be playing the improved game: homework completed!
 
 ### 7. Selected topics
 
-TODO
+Let us briefly mention some specific parts of the implementation of this game.
+
+#### 7a. WebSockets and React
+
+API and client communicate through WebSockets: in this way, we have a connection
+that is kept open for a long time and allows for a fast exchange of messages
+without the overhead of establishing a new connection for each message;
+moreover, this allows the server to push data without waiting for the client
+to initiate the exchange (as in the obsolete technique of client-side polling).
+WebSockets follow a robust and standardized [protocol](https://datatracker.ietf.org/doc/html/rfc6455)
+which makes it possible for us developers to concentrate on our game logic
+instead of having to worry about the communication internals.
+
+In particular, this game uses two WebSockets, a "player" one for client-to-server
+data transmission and a "world" one for server-to-client (i.e. game status updates).
+You can find the corresponding variables `pws` and `wws` in the client code, respectively.
+
+In Javascript, one _subscribes to an event_ on an open WebSocket, providing
+a callback function with `webSocket.onmessage = <callback>`. But beware:
+if you simply try to read a React state (such as `generation`) from within
+the callback, you will generally get a stale value, _corresponding to the
+state when the subscription was made_. In practice, the state variable
+is "closed over". To overcome this problem, and be able to access the latest
+updated value of the state, we declare a React "reference" with `useRef`
+and, after linking it to the state we want to read, we use this reference
+within the callback to dynamically retrieve the current value of the state.
+
+Look at lines 42-43 and then 109 of `App.js`, for example.
+
+#### 7b. FastAPI
+
+This game's architecture involves a server. Indeed, we would not be able
+to implement it using only serverless functions, at least not in a way similar
+to what you see here, because of statefulness. We need a server able to sustain
+the WebSocket connections for a long time, on one side, and to maintain
+long-running subscriptions to the Pulsar topics on the other side.
+
+We chose to create the API in Python, and to use
+[FastAPI](https://fastapi.tiangolo.com/), for a couple of very valid
+reasons. FastAPI integrates very well with the async/await features of modern
+Python, which results in a more efficient handling of concurrency. Moreover,
+it supports WebSockets (through its integration with
+[Starlette](https://www.starlette.io/)) with a natural syntax that reduces
+the need for boilerplate code to near zero.
+
+> There are other cool features of FastAPI (besides its namesake high performance),
+> which we do not employ here but make it a prime choice. There is a clever
+> mechanism to handle route dependencies aimed at reducing the amount of "boring"
+> code one has to write; and there is native support for those small tasks
+> that sometimes you have to trigger asynchronously right after a request completes,
+> those that in other frameworks would have required to set up machinery like Celery.
+
+Have a look at `api.py` to see how a WebSocket connection is handled: decorating
+a certain function with `@app.websocket(...)` is almost everything you need to
+get started. One of the arguments of the function will represent the WebSocket
+itself, supporting methods such as `send_text` and `receive_text`. Each
+active WebSocket connection to the server will spawn an invocation of this
+function, which will run as long as the connection is maintained: the support
+for async/await guarantees that these concurrent executions of the
+WebSocket function will be scheduled efficiently with no deadlocks.
+
+#### 7c. SVG Tricks
+
+One of the React components in the client code is the `GameField`, which
+represents an area where we draw the players. This is a single large SVG
+element, whose child elements are managed with the usual `jsx` syntax.
+
+A technique that proved useful in this game is that of defining, and then
+re-using multiple times, "patterns", basically as sprites. If you look
+at the `GameField.js` render code, you notice that the SVG first declares
+some `pattern` elements with certain `id`s (such as `lyco_other`).
+These patterns are then employed in various parts of the SVG to "fill"
+rectangles, which effectively makes it possible to use them as repeated sprites:
+
+        <rect .... fill="url(#lyco_other)"></rect>
 
 ## The End
 
