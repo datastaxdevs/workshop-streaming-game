@@ -3,21 +3,21 @@ tasks:
     command: gp open README.md
   - name: setup-api
     before: |
-      cd /workspace/drapetisca/api
+      cd /workspace/workshop-streaming-game/api
       python -m pip install --upgrade pip
       pip install -r requirements.txt
     command: |
-      cd /workspace/drapetisca/api
+      cd /workspace/workshop-streaming-game/api
       echo -e "\n\n*** API READY TO START***\n"
   - name: setup-client
     before: |
-      cd /workspace/drapetisca/client
+      cd /workspace/workshop-streaming-game/client
       nvm install 16.11.1
       npm install -g npm@latest
       npm install astra-setup
       npm install
     command: |
-      cd /workspace/drapetisca/client
+      cd /workspace/workshop-streaming-game/client
       echo -e "\n\n*** CLIENT READY TO START***\n"
 github:
   prebuilds:

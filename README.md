@@ -93,6 +93,8 @@ That's it, you are done! Expect an email in a few days!
 
 ### 1. Create your Astra Streaming instance
 
+**`No Astra database` today**: we won't be instantiating a database unlike most of our workshops; we will be exclusively using "Streaming" instead.
+
 _**`Astra Streaming`** is the simplest way to get a streaming infrastructure based on Apache Pulsar
 with zero operations at all - just push the button and get your streaming.
 No credit card required - with the free tier comes a generous monthly-renewed credit for you to use._
@@ -127,7 +129,7 @@ Once registered and logged in, you will be able to create a streaming topic for 
 
 Now it's time to create a new Astra Streaming topic, that will convey all messages for this app.
 
-- Go to your Astra console, locate the "Create Streaming" button on the left and click on it.
+- Go to your Astra console, locate the "Create Streaming" button on the left window and to the right of Streaming. Click on it.
 - Set up a new Tenant (remember Pulsar has a multi-tenant architecture): _you have to find a globally unique name for it_,
 so for instance if `gameserver` is already taken by someone, try `gameserver0`, `gameserver-abc` or something similar.
 Pick the provider/region you like (_try to have it close to you for reduced latency_) and finally hit "Create Tenant". **Remember the name of your tenant for the API setup step later**.
@@ -215,7 +217,8 @@ There are a couple of things to do before you can launch the API:
 #### 3a. Environment variables
 
 You need to pass the connection URL and secret to the API for it to be able
-to speak to the Streaming topic. To do so, first **go to the API console**.
+to speak to the Streaming topic. To do so, first **go to the API console**
+and make sure you are in the `api` subdirectory.
 
 Then create a file `.env` by copying the `.env.sample` in the same directory,
 with the commands
@@ -239,7 +242,7 @@ on your Astra Streaming "Connect" tab (leave the other lines unchanged):
 
 #### 3b. Start the API
 
-Make sure you are in the API console.
+Make sure you are in the API console and in the `api` subdirectory.
 You can now **start the API**:
 
     uvicorn api:app
@@ -261,6 +264,7 @@ Leave it running and turn your attention to the client.
 
 Make sure you **go to the client console** for the following
 (to switch consoles, look at the lower-right panel in your Gitpod layout).
+You should be in the `client` project subdirectory.
 
 #### 4a. Install dependencies
 
