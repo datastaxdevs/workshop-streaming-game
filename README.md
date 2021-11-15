@@ -66,7 +66,7 @@ It doesn't matter if you join our workshop live or you prefer to do at your own 
 
 ## Homework
 
-<img src="images/streaming-badge.png?raw=true" width="200" align="right" />
+<img src="images/streaming-workshop.png?raw=true" width="200" align="right" />
 
 Don't forget to complete your assignment and get your verified skill badge! Finish and submit your homework!
 
