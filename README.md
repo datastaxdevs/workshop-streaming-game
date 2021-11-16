@@ -257,7 +257,7 @@ Leave it running and turn your attention to the client.
 
 > Note: this is how you start the API in a development environment. To deploy
 > to production, you should set up a multi-process system service for `uvicorn`
-> with the `--workers` option and put the whole thing behind an HTTP/2-capable
+> with the `--workers` option and put the whole thing behind a
 > reverse proxy. _This is not covered here_.
 
 ### 4. Client setup
