@@ -10,7 +10,7 @@ Time: *50 minutes*. Difficulty: *Intermediate*. [Start Building!](#lets-start)
 A simple multiplayer online game featuring
 * Astra Streaming (built on top of Apache Pulsar)
 * WebSockets
-* React.js for the front-ent
+* React.js for the front-end
 * the Python FastAPI framework for the back-end
 
 <!--- ENDEXCLUDE --->
@@ -385,6 +385,15 @@ have a look at:
 
 - API: usage of `validatePosition` at line 66 of `api.py`;
 - Client: condition on `generation` at line 109 of `App.js` before invoking `setPlayerX` and `setPlayerY`.
+
+> Note: in this architecture, we very much **want** to have a server between
+> clients and Pulsar topic, with the responsibility of performing validations.
+> Even more so in a complex game, where each client action (message) triggers
+> potentially several actions in the world. But we want to mention, in passing by,
+> that Pulsar also offers its own
+> [native WebSocket interface](https://pulsar.apache.org/docs/en/client-libraries-websocket/)
+> (and so does Astra Streaming),
+> for clients to directly connect to topics using that protocol.
 
 #### 5c. Bring your friends
 
