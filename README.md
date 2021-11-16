@@ -58,7 +58,8 @@ A simple multiplayer online game featuring
 
 ## Materials for the Session
 
-It doesn't matter if you join our workshop live or you prefer to do at your own pace, we have you covered. In this repository, you'll find everything you need for this workshop:
+It doesn't matter if you join our workshop live or you prefer to work at your own pace,
+we have you covered. In this repository, you'll find everything you need for this workshop:
 
 - [Slide deck](slides/DataStaxDevs-workshop-Build_a_Multiplayer_Game_with_Streaming.pdf)
 - [Discord chat](https://bit.ly/cassandra-workshop)
@@ -93,7 +94,8 @@ That's it, you are done! Expect an email in a few days!
 
 ### 1. Create your Astra Streaming instance
 
-**`No Astra database` today**: we won't be instantiating a database unlike most of our workshops; we will be exclusively using "Streaming" instead.
+> **`No Astra database` today**: we won't be instantiating a database (unlike
+> most of our workshops); we will be exclusively using "Streaming" instead.
 
 _**`Astra Streaming`** is the simplest way to get a streaming infrastructure based on Apache Pulsar
 with zero operations at all - just push the button and get your streaming.
@@ -228,17 +230,17 @@ with the commands
 
 (the second line will simply open the `.env` file in the editor).
 Fill the file with the values found earlier
-on your Astra Streaming "Connect" tab (leave the other lines unchanged):
+on your Astra Streaming "Connect" tab (leave the other lines unchanged; _keep the quotes in the file_):
 
-- `STREAMING_TENANT`: your very own tenant name as chosen earlier when creating the topic (step `1b`).
+- `STREAMING_TENANT`: your very own tenant name as chosen earlier when creating the topic (step `1b`); it should be something like `gameserver-abc`.
 - `SERVICE_URL`: it looks similar to `pulsar+ssl://pulsar-aws-useast2.streaming.datastax.com:6651`
-- `ASTRA_TOKEN`: a very long string (about 500 random-looking chars), see step `1c`. You can copy it without showing it.
+- `ASTRA_TOKEN`: a very long string (about 500 random-looking chars), see step `1c`. You can copy it on the Astra UI without showing it.
 
 > Note: treat your token as a personal secret: do not share it, do not commit it to the repo, store it in a safe place!
 
 > Note: in case you gave a different namespace/name to your topic, update `.env` correspondingly.
 > If, moreover, you work locally you may have to check the `TRUST_CERTS` variable as well, depending
-> on your distribution. Look into the `.env` file for some suggestions.
+> on your OS distribution. Look into the `.env` file for some suggestions.
 
 #### 3b. Start the API
 
