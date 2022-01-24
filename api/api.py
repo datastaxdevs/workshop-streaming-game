@@ -1,8 +1,7 @@
 """
     api.py
     Run with:
-        source ../.env
-        uvicorn api:app --reload
+        uvicorn api:app
 """
 
 import asyncio
@@ -15,10 +14,10 @@ from fastapi.responses import HTMLResponse
 from pulsarTools import (getPulsarClient, getConsumer, getProducer,
                          receiveOrNone)
 from utils import dictMerge
-from messaging import (validatePosition, makeGoodbyeUpdate, makeGeometryUpdate,
+from messaging import (validatePosition, makeLeavingUpdate, makeGeometryUpdate,
                        makeWelcomeUpdate, makeEnteringPositionUpdate)
 from gameStatus import (storeGamePlayerStatus, retrieveGamePlayerStatuses,
-                        retrieveGamePlayerStatus)
+                        retrieveGamePlayerStatus, storeGameInactivePlayer)
 
 from settings import (HALF_SIZE_X, HALF_SIZE_Y, RECEIVE_TIMEOUTS_MS,
                       SLEEP_BETWEEN_READS_MS)
@@ -71,6 +70,12 @@ async def playerWSRoute(playerWS: WebSocket, client_id: str):
                 storeGamePlayerStatus(gameID, fullUpdate)
                 # ... and finally sent to Pulsar
                 pulsarProducer.send((json.dumps(fullUpdate)).encode('utf-8'))
+            elif updateMsg['messageType'] == 'leaving':
+                # Player is leaving the game: we update our state to reflect this
+                storeGameInactivePlayer(gameID, client_id)
+                # ...but also broadcast this information to all players
+                fullUpdate = dictMerge(updateMsg, {'playerID': client_id})
+                pulsarProducer.send((json.dumps(fullUpdate)).encode('utf-8'))
             elif updateMsg['messageType'] == 'entering':
                 # A new player announced they're entering and is asking for data
                 # first we tell this client how the game-field looks like
@@ -90,7 +95,7 @@ async def playerWSRoute(playerWS: WebSocket, client_id: str):
                 else:
                     firstPos = makeEnteringPositionUpdate(
                         client_id=client_id,
-                        client_name=updateMsg['payload']['playerName'],
+                        client_name=updateMsg['payload']['name'],
                         halfX=HALF_SIZE_X,
                         halfY=HALF_SIZE_Y)
                     await playerWS.send_text(json.dumps(firstPos))
@@ -102,8 +107,8 @@ async def playerWSRoute(playerWS: WebSocket, client_id: str):
         except WebSocketDisconnect:
             # In this case we issue the "goodbye message" (i.e. null position)
             # on behalf of the client
-            goodbyeUpdate = makeGoodbyeUpdate(client_id)
+            leavingUpdate = makeLeavingUpdate(client_id)
             # ... we store the disappearance of the player
-            storeGamePlayerStatus(gameID, fullUpdate)
+            storeGameInactivePlayer(gameID, client_id)
             # ... and we send it to Pulsar for everyone:
-            pulsarProducer.send((json.dumps(goodbyeUpdate)).encode('utf-8'))
+            pulsarProducer.send((json.dumps(leavingUpdate)).encode('utf-8'))

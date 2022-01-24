@@ -23,7 +23,7 @@ const GameField = ({playerMap, playerID, boardWidth, boardHeight}) => {
             {thatPlayerInfo.h && <rect x="-50" y="-50" width="100" height="100" fill='url(#hearts)'></rect>}
             <g transform={`translate(0,${thatPlayerInfo.y + 1 >= boardHeight? -70 : 70})`}>
               <text className="player-name" textAnchor='middle' fontSize='40'>
-                {thatPlayerInfo.playerName}
+                {thatPlayerInfo.name}
               </text>
             </g>
           </g>

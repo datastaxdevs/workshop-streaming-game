@@ -6,7 +6,7 @@ const PlayerForm = (props) => {
   const setPlayerName = props.setPlayerName
   const inGame = props.inGame
   const setInGame = props.setInGame
-  const setPlayerActive = props.setPlayerActive
+  const setPlayerInitialized = props.setPlayerInitialized
   const setPlayerMap = props.setPlayerMap
   const playerID = props.playerID
   const setLastSent = props.setLastSent
@@ -38,7 +38,7 @@ const PlayerForm = (props) => {
         />
       </p>
       <button onClick={() => {
-        setPlayerActive(false)
+        setPlayerInitialized(false)
         setInGame(true)
         setPlayerMap({})
         setGeneration(0)
@@ -49,6 +49,7 @@ const PlayerForm = (props) => {
       </button>
     </div>}
     {inGame && <div>
+      DRAPETISCA - You are {playerName} - 
       <button onClick={() => setInGame(false)}>
         Leave Game
       </button>

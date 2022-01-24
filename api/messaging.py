@@ -40,7 +40,7 @@ def makePositionUpdate(client_id, client_name, x, y, h, generation):
             'y': y,
             'h': h,
             'generation': generation,
-            'playerName': client_name,
+            'name': client_name,
         },
     }    
 
@@ -50,20 +50,16 @@ def makeEnteringPositionUpdate(client_id, client_name, halfX, halfY):
                               False, 0)
 
 
-def makeGoodbyeUpdate(client_id):
+def makeLeavingUpdate(client_id):
     """
-    A default goodbye message to publish to the Pulsar topic
+    A default 'leaving' message to publish to the Pulsar topic
     in case a client disconnection is detected
     """
     return {
-        'messageType': 'player',
+        'messageType': 'leaving',
         'playerID': client_id,
         'payload': {
-            'x': None,
-            'y': None,
-            'h': False,
-            'generation': 0,
-            'playerName': '',
+            'name': '',
         },
     }
 
@@ -76,7 +72,7 @@ def makeWelcomeUpdate(client_id):
         'messageType': 'chat',
         'payload': {
             'id': str(uuid4()),
-            'playerName': '** API **',
+            'name': '** API **',
             'text': 'Welcome to the game!',
         },
         'playerID': '_api_server_',

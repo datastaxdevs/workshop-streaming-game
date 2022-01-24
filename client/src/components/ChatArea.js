@@ -12,7 +12,7 @@ const ChatArea = ({chatItems, sendChatItem, playerID}) => {
           <span
             className={`chat-player-name ${ci.playerID === playerID ? 'player-self' : 'player-other'}`}
           >
-            {ci.playerName}
+            {ci.name}
           </span>: {ci.text}
         </li>
       ))}

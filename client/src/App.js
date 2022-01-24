@@ -5,8 +5,8 @@ import { useEffect, useState, useRef } from "react"
 import PlayerForm from "./components/PlayerForm"
 import GameArea from "./components/GameArea"
 
-import {packPlayerMessage, packChatMessage, packEnteringMessage} from "./utils/messages"
-import updatePlayerMapValue from "./utils/updatePlayerMapValue"
+import {packPlayerMessage, packChatMessage, packEnteringMessage, packLeavingMessage} from "./utils/messages"
+import {updatePlayerMapValue, removePlayerMapEntry} from "./utils/playerMaps"
 import guessAPILocation from "./utils/guessAPILocation"
 import getRandomSpiderName from "./utils/names"
 
@@ -22,17 +22,19 @@ const App = () => {
 
   const proposedAPILocation = guessAPILocation(window.location.href, settings.DEFAULT_API_LOCATION);
 
-  const [playerName, setPlayerName] = useState(getRandomSpiderName());
   const [apiLocation, setApiLocation] = useState(proposedAPILocation);
   const [inGame, setInGame] = useState(false);
   const [playerMap, setPlayerMap] = useState({});
-  const [playerActive, setPlayerActive] = useState(false);
+  //
+  const [playerInitialized, setPlayerInitialized] = useState(false);
   const [playerX, setPlayerX] = useState(null);
   const [playerY, setPlayerY] = useState(null);
-  const [halfSizeX, setHalfSizeX] = useState(null);
-  const [halfSizeY, setHalfSizeY] = useState(null);
   const [playerH, setPlayerH] = useState(false)
   const [generation, setGeneration] = useState(0)
+  const [playerName, setPlayerName] = useState(getRandomSpiderName());
+  //
+  const [halfSizeX, setHalfSizeX] = useState(null);
+  const [halfSizeY, setHalfSizeY] = useState(null);
   const [lastSent, setLastSent] = useState(null)
   const [lastReceived, setLastReceived] = useState(null)
   const [chatItems, setChatItems] = useState([])
@@ -84,7 +86,7 @@ const App = () => {
 
       if ( updateMsg.messageType === 'player' ){
 
-        setPlayerActive(true);
+        setPlayerInitialized(true);
 
         // Received update on some player through the 'world' websocket
         const thatPlayerID = updateMsg.playerID
@@ -95,11 +97,19 @@ const App = () => {
         // We compare generations before receiving an update to self, to avoid update loops
         // from player updates delivered back to us asynchronously:
         if ((thatPlayerID === playerID) && (updateMsg.payload.generation >= generationRef.current - 1)){
-          if ( updateMsg.payload.x !== null){
+          if ( updateMsg.payload.playerInitialized !== null){
             setPlayerX(updateMsg.payload.x)
             setPlayerY(updateMsg.payload.y)
+            setPlayerH(updateMsg.payload.h)
           }
         }
+      } else if ( updateMsg.messageType === 'leaving' ) {
+        // some player is leaving the arena: let us update our knowledge of the game field
+        const thatPlayerID = updateMsg.playerID
+        setPlayerMap(plMap => {
+          const newPlMap = removePlayerMapEntry(plMap, thatPlayerID)
+          return newPlMap
+        })
       } else if ( updateMsg.messageType === 'geometry' ) {
         // we received initial geometry info from the API
         setHalfSizeX(updateMsg.payload.halfSizeX)
@@ -134,7 +144,7 @@ const App = () => {
         pws = new WebSocket(`${apiLocation}/ws/player/${playerID}`)
 
         pws.onopen = evt => {
-          // const msg = packPlayerMessage(generationRef.current, playerName, playerXRef.current, playerYRef.current, playerHRef.current)
+          // FIXME const msg = packPlayerMessage(generationRef.current, playerName, playerXRef.current, playerYRef.current, playerHRef.current)
           // setLastSent(msg)
           // pws.send(msg)
           // let's ask for init data
@@ -148,7 +158,7 @@ const App = () => {
         pws.onmessage = handleReceivedMessageEvent
       } else {
         // socket already opened: can be used immediately
-        // const msg = packPlayerMessage(generationRef.current, playerName, playerXRef.current, playerYRef.current, playerHRef.current)
+        // FIXME const msg = packPlayerMessage(generationRef.current, playerName, playerXRef.current, playerYRef.current, playerHRef.current)
         // setLastSent(msg)
         // let's ask for init data
         const msg2 = packEnteringMessage(playerName)
@@ -161,8 +171,8 @@ const App = () => {
       if(wws !== null || pws !== null){
 
         // we notify the API that we are leaving
-        if(playerActive && pws && pws.readyState === 1){
-          const msg = packPlayerMessage(generationRef.current, playerName, null, null, playerH)
+        if(pws && pws.readyState === 1){
+          const msg = packLeavingMessage(playerName)
           setLastSent(msg)
           pws.send(msg)
         }
@@ -194,11 +204,11 @@ const App = () => {
   useEffect( () => {
     if (inGame) {
 
-      if(playerActive && pws && pws.readyState === 1){
-        const msg = packPlayerMessage(generationRef.current, playerName, playerX, playerY, playerH)
+      if(playerInitialized && pws && pws.readyState === 1){
+        const msg = packPlayerMessage(playerX, playerY, playerH, generationRef.current, playerName)
         setLastSent(msg)
         pws.send(msg)
-      }
+      } // else we don't have a working socket/a living player, and we miss sending out (!)
 
       // we increment the generation number to recognize and ignore 'stale' player updates bouncing back to us
       setGeneration( g => g+1 )
@@ -216,7 +226,7 @@ const App = () => {
           setApiLocation={setApiLocation}
           playerName={playerName}
           setPlayerName={setPlayerName}
-          setPlayerActive={setPlayerActive}
+          setPlayerInitialized={setPlayerInitialized}
           inGame ={inGame}
           setInGame ={setInGame}
           setPlayerMap={setPlayerMap}

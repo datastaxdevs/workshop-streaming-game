@@ -1,12 +1,12 @@
 const uuid = require('uuid');
 
 // utility to serialize a standard player info message (name, position, ...)
-export const packPlayerMessage = (generation, playerName, x, y, h) => {
+export const packPlayerMessage = (x, y, h, generation, name) => {
   return JSON.stringify({
     messageType: 'player',
     payload: {
       generation,
-      playerName,
+      name,
       x,
       y,
       h
@@ -15,22 +15,31 @@ export const packPlayerMessage = (generation, playerName, x, y, h) => {
 }
 
 // utility to serialize a player chat entry
-export const packChatMessage = (playerName, text) => {
+export const packChatMessage = (name, text) => {
   return JSON.stringify({
     messageType: 'chat',
     payload: {
-      playerName,
+      name,
       text,
       id: uuid.v4(),
     }
   })
 }
 
-export const packEnteringMessage = (playerName) => {
+export const packEnteringMessage = (name) => {
   return JSON.stringify({
     messageType: 'entering',
     payload: {
-      playerName,
+      name,
+    }
+  })
+}
+
+export const packLeavingMessage = (name) => {
+  return JSON.stringify({
+    messageType: 'leaving',
+    payload: {
+      name,
     }
   })
 }

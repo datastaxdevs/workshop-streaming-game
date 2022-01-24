@@ -41,7 +41,7 @@ def _messageToRow(gameID, active, updateMsg):
         updateMsg['payload']['y'],
         updateMsg['payload']['h'],
         updateMsg['payload']['generation'],
-        updateMsg['payload']['playerName'],
+        updateMsg['payload']['name'],
     ]
 
 
@@ -55,27 +55,30 @@ def _rowToMessage(row):
         row[6],
     )
 
+def storeGameInactivePlayer(gameID, playerID):
+    if playerID in playerCache[gameID]:
+        playerCache[gameID][playerID][2] = False
+    _showCache('store')
+
 def storeGamePlayerStatus(gameID, playerUpdate):
     ensureGameID(gameID)
     #
     pLoad = playerUpdate['payload']
     playerID = playerUpdate['playerID']
-    if pLoad['x'] is None and pLoad['y'] is None:
-        if playerID in playerCache[gameID]:
-            # mark as not active
-            playerCache[gameID][playerID][2] = False
-    else:
-        playerCache[gameID][playerID] = _messageToRow(gameID, True, playerUpdate)
+    # we can trust x,y etc not to be null at this point
+    playerCache[gameID][playerID] = _messageToRow(gameID, True, playerUpdate)
     #
     _showCache('store')
 
 
 def retrieveGamePlayerStatuses(gameID, excludedIDs = set()):
+    # active players only
     ensureGameID(gameID)
     #
     return (
         _rowToMessage(s)
         for s in playerCache[gameID].values()
+        if s[2]
         if s[1] not in excludedIDs
     )
     _showCache('retrieve')
