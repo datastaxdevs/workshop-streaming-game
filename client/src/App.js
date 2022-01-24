@@ -5,7 +5,7 @@ import { useEffect, useState, useRef } from "react"
 import PlayerForm from "./components/PlayerForm"
 import GameArea from "./components/GameArea"
 
-import {packPlayerMessage, packChatMessage} from "./utils/messages"
+import {packPlayerMessage, packChatMessage, packEnteringMessage} from "./utils/messages"
 import updatePlayerMapValue from "./utils/updatePlayerMapValue"
 import guessAPILocation from "./utils/guessAPILocation"
 import getRandomSpiderName from "./utils/names"
@@ -26,6 +26,7 @@ const App = () => {
   const [apiLocation, setApiLocation] = useState(proposedAPILocation);
   const [inGame, setInGame] = useState(false);
   const [playerMap, setPlayerMap] = useState({});
+  const [playerActive, setPlayerActive] = useState(false);
   const [playerX, setPlayerX] = useState(null);
   const [playerY, setPlayerY] = useState(null);
   const [halfSizeX, setHalfSizeX] = useState(null);
@@ -74,6 +75,55 @@ const App = () => {
     }
   }
 
+  const handleReceivedMessageEvent = evt => {
+    setLastReceived(evt.data)
+
+    try {
+
+      const updateMsg = JSON.parse(evt.data)
+
+      if ( updateMsg.messageType === 'player' ){
+
+        setPlayerActive(true);
+
+        // Received update on some player through the 'world' websocket
+        const thatPlayerID = updateMsg.playerID
+        setPlayerMap(plMap => {
+          const newPlMap = updatePlayerMapValue(plMap, thatPlayerID, updateMsg.payload)
+          return newPlMap
+        })
+        // We compare generations before receiving an update to self, to avoid update loops
+        // from player updates delivered back to us asynchronously:
+        if ((thatPlayerID === playerID) && (updateMsg.payload.generation >= generationRef.current - 1)){
+          if ( updateMsg.payload.x !== null){
+            setPlayerX(updateMsg.payload.x)
+            setPlayerY(updateMsg.payload.y)
+          }
+        }
+      } else if ( updateMsg.messageType === 'geometry' ) {
+        // we received initial geometry info from the API
+        setHalfSizeX(updateMsg.payload.halfSizeX)
+        setHalfSizeY(updateMsg.payload.halfSizeY)
+        //setPlayerX(updateMsg.payload.halfSizeX - 1)
+        //setPlayerY(updateMsg.payload.halfSizeY - 1)
+        //setPlayerH(false)
+      } else if ( updateMsg.messageType === 'chat' ) {
+        // we received a new chat item. Let's make room for it
+        // first we add the playerID to the chat-item object
+        const chatPayload = {...updateMsg.payload, ...{playerID: updateMsg.playerID}}
+        // then we concatenate it to the items to display (discarding the oldest if necessary)
+        setChatItems( items => items.concat([chatPayload]).slice(-settings.MAX_ITEMS_IN_CHAT) )
+      } else {
+        // another messageType
+        console.log(`Ignoring messageType = ${updateMsg.messageType} ... for now`)
+      }
+
+    } catch (e) {
+      console.log(`Error "${e}" while receiving message "${evt.data}". Ignoring message, the show must go on`)
+    }
+
+  }
+
   useEffect( () => {
     if(inGame){
 
@@ -84,64 +134,34 @@ const App = () => {
         pws = new WebSocket(`${apiLocation}/ws/player/${playerID}`)
 
         pws.onopen = evt => {
-          const msg = packPlayerMessage(generationRef.current, playerName, playerXRef.current, playerYRef.current, playerHRef.current)
-          setLastSent(msg)
-          pws.send(msg)
+          // const msg = packPlayerMessage(generationRef.current, playerName, playerXRef.current, playerYRef.current, playerHRef.current)
+          // setLastSent(msg)
+          // pws.send(msg)
+          // let's ask for init data
+          const msg2 = packEnteringMessage(playerName)
+          pws.send(msg2)
+          setLastSent(msg2)
         }
 
-        wws.onmessage = evt => {
-          setLastReceived(evt.data)
-
-          try {
-
-            const updateMsg = JSON.parse(evt.data)
-
-            if ( updateMsg.messageType === 'player' ){
-
-              // Received update on some player through the 'world' websocket
-              const thatPlayerID = updateMsg.playerID
-              setPlayerMap(plMap => {
-                const newPlMap = updatePlayerMapValue(plMap, thatPlayerID, updateMsg.payload)
-                return newPlMap
-              })
-              // We compare generations before receiving an update to self, to avoid update loops
-              // from player updates delivered back to us asynchronously:
-              if ((thatPlayerID === playerID) && (updateMsg.payload.generation >= generationRef.current - 1)){
-                if ( updateMsg.payload.x !== null){
-                  setPlayerX(updateMsg.payload.x)
-                  setPlayerY(updateMsg.payload.y)
-                }
-              }
-            } else if ( updateMsg.messageType === 'geometry' ) {
-              // we received initial geometry info from the API
-              setHalfSizeX(updateMsg.payload.halfSizeX)
-              setHalfSizeY(updateMsg.payload.halfSizeY)
-              setPlayerX(updateMsg.payload.halfSizeX - 1)
-              setPlayerY(updateMsg.payload.halfSizeY - 1)
-              setPlayerH(false)
-            } else if ( updateMsg.messageType === 'chat' ) {
-              // we received a new chat item. Let's make room for it
-              // first we add the playerID to the chat-item object
-              const chatPayload = {...updateMsg.payload, ...{playerID: updateMsg.playerID}}
-              // then we concatenate it to the items to display (discarding the oldest if necessary)
-              setChatItems( items => items.concat([chatPayload]).slice(-settings.MAX_ITEMS_IN_CHAT) )
-            } else {
-              // another messageType
-              console.log(`Ignoring messageType = ${updateMsg.messageType} ... for now`)
-            }
-
-          } catch (e) {
-            console.log(`Error "${e}" while receiving message "${evt.data}". Ignoring message, the show must go on`)
-          }
-
-        }
+        // both sockets can receive messages and should treat them the same way
+        wws.onmessage = handleReceivedMessageEvent
+        pws.onmessage = handleReceivedMessageEvent
+      } else {
+        // socket already opened: can be used immediately
+        // const msg = packPlayerMessage(generationRef.current, playerName, playerXRef.current, playerYRef.current, playerHRef.current)
+        // setLastSent(msg)
+        // let's ask for init data
+        const msg2 = packEnteringMessage(playerName)
+        pws.send(msg2)
+        setLastSent(msg2)
       }
+
 
     } else {
       if(wws !== null || pws !== null){
 
         // we notify the API that we are leaving
-        if(pws && pws.readyState === 1){
+        if(playerActive && pws && pws.readyState === 1){
           const msg = packPlayerMessage(generationRef.current, playerName, null, null, playerH)
           setLastSent(msg)
           pws.send(msg)
@@ -174,7 +194,7 @@ const App = () => {
   useEffect( () => {
     if (inGame) {
 
-      if(pws && pws.readyState === 1){
+      if(playerActive && pws && pws.readyState === 1){
         const msg = packPlayerMessage(generationRef.current, playerName, playerX, playerY, playerH)
         setLastSent(msg)
         pws.send(msg)
@@ -196,6 +216,7 @@ const App = () => {
           setApiLocation={setApiLocation}
           playerName={playerName}
           setPlayerName={setPlayerName}
+          setPlayerActive={setPlayerActive}
           inGame ={inGame}
           setInGame ={setInGame}
           setPlayerMap={setPlayerMap}

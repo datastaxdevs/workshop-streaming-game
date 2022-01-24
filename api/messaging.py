@@ -31,6 +31,25 @@ def validatePosition(updDict, halfX, halfY):
     )
 
 
+def makePositionUpdate(client_id, client_name, x, y, h, generation):
+    return {
+        'messageType': 'player',
+        'playerID': client_id,
+        'payload': {
+            'x': x,
+            'y': y,
+            'h': h,
+            'generation': generation,
+            'playerName': client_name,
+        },
+    }    
+
+
+def makeEnteringPositionUpdate(client_id, client_name, halfX, halfY):
+    return makePositionUpdate(client_id, client_name, halfX-1, halfY-1,
+                              False, 0)
+
+
 def makeGoodbyeUpdate(client_id):
     """
     A default goodbye message to publish to the Pulsar topic

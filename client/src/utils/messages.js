@@ -25,3 +25,12 @@ export const packChatMessage = (playerName, text) => {
     }
   })
 }
+
+export const packEnteringMessage = (playerName) => {
+  return JSON.stringify({
+    messageType: 'entering',
+    payload: {
+      playerName,
+    }
+  })
+}
