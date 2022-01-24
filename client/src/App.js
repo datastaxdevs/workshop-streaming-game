@@ -6,7 +6,7 @@ import PlayerForm from "./components/PlayerForm"
 import GameArea from "./components/GameArea"
 
 import {packPlayerMessage, packChatMessage} from "./utils/messages"
-import replaceValue from "./utils/replaceValue"
+import updatePlayerMapValue from "./utils/updatePlayerMapValue"
 import guessAPILocation from "./utils/guessAPILocation"
 import getRandomSpiderName from "./utils/names"
 
@@ -101,7 +101,7 @@ const App = () => {
               // Received update on some player through the 'world' websocket
               const thatPlayerID = updateMsg.playerID
               setPlayerMap(plMap => {
-                const newPlMap = replaceValue(plMap, thatPlayerID, updateMsg.payload)
+                const newPlMap = updatePlayerMapValue(plMap, thatPlayerID, updateMsg.payload)
                 return newPlMap
               })
               // We compare generations before receiving an update to self, to avoid update loops
