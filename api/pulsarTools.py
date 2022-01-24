@@ -32,7 +32,10 @@ streamingTopic = 'persistent://{tenant}/{namespace}/{topic}'.format(
 )
 
 
+# Pulsar producer/consumer caches
+# (for parsimonious allocation of resources)
 consumerCache = {}
+cachedProducer = None
 
 
 def getPulsarClient():
@@ -40,6 +43,8 @@ def getPulsarClient():
 
 
 def getConsumer(clientID, puClient):
+    global consumerCache
+    #
     if clientID not in consumerCache:
         pulsarSubscription = f'sub_{clientID}'
         consumerCache[clientID] = puClient.subscribe(streamingTopic,
@@ -49,7 +54,12 @@ def getConsumer(clientID, puClient):
 
 
 def getProducer(puClient):
-    return puClient.create_producer(streamingTopic)
+    global cachedProducer
+    #
+    if cachedProducer is None:
+        cachedProducer = puClient.create_producer(streamingTopic)
+    #
+    return cachedProducer
 
 
 def receiveOrNone(consumer, timeout):
