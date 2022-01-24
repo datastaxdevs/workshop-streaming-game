@@ -26,6 +26,8 @@ const App = () => {
   const [inGame, setInGame] = useState(false);
   const [playerMap, setPlayerMap] = useState({});
   //
+  // 'playerInitialized' starts False when entering the game and then jumps to
+  // True as soon as the API acknowledges the player and gives it info/coordinates.
   const [playerInitialized, setPlayerInitialized] = useState(false);
   const [playerX, setPlayerX] = useState(null);
   const [playerY, setPlayerY] = useState(null);
@@ -97,11 +99,9 @@ const App = () => {
         // We compare generations before receiving an update to self, to avoid update loops
         // from player updates delivered back to us asynchronously:
         if ((thatPlayerID === playerID) && (updateMsg.payload.generation >= generationRef.current - 1)){
-          if ( updateMsg.payload.playerInitialized !== null){
-            setPlayerX(updateMsg.payload.x)
-            setPlayerY(updateMsg.payload.y)
-            setPlayerH(updateMsg.payload.h)
-          }
+          setPlayerX(updateMsg.payload.x)
+          setPlayerY(updateMsg.payload.y)
+          setPlayerH(updateMsg.payload.h)
         }
       } else if ( updateMsg.messageType === 'leaving' ) {
         // some player is leaving the arena: let us update our knowledge of the game field
@@ -111,7 +111,7 @@ const App = () => {
           return newPlMap
         })
       } else if ( updateMsg.messageType === 'geometry' ) {
-        // we received initial geometry info from the API
+        // hooray: we just received initial geometry info from the API!
         setHalfSizeX(updateMsg.payload.halfSizeX)
         setHalfSizeY(updateMsg.payload.halfSizeY)
         //setPlayerX(updateMsg.payload.halfSizeX - 1)
@@ -119,7 +119,7 @@ const App = () => {
         //setPlayerH(false)
       } else if ( updateMsg.messageType === 'chat' ) {
         // we received a new chat item. Let's make room for it
-        // first we add the playerID to the chat-item object
+        // first we add the playerID to the chat-item object for local storing
         const chatPayload = {...updateMsg.payload, ...{playerID: updateMsg.playerID}}
         // then we concatenate it to the items to display (discarding the oldest if necessary)
         setChatItems( items => items.concat([chatPayload]).slice(-settings.MAX_ITEMS_IN_CHAT) )
@@ -208,13 +208,13 @@ const App = () => {
         const msg = packPlayerMessage(playerX, playerY, playerH, generationRef.current, playerName)
         setLastSent(msg)
         pws.send(msg)
-      } // else we don't have a working socket/a living player, and we miss sending out (!)
+      } // else: hmm, we seem not to have a working socket AND a player on the field. We'll not send out (!)
 
       // we increment the generation number to recognize and ignore 'stale' player updates bouncing back to us
       setGeneration( g => g+1 )
   
     }
-  // we are handling generation increase explicitly within this hook, so we don't react to it:
+  // we are handling generation increase explicitly within this hook, so we don't react to 'generation':
   // eslint-disable-next-line
   }, [inGame, playerName, playerX, playerY, playerH])
 

@@ -122,7 +122,7 @@ const spiderNames = [
   'Hypsosinga',
   'Iberina',
   'Improphantes',
-  //'Incestophantes', // can hurt sensibilities, perhaps?
+  //'Incestophantes', // does not sound very gentle to assign a game player
   'Inermocoelotes',
   'Ipa',
   'Janetschekia',
