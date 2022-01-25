@@ -6,6 +6,7 @@ const GameArea = (props) => {
   const playerName = props.playerName
   const playerID = props.playerID
   const playerMap = props.playerMap
+  const brickList = props.brickList
   const playerX = props.playerX
   const setPlayerX = props.setPlayerX
   const playerY = props.playerY
@@ -40,6 +41,7 @@ const GameArea = (props) => {
         <div className="content" onKeyDown={handleKeyDown} tabIndex="0">
           <GameField
             playerMap={playerMap}
+            brickList={brickList}
             playerID={playerID}
             boardWidth={boardWidth}
             boardHeight={boardHeight}

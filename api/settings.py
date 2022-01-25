@@ -5,6 +5,7 @@
 # Game field (half) size
 HALF_SIZE_X = 20
 HALF_SIZE_Y = 12
+BRICK_FRACTION = 0.025
 
 # Timeouts and waiting times
 RECEIVE_TIMEOUTS_MS = 5

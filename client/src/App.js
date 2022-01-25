@@ -25,6 +25,7 @@ const App = () => {
   const [apiLocation, setApiLocation] = useState(proposedAPILocation);
   const [inGame, setInGame] = useState(false);
   const [playerMap, setPlayerMap] = useState({});
+  const [brickList, setBrickList] = useState([]);
   //
   // 'playerInitialized' starts False when entering the game and then jumps to
   // True as soon as the API acknowledges the player and gives it info/coordinates.
@@ -123,6 +124,10 @@ const App = () => {
         const chatPayload = {...updateMsg.payload, ...{playerID: updateMsg.playerID}}
         // then we concatenate it to the items to display (discarding the oldest if necessary)
         setChatItems( items => items.concat([chatPayload]).slice(-settings.MAX_ITEMS_IN_CHAT) )
+      } else if ( updateMsg.messageType === 'brick' ) {
+        // we add a brick to the list of known brick positions
+        // We should make sure we uniquify the list (w.r.t coordinates, for example) ...
+        setBrickList( bs => bs.concat([updateMsg.payload]) )
       } else {
         // another messageType
         console.log(`Ignoring messageType = ${updateMsg.messageType} ... for now`)
@@ -240,6 +245,7 @@ const App = () => {
         playerName={playerName}
         playerID={playerID}
         playerMap={playerMap}
+        brickList={brickList}
         playerX={playerX}
         setPlayerX={setPlayerX}
         playerY={playerY}

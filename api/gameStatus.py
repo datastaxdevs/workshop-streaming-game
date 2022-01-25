@@ -10,7 +10,7 @@
 
 import uuid
 
-from messaging import makePositionUpdate
+from messaging import (makePositionUpdate, pickBrickPositions, makeBrickUpdate)
 from database.session import session
 
 
@@ -27,15 +27,15 @@ psSelectObjectCQL = session.prepare(
     'SELECT object_id, x, y, h, generation, name FROM objects_by_game_id WHERE '
     'game_id = ? AND kind = ? AND object_id = ?'
 )
-psSelectObjectsByKindCQL = session.prepare(
-    'SELECT object_id, active, x, y, h, generation, name FROM '
-    'objects_by_game_id WHERE game_id = ? AND kind = ?;'
+psSelectObjectsCQL = session.prepare(
+    'SELECT kind, object_id, active, x, y, h, generation, name FROM '
+    'objects_by_game_id WHERE game_id = ?;'
 )
 psInsertObjectActivenessCQL = session.prepare(
     'INSERT INTO objects_by_game_id (game_id, kind, object_id, active) VALUES '
     '(?, ?, ?, ?);'
 )
-psSelectObjectsCQL = session.prepare(
+psSelectObjectsShortCQL = session.prepare(
     'SELECT kind, object_id, active, x, y FROM '
     'objects_by_game_id WHERE game_id = ?;'
 )
@@ -51,6 +51,20 @@ def _dbRowToPlayerMessage(row):
         row.generation,
     )
 
+
+def _dbRowToBrickMessage(row):
+    return makeBrickUpdate(
+        row.name,
+        row.x,
+        row.y,
+    )
+
+
+def _dbRowToMessage(row):
+    if row.kind == 'player':
+        return _dbRowToPlayerMessage(row)
+    elif row.kind == 'brick':
+        return _dbRowToBrickMessage(row)
 
 ###
 
@@ -125,19 +139,19 @@ def storeGamePlayerPosition(gameID, playerID, x, y):
     )
 
 
-def retrieveActiveGamePlayerStatuses(gameID, excludedIDs = set()):
+def retrieveActiveGameItems(gameID, excludedPlayerIDs = set()):
     """
         Return active players only. Output are 'player' messages ready-to-send.
     """
     results = session.execute(
-        psSelectObjectsByKindCQL,
-        (uuid.UUID(gameID), 'player' ),
+        psSelectObjectsCQL,
+        (uuid.UUID(gameID), ),
     )
     return (
-        _dbRowToPlayerMessage(row)
+        _dbRowToMessage(row)
         for row in results
         if row.active
-        if str(row.object_id) not in excludedIDs
+        if row.kind != 'player' or str(row.object_id) not in excludedPlayerIDs
     )
 
 
@@ -146,7 +160,7 @@ def retrieveFieldOccupancy(gameID):
         Return a map (x, y) -> {kind: ... , object_id: ...}, skips inactives
     """
     results = session.execute(
-        psSelectObjectsCQL,
+        psSelectObjectsShortCQL,
         (uuid.UUID(gameID), ),
     )
     return {
@@ -176,3 +190,34 @@ def retrieveGamePlayerStatus(gameID, playerID):
         return None
     else:
         return _dbRowToPlayerMessage(result)
+
+
+def layBricks(gameID, HALF_SIZE_X, HALF_SIZE_Y, BRICK_FRACTION):
+    """
+        this creates the bricks for the game.
+        It should run only once per gameID (hence we perform a read and make
+        sure there are no bricks), but before any player joins.
+    """
+    # TODO read for bricks
+    brickPositions = pickBrickPositions(
+        2*HALF_SIZE_X-1,
+        2*HALF_SIZE_Y-1,
+        BRICK_FRACTION,
+    )
+    # we store the bricks for this game
+    _gameID = uuid.UUID(gameID)
+    for bi, (bx, by) in enumerate(brickPositions):
+        session.execute(
+            psInsertObjectCQL,
+            (
+                _gameID,
+                'brick',
+                uuid.uuid4(),
+                True,
+                bx,
+                by,
+                False,
+                0,
+                'brick_%04i' % bi,
+            ),
+        )

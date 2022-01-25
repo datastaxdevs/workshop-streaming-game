@@ -13,6 +13,20 @@ from utils import dictMerge
 random.seed(int(time.time()))
 
 
+def pickBrickPositions(w, h, fraction):
+    """
+        sparseness assumption: we don't care much
+        about double-counting, eh.
+    """
+    return {
+        (
+            random.randint(0, w-1),
+            random.randint(0, h-1),
+        )
+        for _ in range(int(w*h*fraction))
+    }
+
+
 def makeCoordPair(updDict):
     if updDict is None:
         return (None, None)
@@ -158,3 +172,14 @@ def makeGeometryUpdate(hsX, hsY):
             'halfSizeY': hsY,
         },
     }
+
+
+def makeBrickUpdate(brick_name, x, y):
+    return {
+        'messageType': 'brick',
+        'payload': {
+            'x': x,
+            'y': y,
+            'name': brick_name,
+        },
+    }    

@@ -17,16 +17,20 @@ from utils import dictMerge
 from messaging import (validatePosition, makeLeavingUpdate, makeGeometryUpdate,
                        makeWelcomeUpdate, makeEnteringPositionUpdate,
                        makeCoordPair)
-from gameStatus import (storeGamePlayerStatus, retrieveActiveGamePlayerStatuses,
+from gameStatus import (storeGamePlayerStatus, retrieveActiveGameItems,
                         retrieveGamePlayerStatus, storeGameInactivePlayer,
                         storeGameActivePlayer, retrieveFieldOccupancy,
-                        storeGamePlayerPosition)
+                        storeGamePlayerPosition, layBricks)
 
 from settings import (HALF_SIZE_X, HALF_SIZE_Y, RECEIVE_TIMEOUTS_MS,
-                      SLEEP_BETWEEN_READS_MS)
+                      SLEEP_BETWEEN_READS_MS, BRICK_FRACTION)
 
 app = FastAPI()
 gameID = str(uuid4())
+
+
+# a one-off gamefield initialization routine
+layBricks(gameID, HALF_SIZE_X, HALF_SIZE_Y, BRICK_FRACTION)
 
 
 @app.websocket("/ws/world/{client_id}")
@@ -94,7 +98,7 @@ async def playerWSRoute(playerWS: WebSocket, client_id: str):
                 # and directly sent to a single client, the one who just connected:
                 await playerWS.send_text(json.dumps(geomUpdate))
                 # we brief the newcomer on all players on the stage
-                for ops in retrieveActiveGamePlayerStatuses(gameID, {client_id}):
+                for ops in retrieveActiveGameItems(gameID, {client_id}):
                     await playerWS.send_text(json.dumps(ops))
                 # do we have a previously-stored position/status for this same player?
                 plStatus = retrieveGamePlayerStatus(gameID, client_id)
