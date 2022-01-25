@@ -16,7 +16,7 @@ from pulsarTools import (getPulsarClient, getConsumer, getProducer,
 from utils import dictMerge
 from messaging import (validatePosition, makeLeavingUpdate, makeGeometryUpdate,
                        makeWelcomeUpdate, makeEnteringPositionUpdate)
-from gameStatus import (storeGamePlayerStatus, retrieveGamePlayerStatuses,
+from gameStatus import (storeGamePlayerStatus, retrieveActiveGamePlayerStatuses,
                         retrieveGamePlayerStatus, storeGameInactivePlayer)
 
 from settings import (HALF_SIZE_X, HALF_SIZE_Y, RECEIVE_TIMEOUTS_MS,
@@ -24,6 +24,7 @@ from settings import (HALF_SIZE_X, HALF_SIZE_Y, RECEIVE_TIMEOUTS_MS,
 
 app = FastAPI()
 gameID = uuid4()
+
 
 @app.websocket("/ws/world/{client_id}")
 async def worldWSRoute(worldWS: WebSocket, client_id: str):
@@ -84,7 +85,7 @@ async def playerWSRoute(playerWS: WebSocket, client_id: str):
                 # and directly sent to a single client, the one who just connected:
                 await playerWS.send_text(json.dumps(geomUpdate))
                 # we brief the newcomer on all players on the stage
-                for ops in retrieveGamePlayerStatuses(gameID, {client_id}):
+                for ops in retrieveActiveGamePlayerStatuses(gameID, {client_id}):
                     await playerWS.send_text(json.dumps(ops))
                 # do we have a previously-stored position/status for this same player?
                 plStatus = retrieveGamePlayerStatus(gameID, client_id)

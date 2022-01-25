@@ -1,7 +1,11 @@
 """
     gameStatus.py
-
-        A persistence layer for the game
+        A persistence layer for the game.
+        For simplicity, player-info entering and exiting this library
+        are directly in the form of "player" messages. A bit of a tight
+        coupling, but for illustration purposes it keeps everything simpler
+        (one may want to more clearly decouple the two representations,
+        row and 'player' message, in a more structured application).
 """
 
 # a temporary in-memory (not scalable) implementation
@@ -55,12 +59,22 @@ def _rowToMessage(row):
         row[6],
     )
 
+###
+
 def storeGameInactivePlayer(gameID, playerID):
+    """
+        Side-effect only: marking a player as 'inactive from board'
+        (i.e. when disconnecting from game).
+    """
     if playerID in playerCache[gameID]:
         playerCache[gameID][playerID][2] = False
     _showCache('store')
 
+
 def storeGamePlayerStatus(gameID, playerUpdate):
+    """
+        Input is a 'player' message, parsed here internally
+    """
     ensureGameID(gameID)
     #
     pLoad = playerUpdate['payload']
@@ -71,8 +85,10 @@ def storeGamePlayerStatus(gameID, playerUpdate):
     _showCache('store')
 
 
-def retrieveGamePlayerStatuses(gameID, excludedIDs = set()):
-    # active players only
+def retrieveActiveGamePlayerStatuses(gameID, excludedIDs = set()):
+    """
+        Active players only. Output are 'player' messages ready-to-send.
+    """
     ensureGameID(gameID)
     #
     return (
@@ -85,6 +101,10 @@ def retrieveGamePlayerStatuses(gameID, excludedIDs = set()):
 
 
 def retrieveGamePlayerStatus(gameID, playerID):
+    """
+        Return None if no info found,
+        else a 'player' message (which, as such, knows of no 'active' flag).
+    """
     ensureGameID(gameID)
     #
     playerRow = playerCache[gameID].get(playerID)
