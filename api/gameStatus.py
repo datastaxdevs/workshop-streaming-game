@@ -32,7 +32,7 @@ def _showCache(title):
             ))
 
 
-def ensureGameID(gameID):
+def _ensureGameID(gameID):
     playerCache[gameID] = playerCache.get(gameID, {})
 
 
@@ -75,7 +75,7 @@ def storeGamePlayerStatus(gameID, playerUpdate):
     """
         Input is a 'player' message, parsed here internally
     """
-    ensureGameID(gameID)
+    _ensureGameID(gameID)
     #
     pLoad = playerUpdate['payload']
     playerID = playerUpdate['playerID']
@@ -89,7 +89,7 @@ def retrieveActiveGamePlayerStatuses(gameID, excludedIDs = set()):
     """
         Active players only. Output are 'player' messages ready-to-send.
     """
-    ensureGameID(gameID)
+    _ensureGameID(gameID)
     #
     return (
         _rowToMessage(s)
@@ -105,7 +105,7 @@ def retrieveGamePlayerStatus(gameID, playerID):
         Return None if no info found,
         else a 'player' message (which, as such, knows of no 'active' flag).
     """
-    ensureGameID(gameID)
+    _ensureGameID(gameID)
     #
     playerRow = playerCache[gameID].get(playerID)
     if playerRow is not None:

@@ -59,14 +59,17 @@ async def playerWSRoute(playerWS: WebSocket, client_id: str):
         try:
             # Any update from a player coming through the 'player' websocket
             updateMsgBlob = await playerWS.receive_text()
-            updateMsg = json.loads(updateMsgBlob)
+            # we unpack and inject playerID to the incoming message
+            updateMsg = dictMerge(
+                json.loads(updateMsgBlob),
+                {'playerID': client_id},
+            )
             if updateMsg['messageType'] == 'player':
                 # if it is a player position update ...
-                # ... is then validated, enriched ...
+                # ... is then validated ...
                 playerUpdate = validatePosition(updateMsg, HALF_SIZE_X,
                                                 HALF_SIZE_Y)
                 #
-                fullUpdate = dictMerge(playerUpdate, {'playerID': client_id})
                 # ... persisted in the server-side status...
                 storeGamePlayerStatus(gameID, fullUpdate)
                 # ... and finally sent to Pulsar
@@ -75,7 +78,6 @@ async def playerWSRoute(playerWS: WebSocket, client_id: str):
                 # Player is leaving the game: we update our state to reflect this
                 storeGameInactivePlayer(gameID, client_id)
                 # ...but also broadcast this information to all players
-                fullUpdate = dictMerge(updateMsg, {'playerID': client_id})
                 pulsarProducer.send((json.dumps(fullUpdate)).encode('utf-8'))
             elif updateMsg['messageType'] == 'entering':
                 # A new player announced they're entering and is asking for data
@@ -103,7 +105,6 @@ async def playerWSRoute(playerWS: WebSocket, client_id: str):
             else:
                 # other types of message undergo no validation whatsoever:
                 # we simply add the player ID to the message and publish
-                fullUpdate = dictMerge(updateMsg, {'playerID': client_id})
                 pulsarProducer.send((json.dumps(fullUpdate)).encode('utf-8'))
         except WebSocketDisconnect:
             # In this case we issue the "goodbye message" (i.e. null position)
