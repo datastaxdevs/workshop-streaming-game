@@ -15,29 +15,35 @@ from database.session import session
 
 
 # prepared statements are created here for later usage:
-psInsertPlayerByPlayerID = session.prepare(
-    'INSERT INTO players_by_player_id (game_id, player_id, active, '
-    'x, y, h, generation, name) VALUES ( ?, ?, ?, ?, ?, ?, ?, ? );'
+psInsertObjectCQL = session.prepare(
+    'INSERT INTO objects_by_game_id (game_id, kind, object_id, active, '
+    'x, y, h, generation, name) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ? );'
 )
-psSelectPlayerByPlayerID = session.prepare(
-    'SELECT player_id, x, y, h, generation, name FROM players_by_player_id WHERE '
-    'game_id = ? AND player_id = ?'
+psInsertObjectCoordinatesCQL = session.prepare(
+    'INSERT INTO objects_by_game_id (game_id, kind, object_id, '
+    'x, y) VALUES ( ?, ?, ?, ?, ? );'
 )
-psSelectPlayersByPlayerID = session.prepare(
-    'SELECT player_id, active, x, y, h, generation, name FROM '
-    'players_by_player_id WHERE game_id = ?;'
+psSelectObjectCQL = session.prepare(
+    'SELECT object_id, x, y, h, generation, name FROM objects_by_game_id WHERE '
+    'game_id = ? AND kind = ? AND object_id = ?'
 )
-psInsertInactivePlayerByPlayerID = session.prepare(
-    'INSERT INTO players_by_player_id (game_id, player_id, active) VALUES '
-    '(?, ?, ?);'
+psSelectObjectsByKindCQL = session.prepare(
+    'SELECT object_id, active, x, y, h, generation, name FROM '
+    'objects_by_game_id WHERE game_id = ? AND kind = ?;'
 )
-
+psInsertObjectActivenessCQL = session.prepare(
+    'INSERT INTO objects_by_game_id (game_id, kind, object_id, active) VALUES '
+    '(?, ?, ?, ?);'
+)
+psSelectObjectsCQL = session.prepare(
+    'SELECT kind, object_id, active, x, y FROM '
+    'objects_by_game_id WHERE game_id = ?;'
+)
 
 def _dbRowToPlayerMessage(row):
     # args are: client_id, client_name, x, y, h, generation
-    print('CONVERTING %s' % row.name)
     return makePositionUpdate(
-        str(row.player_id),
+        str(row.object_id),
         row.name,
         row.x,
         row.y,
@@ -48,19 +54,33 @@ def _dbRowToPlayerMessage(row):
 
 ###
 
+
+def _storeGameActivityForPlayer(gameID, playerID, active):
+    session.execute(
+        psInsertObjectActivenessCQL,
+        (
+            uuid.UUID(gameID),
+            'player',
+            uuid.UUID(playerID),
+            active,
+        ),
+    )
+
+
+def storeGameActivePlayer(gameID, playerID):
+    """
+        Side-effect only: marking a player as 'active (again) on board'
+        (i.e. when coming back to same game).
+    """
+    _storeGameActivityForPlayer(gameID, playerID, True)
+
+
 def storeGameInactivePlayer(gameID, playerID):
     """
         Side-effect only: marking a player as 'inactive from board'
         (i.e. when disconnecting from game).
     """
-    session.execute(
-        psInsertInactivePlayerByPlayerID,
-        (
-            uuid.UUID(gameID),
-            uuid.UUID(playerID),
-            False,
-        ),
-    )
+    _storeGameActivityForPlayer(gameID, playerID, False)
 
 
 def storeGamePlayerStatus(gameID, playerUpdate):
@@ -74,9 +94,10 @@ def storeGamePlayerStatus(gameID, playerUpdate):
     pLoad = playerUpdate['payload']
     playerID = playerUpdate['playerID']
     session.execute(
-        psInsertPlayerByPlayerID,
+        psInsertObjectCQL,
         (
             uuid.UUID(gameID),
+            'player',
             uuid.UUID(playerID),
             True,
             pLoad['x'],
@@ -88,20 +109,54 @@ def storeGamePlayerStatus(gameID, playerUpdate):
     )
 
 
+def storeGamePlayerPosition(gameID, playerID, x, y):
+    """
+        Store new coordinates (server-forced), for later validation etc.
+    """
+    session.execute(
+        psInsertObjectCoordinatesCQL,
+        (
+            uuid.UUID(gameID),
+            'player',
+            uuid.UUID(playerID),
+            x,
+            y,
+        ),
+    )
+
+
 def retrieveActiveGamePlayerStatuses(gameID, excludedIDs = set()):
     """
         Return active players only. Output are 'player' messages ready-to-send.
     """
     results = session.execute(
-        psSelectPlayersByPlayerID,
-        (uuid.UUID(gameID), ),
+        psSelectObjectsByKindCQL,
+        (uuid.UUID(gameID), 'player' ),
     )
     return (
         _dbRowToPlayerMessage(row)
         for row in results
         if row.active
-        if str(row.player_id) not in excludedIDs
+        if str(row.object_id) not in excludedIDs
     )
+
+
+def retrieveFieldOccupancy(gameID):
+    """
+        Return a map (x, y) -> {kind: ... , object_id: ...}, skips inactives
+    """
+    results = session.execute(
+        psSelectObjectsCQL,
+        (uuid.UUID(gameID), ),
+    )
+    return {
+        (row.x, row.y): {
+            'kind': row.kind,
+            'object_id': row.object_id,
+        }
+        for row in results
+        if row.active
+    }
 
 
 def retrieveGamePlayerStatus(gameID, playerID):
@@ -110,9 +165,10 @@ def retrieveGamePlayerStatus(gameID, playerID):
         else a 'player' message (which, as such, knows of no 'active' flag).
     """
     result = session.execute(
-        psSelectPlayerByPlayerID,
+        psSelectObjectCQL,
         (
             uuid.UUID(gameID),
+            'player',
             uuid.UUID(playerID),
         ),
     ).one()

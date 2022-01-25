@@ -15,9 +15,12 @@ from pulsarTools import (getPulsarClient, getConsumer, getProducer,
                          receiveOrNone)
 from utils import dictMerge
 from messaging import (validatePosition, makeLeavingUpdate, makeGeometryUpdate,
-                       makeWelcomeUpdate, makeEnteringPositionUpdate)
+                       makeWelcomeUpdate, makeEnteringPositionUpdate,
+                       makeCoordPair)
 from gameStatus import (storeGamePlayerStatus, retrieveActiveGamePlayerStatuses,
-                        retrieveGamePlayerStatus, storeGameInactivePlayer)
+                        retrieveGamePlayerStatus, storeGameInactivePlayer,
+                        storeGameActivePlayer, retrieveFieldOccupancy,
+                        storeGamePlayerPosition)
 
 from settings import (HALF_SIZE_X, HALF_SIZE_Y, RECEIVE_TIMEOUTS_MS,
                       SLEEP_BETWEEN_READS_MS)
@@ -65,10 +68,14 @@ async def playerWSRoute(playerWS: WebSocket, client_id: str):
                 {'playerID': client_id},
             )
             if updateMsg['messageType'] == 'player':
-                # if it is a player position update ...
-                # ... is then validated ...
+                # if it's a player position update, retrieve gamefield status...
+                fieldOccupancy = retrieveFieldOccupancy(gameID)
+                # ... and last position for this player (if any)
+                prevUpdate = retrieveGamePlayerStatus(gameID, client_id)
+                # ... update is then validated ...
                 playerUpdate = validatePosition(updateMsg, HALF_SIZE_X,
-                                                HALF_SIZE_Y)
+                                                HALF_SIZE_Y, fieldOccupancy,
+                                                prevUpdate)
                 #
                 # ... persisted in the server-side status...
                 storeGamePlayerStatus(gameID, playerUpdate)
@@ -91,17 +98,25 @@ async def playerWSRoute(playerWS: WebSocket, client_id: str):
                     await playerWS.send_text(json.dumps(ops))
                 # do we have a previously-stored position/status for this same player?
                 plStatus = retrieveGamePlayerStatus(gameID, client_id)
-                if plStatus is not None:
+                # we check the field occupancy for next step ...
+                fieldOccupancy = retrieveFieldOccupancy(gameID)
+                playerPrevCoords = makeCoordPair(plStatus)
+                if plStatus is not None and playerPrevCoords not in fieldOccupancy:
                     await playerWS.send_text(json.dumps(plStatus))
                     # returning players: we want to route their return to pulsar as well
                     pulsarProducer.send((json.dumps(plStatus)).encode('utf-8'))
+                    # and we also want to mark them as active
+                    storeGameActivePlayer(gameID, client_id)
                 else:
                     firstPos = makeEnteringPositionUpdate(
                         client_id=client_id,
                         client_name=updateMsg['payload']['name'],
                         halfX=HALF_SIZE_X,
-                        halfY=HALF_SIZE_Y)
+                        halfY=HALF_SIZE_Y,
+                        occupancyMap=fieldOccupancy,
+                    )
                     await playerWS.send_text(json.dumps(firstPos))
+                    storeGamePlayerPosition(gameID, client_id, *makeCoordPair(firstPos))
             else:
                 # other types of message undergo no validation whatsoever:
                 # we simply add the player ID to the message and publish

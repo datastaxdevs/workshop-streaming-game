@@ -28,17 +28,18 @@ try:
 
     # initialization of tables
     tableCreationResult = session.execute('''
-        CREATE TABLE IF NOT EXISTS players_by_player_id (
+        CREATE TABLE IF NOT EXISTS objects_by_game_id (
             game_id     UUID,
-            player_id   UUID,
+            kind        TEXT,
+            object_id   UUID,
             "active"    BOOLEAN,
             x           INT,
             y           INT,
             h           BOOLEAN,
             generation  INT,
             name        TEXT,
-            PRIMARY KEY ( (game_id), player_id)
-        ) WITH CLUSTERING ORDER BY (player_id DESC);
+            PRIMARY KEY ( (game_id), kind, object_id)
+        ) WITH CLUSTERING ORDER BY (kind DESC, object_id DESC);
     ''')
 
     @atexit.register

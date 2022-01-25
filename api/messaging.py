@@ -2,33 +2,87 @@
     messaging.py
 """
 
+import time
+import random
 from uuid import uuid4
 
 from utils import dictMerge
 
 
-def validatePosition(updDict, halfX, halfY):
+# poor randomness, not a problem here
+random.seed(int(time.time()))
+
+
+def makeCoordPair(updDict):
+    if updDict is None:
+        return (None, None)
+    else:
+        return (
+            updDict['payload']['x'],
+            updDict['payload']['y'],
+        )
+
+
+def validatePosition(updDict, halfX, halfY, fieldOccupancy, prevUpdate):
     """
     Utility function to keep the 'x' and 'y' in a dict
-    bound within the game field, respecting null values and other keys
-    that may be present in the dict expressing the item position.
+    bound within the game field,
+    respecting other keys in the passed dict.
     """
-    def _constrainNoneAware(val, minv, maxv):
-        if val is None:
-            return val
-        else:
-            return max(minv, min(val, maxv))
+    def _constrain(val, minv, maxv):
+        return max(minv, min(val, maxv))
 
-    payload = {
-        'x': _constrainNoneAware(updDict['payload']['x'], 0, 2*halfX - 2),
-        'y': _constrainNoneAware(updDict['payload']['y'], 0, 2*halfY - 2),
-    }
-    return dictMerge(
-        {
-            'payload': payload,
-        },
-        default=updDict,
-    )
+    # update wants to get to these coordinates:
+    updX = updDict['payload']['x']
+    updY = updDict['payload']['y']
+    # None values are a init transient, we ignore validation
+
+    if updX is None or updY is None:
+        # "everything goes"
+        return updDict
+    else:
+        cnewX = _constrain(updX, 0, 2*halfX - 2)
+        cnewY = _constrain(updY, 0, 2*halfY - 2)
+        # can player get to that position?
+        targetIsFree = (cnewX, cnewY) not in fieldOccupancy
+        #
+        if prevUpdate is None:
+            curX = halfX - 1
+            curY = halfY - 1
+        else:
+            curX = prevUpdate['payload']['x']
+            curY = prevUpdate['payload']['y']
+        if curX is not None and curY is not None:
+            targetIsNear = abs(curX - cnewX) < 2 and abs(curY - cnewY) < 2
+        else:
+            targetIsNear = True
+        #
+        canGetThere = targetIsFree and targetIsNear
+        if canGetThere:
+            # yes, it can
+            newPosPayload = {
+                'x': cnewX,
+                'y': cnewY,
+            }
+            return dictMerge(
+                {
+                    'payload': newPosPayload,
+                },
+                default=updDict,
+            )
+        else:
+            cbX = curX
+            cbY = curY
+            newPosPayload = {
+                'x': cbX,
+                'y': cbY,
+            }
+            return dictMerge(
+                {
+                    'payload': newPosPayload,
+                },
+                default=updDict,
+            )
 
 
 def makePositionUpdate(client_id, client_name, x, y, h, generation):
@@ -45,8 +99,22 @@ def makePositionUpdate(client_id, client_name, x, y, h, generation):
     }    
 
 
-def makeEnteringPositionUpdate(client_id, client_name, halfX, halfY):
-    return makePositionUpdate(client_id, client_name, halfX-1, halfY-1,
+def makeEnteringPositionUpdate(client_id, client_name, halfX, halfY,
+                               occupancyMap):
+    # we randomize and take care to avoid cells with anything in them
+    freeCells = [
+        (x, y)
+        for x in range(2*halfX - 1)
+        for y in range(2*halfY - 1)
+        if (x, y) not in occupancyMap
+    ]
+    if len(freeCells) > 0:
+        tX, tY = freeCells[random.randint(0, len(freeCells)-1)]
+    else:
+        tX = halfX - 1
+        tY = halfY - 1
+    #
+    return makePositionUpdate(client_id, client_name, tX, tY,
                               False, 0)
 
 
