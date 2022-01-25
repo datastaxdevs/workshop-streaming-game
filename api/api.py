@@ -23,7 +23,7 @@ from settings import (HALF_SIZE_X, HALF_SIZE_Y, RECEIVE_TIMEOUTS_MS,
                       SLEEP_BETWEEN_READS_MS)
 
 app = FastAPI()
-gameID = uuid4()
+gameID = str(uuid4())
 
 
 @app.websocket("/ws/world/{client_id}")
@@ -71,14 +71,14 @@ async def playerWSRoute(playerWS: WebSocket, client_id: str):
                                                 HALF_SIZE_Y)
                 #
                 # ... persisted in the server-side status...
-                storeGamePlayerStatus(gameID, fullUpdate)
+                storeGamePlayerStatus(gameID, playerUpdate)
                 # ... and finally sent to Pulsar
-                pulsarProducer.send((json.dumps(fullUpdate)).encode('utf-8'))
+                pulsarProducer.send((json.dumps(playerUpdate)).encode('utf-8'))
             elif updateMsg['messageType'] == 'leaving':
                 # Player is leaving the game: we update our state to reflect this
                 storeGameInactivePlayer(gameID, client_id)
                 # ...but also broadcast this information to all players
-                pulsarProducer.send((json.dumps(fullUpdate)).encode('utf-8'))
+                pulsarProducer.send((json.dumps(updateMsg)).encode('utf-8'))
             elif updateMsg['messageType'] == 'entering':
                 # A new player announced they're entering and is asking for data
                 # first we tell this client how the game-field looks like
@@ -105,7 +105,7 @@ async def playerWSRoute(playerWS: WebSocket, client_id: str):
             else:
                 # other types of message undergo no validation whatsoever:
                 # we simply add the player ID to the message and publish
-                pulsarProducer.send((json.dumps(fullUpdate)).encode('utf-8'))
+                pulsarProducer.send((json.dumps(updateMsg)).encode('utf-8'))
         except WebSocketDisconnect:
             # In this case we issue the "goodbye message" (i.e. null position)
             # on behalf of the client
