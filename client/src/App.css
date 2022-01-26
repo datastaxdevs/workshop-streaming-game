@@ -98,6 +98,25 @@ body {
   margin: 0 0 20px 0;
 }
 
+.game-title {
+  border-radius: 8px;
+  border: 1px solid #777;
+  padding: 4px;
+  margin: 5px 0 5px 0;
+  font-size: 20px;
+  color: black;
+}
+
+.game-title-name {
+  color: blue;
+}
+
+.game-title-player-name {
+  color: purple;
+  font-weight: bold;
+  margin: 0 20px 0 20px;
+}
+
 .reference-position {
   font-size: 10px;
   color: #555555;

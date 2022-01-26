@@ -15,7 +15,7 @@ A simple multiplayer online game featuring
 
 <!--- ENDEXCLUDE --->
 
-![Drapetisca screenshot](images/drapetisca_intro.png)
+![Drapetisca screenshot](images/drapetisca_intro_v2.png)
 
 ## Objectives
 * Understand the architecture of a streaming-based application
@@ -342,7 +342,7 @@ Well done: you are in the game. You should see your player appear in the arena!
 - you can use the in-game chat box on the left.
 
 <details><summary>Show me the player after entering the game</summary>
-    <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/drapetisca_3.png?raw=true" />
+    <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/drapetisca_3_v2.png?raw=true" />
 </details>
 
 Anything your player does is sent to the API through a WebSocket in the form of an "update message";

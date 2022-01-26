@@ -49,10 +49,13 @@ const PlayerForm = (props) => {
       </button>
     </div>}
     {inGame && <div>
-      DRAPETISCA - You are {playerName} - 
-      <button onClick={() => setInGame(false)}>
-        Leave Game
-      </button>
+      <div className="game-title">
+        <span className="game-title-name">Drapetisca</span>
+        <span className="game-title-player-name">{playerName}</span>
+        <button onClick={() => setInGame(false)}>
+          Leave Game
+        </button>
+      </div>
     </div>}
   </div>)
 
