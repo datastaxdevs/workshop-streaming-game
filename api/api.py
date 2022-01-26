@@ -16,14 +16,16 @@ from pulsarTools import (getPulsarClient, getConsumer, getProducer,
 from utils import dictMerge
 from messaging import (validatePosition, makeLeavingUpdate, makeGeometryUpdate,
                        makeWelcomeUpdate, makeEnteringPositionUpdate,
-                       makeCoordPair)
+                       makeCoordPair, pickFoodPositions, makeFoodUpdate,
+                       makeServerChatUpdate)
 from gameStatus import (storeGamePlayerStatus, retrieveActiveGameItems,
                         retrieveGamePlayerStatus, storeGameInactivePlayer,
                         storeGameActivePlayer, retrieveFieldOccupancy,
-                        storeGamePlayerPosition, layBricks)
+                        storeGamePlayerPosition, storeFoodItemStatus,
+                        layBricks, layFood)
 
 from settings import (HALF_SIZE_X, HALF_SIZE_Y, RECEIVE_TIMEOUTS_MS,
-                      SLEEP_BETWEEN_READS_MS, BRICK_FRACTION)
+                      SLEEP_BETWEEN_READS_MS, BRICK_FRACTION, NUM_FOOD_ITEMS)
 
 app = FastAPI()
 gameID = str(uuid4())
@@ -31,7 +33,7 @@ gameID = str(uuid4())
 
 # a one-off gamefield initialization routine
 layBricks(gameID, HALF_SIZE_X, HALF_SIZE_Y, BRICK_FRACTION)
-
+layFood(gameID, HALF_SIZE_X, HALF_SIZE_Y, NUM_FOOD_ITEMS)
 
 @app.websocket("/ws/world/{client_id}")
 async def worldWSRoute(worldWS: WebSocket, client_id: str):
@@ -77,9 +79,38 @@ async def playerWSRoute(playerWS: WebSocket, client_id: str):
                 # ... and last position for this player (if any)
                 prevUpdate = retrieveGamePlayerStatus(gameID, client_id)
                 # ... update is then validated ...
-                playerUpdate = validatePosition(updateMsg, HALF_SIZE_X,
-                                                HALF_SIZE_Y, fieldOccupancy,
-                                                prevUpdate)
+                playerUpdate, caughtFoodItem = validatePosition(
+                    updateMsg,
+                    HALF_SIZE_X,
+                    HALF_SIZE_Y,
+                    fieldOccupancy,
+                    prevUpdate
+                )
+                # We deal with caught food, if any
+                if caughtFoodItem is not None:
+                    caughtFoodID = caughtFoodItem['object_id']
+                    caughtFoodName = caughtFoodItem['name']
+                    # relocate the food item
+                    newFPos = list(pickFoodPositions(
+                        2*HALF_SIZE_X-1,
+                        2*HALF_SIZE_Y-1,
+                        1,
+                        fieldOccupancy,
+                    ))[0]
+                    # create the food update
+                    foodUpdate = makeFoodUpdate(
+                        caughtFoodID,
+                        caughtFoodName,
+                        newFPos[0],
+                        newFPos[1],
+                    )
+                    # persist new location to DB
+                    storeFoodItemStatus(gameID, foodUpdate)
+                    # congratulate catcher
+                    congratMessage = makeServerChatUpdate(client_id, 'Good catch!')
+                    await playerWS.send_text(json.dumps(congratMessage))
+                    # broadcast (to pulsar) new food update
+                    pulsarProducer.send((json.dumps(foodUpdate)).encode('utf-8'))
                 #
                 # ... persisted in the server-side status...
                 storeGamePlayerStatus(gameID, playerUpdate)

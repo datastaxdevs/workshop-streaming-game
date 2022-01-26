@@ -7,6 +7,7 @@ const GameArea = (props) => {
   const playerID = props.playerID
   const playerMap = props.playerMap
   const brickList = props.brickList
+  const foodMap = props.foodMap
   const playerX = props.playerX
   const setPlayerX = props.setPlayerX
   const playerY = props.playerY
@@ -42,6 +43,7 @@ const GameArea = (props) => {
           <GameField
             playerMap={playerMap}
             brickList={brickList}
+            foodMap={foodMap}
             playerID={playerID}
             boardWidth={boardWidth}
             boardHeight={boardHeight}

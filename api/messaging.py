@@ -27,6 +27,29 @@ def pickBrickPositions(w, h, fraction):
     }
 
 
+def pickFoodPositions(w, h, num, occupancyMap):
+    """
+        we want this to return exactly 'num' items
+    """
+    freeCells = [
+        (x, y)
+        for x in range(w)
+        for y in range(h)
+        if (x, y) not in occupancyMap
+    ]
+    # ... unless there are less than that to choose from (!)
+    _num = min(len(freeCells), num)
+    # We would like to have a cool permutation but importing numpy for
+    # this feels like an overkill so here you go with a lazy mutable-based
+    # solution (meh)
+    chosenPositions = set()
+    while len(chosenPositions) < _num:
+        proposal = freeCells[random.randint(0, len(freeCells)-1)]
+        chosenPositions = chosenPositions | {proposal}
+    #
+    return chosenPositions
+
+
 def makeCoordPair(updDict):
     if updDict is None:
         return (None, None)
@@ -42,6 +65,8 @@ def validatePosition(updDict, halfX, halfY, fieldOccupancy, prevUpdate):
     Utility function to keep the 'x' and 'y' in a dict
     bound within the game field,
     respecting other keys in the passed dict.
+
+    RETURN a 2-tuple (validatedUpdateDict, None-or-foodItem)
     """
     def _constrain(val, minv, maxv):
         return max(minv, min(val, maxv))
@@ -53,13 +78,23 @@ def validatePosition(updDict, halfX, halfY, fieldOccupancy, prevUpdate):
 
     if updX is None or updY is None:
         # "everything goes"
-        return updDict
+        return updDict, None
     else:
         cnewX = _constrain(updX, 0, 2*halfX - 2)
         cnewY = _constrain(updY, 0, 2*halfY - 2)
-        # can player get to that position?
-        targetIsFree = (cnewX, cnewY) not in fieldOccupancy
-        #
+
+        # can player get to that position? and, does it catch food?
+        if (cnewX, cnewY) not in fieldOccupancy:
+            targetIsFree = True
+            caughtFoodItem = None
+        elif fieldOccupancy[(cnewX, cnewY)]['kind'] == 'food':
+            targetIsFree = True
+            caughtFoodItem = fieldOccupancy[(cnewX, cnewY)]
+        else:
+            targetIsFree = False
+            caughtFoodItem = None
+        
+        # is the move too long a jump?
         if prevUpdate is None:
             curX = halfX - 1
             curY = halfY - 1
@@ -83,7 +118,7 @@ def validatePosition(updDict, halfX, halfY, fieldOccupancy, prevUpdate):
                     'payload': newPosPayload,
                 },
                 default=updDict,
-            )
+            ), caughtFoodItem
         else:
             cbX = curX
             cbY = curY
@@ -96,7 +131,7 @@ def validatePosition(updDict, halfX, halfY, fieldOccupancy, prevUpdate):
                     'payload': newPosPayload,
                 },
                 default=updDict,
-            )
+            ), caughtFoodItem
 
 
 def makePositionUpdate(client_id, client_name, x, y, h, generation):
@@ -146,20 +181,23 @@ def makeLeavingUpdate(client_id):
     }
 
 
-def makeWelcomeUpdate(client_id):
-    """
-    A server-generated chat message to greet a new player
-    """
+def makeServerChatUpdate(client_id, text):
     return {
         'messageType': 'chat',
         'payload': {
             'id': str(uuid4()),
             'name': '** API **',
-            'text': 'Welcome to the game!',
+            'text': text,
         },
         'playerID': '_api_server_',
     }
 
+
+def makeWelcomeUpdate(client_id):
+    """
+    A server-generated chat message to greet a new player
+    """
+    return makeServerChatUpdate(client_id, 'Welcome to the game!')
 
 def makeGeometryUpdate(hsX, hsY):
     """
@@ -181,5 +219,17 @@ def makeBrickUpdate(brick_name, x, y):
             'x': x,
             'y': y,
             'name': brick_name,
+        },
+    }    
+
+
+def makeFoodUpdate(food_id, food_name, x, y):
+    return {
+        'messageType': 'food',
+        'foodID': str(food_id),
+        'payload': {
+            'x': x,
+            'y': y,
+            'name': food_name,
         },
     }    

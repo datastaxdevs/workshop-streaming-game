@@ -1,5 +1,5 @@
 // utility to upsert a new key-value pair into an object
-export const updatePlayerMapValue = (origMap, repKey, newValue) => {
+export const updatePositionMapValue = (origMap, repKey, newValue) => {
   const newObj = origMap
   newObj[repKey] = newValue
   // we take out players with null x or y values. This happens in the transient case

@@ -10,7 +10,8 @@
 
 import uuid
 
-from messaging import (makePositionUpdate, pickBrickPositions, makeBrickUpdate)
+from messaging import (makePositionUpdate, pickBrickPositions, makeBrickUpdate,
+                       pickFoodPositions, makeFoodUpdate)
 from database.session import session
 
 
@@ -23,7 +24,7 @@ psInsertObjectCoordinatesCQL = session.prepare(
     'INSERT INTO objects_by_game_id (game_id, kind, object_id, '
     'x, y) VALUES ( ?, ?, ?, ?, ? );'
 )
-psSelectObjectCQL = session.prepare(
+psSelectObjectByIDCQL = session.prepare(
     'SELECT object_id, x, y, h, generation, name FROM objects_by_game_id WHERE '
     'game_id = ? AND kind = ? AND object_id = ?'
 )
@@ -36,8 +37,12 @@ psInsertObjectActivenessCQL = session.prepare(
     '(?, ?, ?, ?);'
 )
 psSelectObjectsShortCQL = session.prepare(
-    'SELECT kind, object_id, active, x, y FROM '
+    'SELECT kind, object_id, active, x, y, name FROM '
     'objects_by_game_id WHERE game_id = ?;'
+)
+psSelectObjectsShortByKindCQL = session.prepare(
+    'SELECT object_id, active, x, y FROM '
+    'objects_by_game_id WHERE game_id = ? AND kind = ?;'
 )
 
 def _dbRowToPlayerMessage(row):
@@ -60,11 +65,24 @@ def _dbRowToBrickMessage(row):
     )
 
 
+def _dbRowToFoodMessage(row):
+    return makeFoodUpdate(
+        row.object_id,
+        row.name,
+        row.x,
+        row.y,
+    )
+
+
 def _dbRowToMessage(row):
     if row.kind == 'player':
         return _dbRowToPlayerMessage(row)
     elif row.kind == 'brick':
         return _dbRowToBrickMessage(row)
+    elif row.kind == 'food':
+        return _dbRowToFoodMessage(row)
+    else:
+        raise NotImplementedError('Unknown row kind "%s"' % row.kind)
 
 ###
 
@@ -95,6 +113,33 @@ def storeGameInactivePlayer(gameID, playerID):
         (i.e. when disconnecting from game).
     """
     _storeGameActivityForPlayer(gameID, playerID, False)
+
+
+def storeFoodItemStatus(gameID, foodUpdate):
+    """
+        Side-effect only: stores the last location/status of
+        a food item on the field.
+
+        Input is a 'food' message, parsed here internally
+    """
+    #
+    pLoad = foodUpdate['payload']
+    foodID = foodUpdate['foodID']
+    session.execute(
+        psInsertObjectCQL,
+        (
+            uuid.UUID(gameID),
+            'food',
+            uuid.UUID(foodID),
+            True,
+            pLoad['x'],
+            pLoad['y'],
+            False,
+            0,
+            pLoad['name'],
+        ),
+    )
+
 
 
 def storeGamePlayerStatus(gameID, playerUpdate):
@@ -167,6 +212,7 @@ def retrieveFieldOccupancy(gameID):
         (row.x, row.y): {
             'kind': row.kind,
             'object_id': row.object_id,
+            'name': row.name,
         }
         for row in results
         if row.active
@@ -179,7 +225,7 @@ def retrieveGamePlayerStatus(gameID, playerID):
         else a 'player' message (which, as such, knows of no 'active' flag).
     """
     result = session.execute(
-        psSelectObjectCQL,
+        psSelectObjectByIDCQL,
         (
             uuid.UUID(gameID),
             'player',
@@ -198,26 +244,83 @@ def layBricks(gameID, HALF_SIZE_X, HALF_SIZE_Y, BRICK_FRACTION):
         It should run only once per gameID (hence we perform a read and make
         sure there are no bricks), but before any player joins.
     """
-    # TODO read for bricks
-    brickPositions = pickBrickPositions(
-        2*HALF_SIZE_X-1,
-        2*HALF_SIZE_Y-1,
-        BRICK_FRACTION,
-    )
-    # we store the bricks for this game
-    _gameID = uuid.UUID(gameID)
-    for bi, (bx, by) in enumerate(brickPositions):
-        session.execute(
-            psInsertObjectCQL,
-            (
-                _gameID,
-                'brick',
-                uuid.uuid4(),
-                True,
-                bx,
-                by,
-                False,
-                0,
-                'brick_%04i' % bi,
-            ),
+
+    # first check if there are bricks already (even just one)
+    prevBrick = session.execute(
+        psSelectObjectsShortByKindCQL,
+        (
+            uuid.UUID(gameID),
+            'brick',
+        ),
+    ).one()
+    if prevBrick is not None:
+        # bricks already present
+        return
+    else:
+        # we create the required bricks
+        brickPositions = pickBrickPositions(
+            2*HALF_SIZE_X-1,
+            2*HALF_SIZE_Y-1,
+            BRICK_FRACTION,
         )
+        # we store the bricks for this game
+        _gameID = uuid.UUID(gameID)
+        for bi, (bx, by) in enumerate(brickPositions):
+            session.execute(
+                psInsertObjectCQL,
+                (
+                    _gameID,
+                    'brick',
+                    uuid.uuid4(),
+                    True,
+                    bx,
+                    by,
+                    False,
+                    0,
+                    'brick_%04i' % bi,
+                ),
+            )
+
+def layFood(gameID, HALF_SIZE_X, HALF_SIZE_Y, NUM_FOOD_ITEMS):
+    """
+        we read the gamefield and place an exact number of food
+        items on the board, unless there are already some.
+    """
+    # first check if there are food items already (even just one)
+    prevFood = session.execute(
+        psSelectObjectsShortByKindCQL,
+        (
+            uuid.UUID(gameID),
+            'food',
+        ),
+    ).one()
+    if prevFood is not None:
+        # food already present
+        return
+    else:
+        # we survey forbidden locations first
+        occupancyMap = retrieveFieldOccupancy(gameID)
+        # we create the required food
+        foodPositions = pickFoodPositions(
+            2*HALF_SIZE_X-1,
+            2*HALF_SIZE_Y-1,
+            NUM_FOOD_ITEMS,
+            occupancyMap,
+        )
+        # we store the bricks for this game
+        _gameID = uuid.UUID(gameID)
+        for fi, (fx, fy) in enumerate(foodPositions):
+            session.execute(
+                psInsertObjectCQL,
+                (
+                    _gameID,
+                    'food',
+                    uuid.uuid4(),
+                    True,
+                    fx,
+                    fy,
+                    False,
+                    0,
+                    'food_%04i' % fi,
+                ),
+            )

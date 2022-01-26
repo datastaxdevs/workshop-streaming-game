@@ -6,7 +6,7 @@ import PlayerForm from "./components/PlayerForm"
 import GameArea from "./components/GameArea"
 
 import {packPlayerMessage, packChatMessage, packEnteringMessage, packLeavingMessage} from "./utils/messages"
-import {updatePlayerMapValue, removePlayerMapEntry} from "./utils/playerMaps"
+import {updatePositionMapValue, removePlayerMapEntry} from "./utils/playerMaps"
 import guessAPILocation from "./utils/guessAPILocation"
 import getRandomSpiderName from "./utils/names"
 
@@ -26,6 +26,7 @@ const App = () => {
   const [inGame, setInGame] = useState(false);
   const [playerMap, setPlayerMap] = useState({});
   const [brickList, setBrickList] = useState([]);
+  const [foodMap, setFoodMap] = useState({});
   //
   // 'playerInitialized' starts False when entering the game and then jumps to
   // True as soon as the API acknowledges the player and gives it info/coordinates.
@@ -94,7 +95,7 @@ const App = () => {
         // Received update on some player through the 'world' websocket
         const thatPlayerID = updateMsg.playerID
         setPlayerMap(plMap => {
-          const newPlMap = updatePlayerMapValue(plMap, thatPlayerID, updateMsg.payload)
+          const newPlMap = updatePositionMapValue(plMap, thatPlayerID, updateMsg.payload)
           return newPlMap
         })
         // We compare generations before receiving an update to self, to avoid update loops
@@ -115,9 +116,6 @@ const App = () => {
         // hooray: we just received initial geometry info from the API!
         setHalfSizeX(updateMsg.payload.halfSizeX)
         setHalfSizeY(updateMsg.payload.halfSizeY)
-        //setPlayerX(updateMsg.payload.halfSizeX - 1)
-        //setPlayerY(updateMsg.payload.halfSizeY - 1)
-        //setPlayerH(false)
       } else if ( updateMsg.messageType === 'chat' ) {
         // we received a new chat item. Let's make room for it
         // first we add the playerID to the chat-item object for local storing
@@ -128,6 +126,14 @@ const App = () => {
         // we add a brick to the list of known brick positions
         // We should make sure we uniquify the list (w.r.t coordinates, for example) ...
         setBrickList( bs => bs.concat([updateMsg.payload]) )
+      } else if ( updateMsg.messageType === 'food' ) {
+        // whether new or moved around, let us mark the new position for this
+        // piece of food
+        const foodID = updateMsg.foodID
+        setFoodMap(fMap => {
+          const newFMap = updatePositionMapValue(fMap, foodID, updateMsg.payload)
+          return newFMap
+        })
       } else {
         // another messageType
         console.log(`Ignoring messageType = ${updateMsg.messageType} ... for now`)
@@ -149,9 +155,6 @@ const App = () => {
         pws = new WebSocket(`${apiLocation}/ws/player/${playerID}`)
 
         pws.onopen = evt => {
-          // FIXME const msg = packPlayerMessage(generationRef.current, playerName, playerXRef.current, playerYRef.current, playerHRef.current)
-          // setLastSent(msg)
-          // pws.send(msg)
           // let's ask for init data
           const msg2 = packEnteringMessage(playerName)
           pws.send(msg2)
@@ -163,8 +166,6 @@ const App = () => {
         pws.onmessage = handleReceivedMessageEvent
       } else {
         // socket already opened: can be used immediately
-        // FIXME const msg = packPlayerMessage(generationRef.current, playerName, playerXRef.current, playerYRef.current, playerHRef.current)
-        // setLastSent(msg)
         // let's ask for init data
         const msg2 = packEnteringMessage(playerName)
         pws.send(msg2)
@@ -246,6 +247,7 @@ const App = () => {
         playerID={playerID}
         playerMap={playerMap}
         brickList={brickList}
+        foodMap={foodMap}
         playerX={playerX}
         setPlayerX={setPlayerX}
         playerY={playerY}
