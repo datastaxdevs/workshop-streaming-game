@@ -9,6 +9,7 @@ Time: *50 minutes*. Difficulty: *Intermediate*. [Start Building!](#lets-start)
 
 A simple multiplayer online game featuring
 * Astra Streaming (built on top of Apache Pulsar)
+* Astra DB (a Database-as-a-service built on Apache Cassandra)
 * WebSockets
 * React.js for the front-end
 * the Python FastAPI framework for the back-end
@@ -20,6 +21,7 @@ A simple multiplayer online game featuring
 ## Objectives
 * Understand the architecture of a streaming-based application
 * Learn how Apache Pulsar works
+* See the interplay between streaming and persistent storage (a.k.a. database)
 * Learn about Websockets on client- and server-side
 * Understand how a FastAPI server can bridge Pulsar topics and WebSockets
 * Understand the structure of a Websocket React.js application
@@ -72,7 +74,7 @@ we have you covered. In this repository, you'll find everything you need for thi
 Don't forget to complete your assignment and get your verified skill badge! Finish and submit your homework!
 
 1. Complete the practice steps as described below until you have your own app running in Gitpod.
-2. Now roll up your sleeves and modify the code in two ways: (1) we want the API to send a greeting to each new player in the chat box, and (2) we want the player names in the game area to match the icon color. _Please read the detailed guidance found [below](#6-homework-instructions)_.
+2. Now roll up your sleeves and modify the code in two ways: (1) we want the API to send a greeting to each new player in the chat box, and (2) we want the player names in the game area to match the icon color. _Please read the detailed guidance found [below](#7-homework-instructions)_.
 3. Take a SCREENSHOT of the running app modified this way. _Note: you will have to restart the API and reload the client to see all changes!_
 4. Submit your homework [here](https://dtsx.io/streaming-game-homework).
 
@@ -82,28 +84,27 @@ That's it, you are done! Expect an email in a few days!
 
 ## Table of contents
 
-1. [Create your Astra Streaming instance](#astra-setup)
-2. [Load the project into Gitpod](#2-load-the-project-into-gitpod)
-3. [Set up/start the API](#3-api-setup)
-4. [Set up/start the client](#4-client-setup)
-5. [Play!](#5-play-the-game)
-6. [Homework instructions](#6-homework-instructions)
-7. [Selected topics](#7-selected-topics)
+1. [Create your Astra Streaming instance](#1-create-your-astra-streaming-instance)
+2. [Create your Astra DB instance](#2-create-your-astra-db-instance)
+3. [Load the project into Gitpod](#3-load-the-project-into-gitpod)
+4. [Set up/start the API](#4-api-setup)
+5. [Set up/start the client](#5-client-setup)
+6. [Play!](#6-play-the-game)
+7. [Homework instructions](#7-homework-instructions)
+8. [Selected topics](#8-selected-topics)
 
 ## Astra setup
 
 ### 1. Create your Astra Streaming instance
 
-> **`No Astra database` today**: we won't be instantiating a database (unlike
-> most of our workshops); we will be exclusively using "Streaming" instead.
-
 _**`Astra Streaming`** is the simplest way to get a streaming infrastructure based on Apache Pulsar
 with zero operations at all - just push the button and get your streaming.
-No credit card required - with the free tier comes a generous monthly-renewed credit for you to use._
+No credit card required - with the **free tier** comes a generous monthly-renewed credit for you to use._
 
 _**`Astra Streaming`** is tightly integrated with `Astra DB`, the database-as-a-service
-used in most of our other workshops. **If you already have an Astra DB account, you can use that
-one in the following!**_
+used in most of our workshops (see below, we will use it momentarily).
+**If you already have an Astra account for Astra DB, you can use that
+one in the following (and jump to "Create streaming" below)!**_
 
 For more information on Astra Streaming, look at [the docs](https://docs.datastax.com/en/astra-streaming/docs/).
 For more information on Apache Pulsar, here is [the documentation](https://pulsar.apache.org/docs/en/concepts-overview/).
@@ -112,7 +113,7 @@ For more information on Apache Pulsar, here is [the documentation](https://pulsa
 
 Register and sign in to Astra at `https://astra.datastax.com` by clicking this button (better in a new tab with Ctrl-click or right-click):
 
-<a href="https://astra.dev/11-17"><img src="images/create_astra_button.png" /></a>
+<a href="https://astra.dev/2-2"><img src="images/create_astra_button.png" /></a>
 
 _you can use your `Github`, `Google` accounts or register with an `email`.
 Choose a password with minimum 8 characters, containing upper and lowercase letters, at least one number and special character.
@@ -125,9 +126,6 @@ You may be asked to verify your email, so make sure you have access to it._
 #### 1b. Create streaming
 
 Once registered and logged in, you will be able to create a streaming topic for use in this workshop.
-
-> Heads up! Astra lets you also create Databases in the cloud (based on Apache Cassandra); in this workshop we will not need to,
-> but keep that in mind. You can also effortlessly connect your streaming topics and an Astra DB instance to enrich your app!
 
 Now it's time to create a new Astra Streaming topic, that will convey all messages for this app.
 
@@ -145,26 +143,140 @@ dispatch the stream of messages that will make your game work!
 > the environment settings for your API code are changed accordingly (see later).
 
 <details><summary>Show me the steps</summary>
-    <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/astra_create_streaming_topic.gif?raw=true" />
+    <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/astra_create_streaming_topic_v2.gif?raw=true" />
 </details>
 
-#### 1c. Check connection details
+#### 1c. Retrieve streaming connection parameters
 
-While you are at it, have a look at the information needed to connect to the topic
-from the API code. While still in the tenant dashboard, find the "Connect" tab and click on it: you will see a listing of "Tenant Details".
-You will later need the "Broker Service URL" and the "Token" values (the latter is hidden but can be copied nevertheless).
+While you are at it, you should get two pieces of information needed later to connect to the topic
+from the API code. While still in the tenant dashboard, find the "Connect" tab and click on it: you will see a listing of "Tenant Details". You will later need the "Broker Service URL" and the "Token" values:
 
-<details><summary>Show me the topic connection details</summary>
-    <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/topic_connect.png?raw=true" />
+- the "Broker service URL" is given in the "Connect" tab;
+- the "Token" is a secret string needed to connect to the topic and is reached by clicking on "Token Manager" and then, once you locate your token in the list, can be directly copied to your clipboard with the "clipboard" icon next to it. _Note: a token is created for you automatically at this point._
+
+<details><summary>Show me the how to get the topic connection parameters</summary>
+    <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/streaming_secrets.png?raw=true" />
 </details>
 
-_Time to prepare some code to be run..._
+> The service URL looks something like `pulsar+ssl://pulsar-[...].streaming.datastax.com:6651`,
+while the token is a very long string such as `eyJhbGci [...] cpNpX_qN68Q`.
+> **The token is a secret string and you should keep it for yourself!**
 
-### 2. Load the project into Gitpod
+### 2. Create your Astra DB instance
+
+Besides the streaming platform, you'll also need a database for persistence of some
+game data (the server-side representation of the "game world").
+
+Correspondingly, you will need some connection parameters and secrets in order
+to later be able to access the database.
+
+#### 2a. Create the database
+
+_**`ASTRA DB`** is the simplest way to run Cassandra with zero operations at all - just push the button and get your cluster. No credit card required, $25.00 USD credit every month, roughly 20M read/write operations and 80GB storage monthly - sufficient to run small production workloads._
+
+You will now create a database with a keyspace in it (a _keyspace_ can contain _tables_.
+Today's application needs a table: it will be created for you the first time you
+will launch it, so don't worry too much).
+
+To create the database, locate the "Create database" button on the navigation bar on the left and fill the required
+values:
+
+- **For the database name** - use `workshops`. While Astra DB allows you to fill in these fields with values of your own choosing, please follow our recommendations to ensure the application runs properly.
+
+- **For the keyspace name** - use `drapetisca`. Please stick to this name, it will make the following steps much easier (you have to customize here and there otherwise). In short:
+
+- **For provider and region**: Choose any provider (either GCP, AWS or Azure). Region is where your database will reside physically (choose one close to you or your users).
+
+- **Create the database**. Review all the fields to make sure they are as shown, and click the `Create Database` button. You will be on the **Free** plan.
+
+| Parameter | Value 
+|---|---|
+| Database name | workshops  |
+| Keyspace name | drapetisca |
+
+You will see your new database as `Pending` in the Dashboard;
+the status will change to `Active` when the database is ready. This will only take 2-3 minutes
+(you will also receive an email when it is ready).
+
+<details><summary>Show me the how to create my Astra DB</summary>
+    <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/astra_create_db.gif?raw=true" />
+To create the database, please note that _the `db_name` and `ks_name` in the above image are just placeholders_.
+</details>
+
+> _Note_: if you already have a `workshops` database, for instance from a previous workshop with us, you can simply create the keyspace with the `Add Keyspace` button in your Astra DB dashboard: the new keyspace will be available in few seconds.
+
+#### 2b. Create a DB Token
+
+You need to create a **DB token**, which the API will later use as credentials to access the DB.
+
+From the Astra DB UI, [create a token](https://docs.datastax.com/en/astra/docs/manage-application-tokens.html)
+with `Database Administrator` roles.
+
+- Go the `Organization Settings`
+- Go to `Token Management`
+- Pick the role `Database Admnistrator` on the select box
+- Click Generate token
+
+<details><summary>Show me the Astra DB token creation</summary>
+    <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/astra-create-token.gif?raw=true" />
+</details>
+
+The "token" is composed by three parts:
+
+- `Client Id`: it plays the role of _username_ to connect to Astra DB;
+- `Client Secret`: it plays the role of a _password_;
+- `Token` (proper): _not needed today_. It would be used as API key to access Astra via the API Gateway.
+
+> You can either copy and paste the values or download them as a CSV (you'll need the `Client ID` and `Client Secret`momentarily). _To copy the values you can click on the clipboard icons._
+
+<details><summary>Show me the generated Astra DB token</summary>
+    <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/astra-token.png?raw=true" />
+</details>
+
+> Make sure you download the CSV or copy the token values you need: once this page is closed,
+> you won't be able to see your token again for security reasons! (then again, you can always issue a new token).
+
+#### 2c. Download the DB Secure Connection Bundle
+
+This next step is probably the most involved step in the entire workshop. The goal of this step is to get the customized connect bundle into Gitpod. One of the several ways of doing this is as follows.
+
+Start with the [Astra DB dashboard](https://astra.datastax.com) and for the database workshops,
+
+1. Click on `Connect` tab.
+2. Click on Connect using any of the drivers `Node.js` (`javascript`), `Python` or `Java`.
+3. Click on `Download Bundle`.
+4. Click on `Secure Connect Bundle` to be able to copy the link locally.
+
+as shown below.
+
+![gitpod](images/secureconnectbundle1.png?raw=true) 
+
+Locate the file locally in the finder/explorer window. Drag and drop the file into the Gitpod explorer window (on the left side, making sure that the cursor, indicating the drop, is positioned in the Gitpod explorer window as shown below.
+
+![gitpod](images/secureconnectbundle3.png?raw=true)
+
+In the Gitpod terminal window, verify that you dropped the right file and at the top level directory
+
+```bash
+ls -l /workspace/bootcamp-fullstack-apps-with-cassandra/secure-connect-workshops.zip
+```
+
+If you get a message `cannot access` or the file size is not roughly 12K, something may have gone wrong in the process and you need to repeat this step (step 5b).
+
+**👁️ Expected output**
+
+```
+-rw-r--r-- 1 gitpod gitpod 12261 Jan 12 23:34 /workspace/bootcamp-fullstack-apps-with-cassandra/secure-connect-workshops.zip
+```
+
+
+## Configure and run the application
+
+### 3. Load the project into Gitpod
 
 Development and running will be done within a Gitpod instance (more on that in a second).
 
-#### 2a. Open Gitpod
+#### 3a. Open Gitpod
 
 To load the whole project (API + client) in your personal Gitpod workspace, please
 Ctrl-click (or right-click and open in new tab) on the following button:
@@ -195,7 +307,7 @@ will see a message such as `CLIENT/API READY TO START` in the Gitpod console.
 > attention to the occasional differences between the Gitpod and the local routes, but
 > we'll generally assume that if you work locally you know what you are doing. Good luck!
 
-#### 2b. Gitpod interface
+#### 3b. Gitpod interface
 
 This project is composed of two parts: client and API. For this reason, Gitpod
 is configured to spawn _three_ different consoles: the "default" one for
@@ -212,11 +324,11 @@ will start in the `api` and `client` subdirectories for you).
 > Note: for your convenience, you find this very README open within the Gitpod
 > text editor.
 
-### 3. API setup
+### 4. API setup
 
 There are a couple of things to do before you can launch the API:
 
-#### 3a. Environment variables
+#### 4a. Environment variables
 
 You need to pass the connection URL and secret to the API for it to be able
 to speak to the Streaming topic. To do so, first **go to the API console**
@@ -242,7 +354,7 @@ on your Astra Streaming "Connect" tab (leave the other lines unchanged; _keep th
 > If, moreover, you work locally you may have to check the `TRUST_CERTS` variable as well, depending
 > on your OS distribution. Look into the `.env` file for some suggestions.
 
-#### 3b. Start the API
+#### 4b. Start the API
 
 Make sure you are in the API console and in the `api` subdirectory.
 You can now **start the API**:
@@ -262,13 +374,13 @@ Leave it running and turn your attention to the client.
 > with the `--workers` option and put the whole thing behind a
 > reverse proxy. _This is not covered here_.
 
-### 4. Client setup
+### 5. Client setup
 
 Make sure you **go to the client console** for the following
 (to switch consoles, look at the lower-right panel in your Gitpod layout).
 You should be in the `client` project subdirectory.
 
-#### 4a. Install dependencies
+#### 5a. Install dependencies
 
 First ensure all required dependencies are installed:
 
@@ -279,7 +391,7 @@ First ensure all required dependencies are installed:
 > you to go through it. Obviously, if you are working on your local environment,
 > this will be slower.
 
-#### 4b. Start the client
+#### 5b. Start the client
 
 The client is ready to go! **Launch it** in development mode with:
 
@@ -310,7 +422,7 @@ Note that you can also take this URL and open the application in a new tab,
 > to production, you should first build the project and then serve it from
 > a static Web server. _This is not covered here_.
 
-### 5. Play the game!
+### 6. Play the game!
 
 We finally have all pieces in place:
 
@@ -320,7 +432,7 @@ We finally have all pieces in place:
 
 It is time to play!
 
-#### 5a. Enter the game
+#### 6a. Enter the game
 
 Change your name if you desire (a spider name is drawn at random for you).
 You will also see that you are given a (read-only) unique player ID and that an API address
@@ -353,7 +465,7 @@ on the front-end. All this happens in a near-real-time fashion at every action b
 > Note that the game shows the last sent message and the last received messages for you to better inspect
 > the messaging pattern at play.
 
-#### 5b. Try to cheat
+#### 6b. Try to cheat
 
 Let's be honest: there's no multiplayer game without cheaters - at least, cheat attempts.
 So, for example, try to _walk beyond the boundaries of the play area_, to see what happens.
@@ -397,7 +509,7 @@ have a look at:
 > (and so does Astra Streaming),
 > for clients to directly connect to topics using that protocol.
 
-#### 5c. Bring your friends
+#### 6c. Bring your friends
 
 But wait ... this is a _multiplayer_ game, isn't it? So, go ahead and open a new
 browser tab, then enter the game as someone else.
@@ -417,7 +529,7 @@ enter your very own game!
 _Please do this and tell the world about how easy it is to build a multiplayer real-time
 game with Astra Streaming!_
 
-#### 5d. Fun with the Streaming UI
+#### 6d. Fun with the Streaming UI
 
 The Astra Streaming interface makes it possible to eavesdrop on the topic and
 observe the messages passing through it. This may prove very useful for
@@ -470,14 +582,14 @@ What happens in the game UI when you to this?
 Now, you just had a little fun: but this ability to manually intervene in the stream
 of messages makes for a valuable debugging tool.
 
-### 6. Homework instructions
+### 7. Homework instructions
 
 Here are some more details on how to do the homework. We require two modifications
 to the code, one on the API and one on the client. Once you change both, and restart,
 you will be able to take a screenshot showing the new game appearance and submit
 it to us!
 
-#### 6a. Server side
+#### 7a. Server side
 
 We want a greeting message to be sent from the API to a new client right after
 they join. To do so, the `api.py` already imports a function `makeWelcomeUpdate`
@@ -487,7 +599,7 @@ that returns a "chat message" ready to be sent through the WebSocket.
 chat message and sends it to the WebSocket**. _Suggestion: this is really not
 so different from the geometry update any new client receives upon connecting._
 
-#### 6b. Client side
+#### 7b. Client side
 
 We want the player names on the game field to have the same color as the player
 icons instead of always dark grey as they are now. If you look into `GameField.js`,
@@ -497,7 +609,7 @@ you'll notice that the SVG `text` element currently has a class name `"player-na
 element and have a color matching their icon**. _Suggestion: the right class name
 is already calculated a few lines above for you to use (you can check in `App.css` as well)_.
 
-#### 6c. Restart, test and take a screenshot
+#### 7c. Restart, test and take a screenshot
 
 Remember to stop and restart the API: go to its console, hit Ctrl-C and
 re-run `uvicorn api:app` to do so. All current WebSocket connections will
@@ -513,11 +625,11 @@ At that point you will be playing the improved game: homework completed!
     <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/drapetisca_homework.png?raw=true" />
 </details>
 
-### 7. Selected topics
+### 8. Selected topics
 
 Let us briefly mention some specific parts of the implementation of this game.
 
-#### 7a. WebSockets and React
+#### 8a. WebSockets and React
 
 API and client communicate through WebSockets: in this way, we have a connection
 that is kept open for a long time and allows for a fast exchange of messages
@@ -544,7 +656,7 @@ within the callback to dynamically retrieve the current value of the state.
 
 Look at lines 42-43 and then 109 of `App.js`, for example.
 
-#### 7b. FastAPI
+#### 8b. FastAPI
 
 This game's architecture involves a server. Indeed, we would not be able
 to implement it using only serverless functions, at least not in a way similar
@@ -576,7 +688,7 @@ function, which will run as long as the connection is maintained: the support
 for async/await guarantees that these concurrent executions of the
 WebSocket function will be scheduled efficiently with no deadlocks.
 
-#### 7c. SVG Tricks
+#### 8c. SVG Tricks
 
 One of the React components in the client code is the `GameField`, which
 represents an area where we draw the players. This is a single large SVG
