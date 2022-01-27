@@ -580,7 +580,7 @@ In the Astra Streaming UI, head to the "Try Me" tab and make sure:
 
 - the namespace and the (producer, consumer) topics are set to the values used earlier;
 - connection type is "Read";
-- read positionh is "Latest"
+- read position is "Latest"
 
 Good, now click "Connect".
 
@@ -634,7 +634,7 @@ If you are curious, you can look at the raw data directly within the Astra DB UI
 Each time the API starts, it will generate a new "game ID", under which all info
 pertaining to this particular game will be stored. In fact, `game_id` plays the
 role of
-[partition key](https://docs.datastax.com/en/astra-cql/doc/cql/ddl/dataModelingApproach.html) in the underlying `drapetisca.objects_by_game_id`.
+[partition key](https://docs.datastax.com/en/astra-cql/doc/cql/ddl/dataModelingApproach.html) in the underlying `drapetisca.objects_by_game_id` table.
 
 > The topic of data storage and data modeling in Cassandra is huge and we won't
 > do it justice here. Just bear with us to see the game data, and if you want
@@ -643,11 +643,15 @@ role of
 Locate the "CQL Console" tab for the `workshops` database in your Astra DB dashboard
 and click on it. An interactive shell will be spawned for you, to type the following commands:
 
-        USE drapetisca ;
-        SELECT * FROM objects_by_gane_id ;
+```sql
+USE drapetisca ;
+SELECT * FROM objects_by_game_id ;
+```
 
 You should see several lines in the output, corresponding to the objects present in the game(s)
 and their properties.
+
+> If you already started several games (e.g. by hitting Ctrl-C and restarting `uvicorn` in the API console), notice that the info for each of them is neatly grouped by the value of the `game_id` column.
 
 <details><summary>Show me the game data in the Astra DB CQL Console</summary>
     <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/cql_console.gif?raw=true" />
