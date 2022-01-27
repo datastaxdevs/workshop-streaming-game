@@ -734,7 +734,9 @@ updated value of the state, we declare a React "reference" with `useRef`
 and, after linking it to the state we want to read, we use this reference
 within the callback to dynamically retrieve the current value of the state.
 
-Look at lines 49-50 and then 103 of `App.js`, for example.
+<details><summary>Look at lines 49-50 and then 103 of `App.js`, for example.</summary>
+    <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/ref_code_1.png?raw=true" />
+</details>
 
 #### 8b. FastAPI
 
