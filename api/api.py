@@ -123,6 +123,7 @@ async def playerWSRoute(playerWS: WebSocket, client_id: str):
                 pulsarProducer.send((json.dumps(updateMsg)).encode('utf-8'))
             elif updateMsg['messageType'] == 'entering':
                 # A new player announced they're entering and is asking for data
+                newPlayerName = updateMsg['payload']['name']
                 # first we tell this client how the game-field looks like
                 geomUpdate = makeGeometryUpdate(HALF_SIZE_X, HALF_SIZE_Y)
                 # Note: this message is built here (i.e. no Pulsar involved)

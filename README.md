@@ -223,7 +223,7 @@ with `Database Administrator` roles.
 
 The "token" is composed by three parts:
 
-- `Client Id`: it plays the role of _username_ to connect to Astra DB;
+- `Client ID`: it plays the role of _username_ to connect to Astra DB;
 - `Client Secret`: it plays the role of a _password_;
 - `Token` (proper): _not needed today_. It would be used as API key to access Astra via the API Gateway.
 
@@ -238,36 +238,24 @@ The "token" is composed by three parts:
 
 #### 2c. Download the DB Secure Connection Bundle
 
-This next step is probably the most involved step in the entire workshop. The goal of this step is to get the customized connect bundle into Gitpod. One of the several ways of doing this is as follows.
+There's a last missing piece needed for the application to successfully connect
+to Astra DB: the "secure connect bundle". You have to download it from the Astra UI
+and keep it ready for later usage.
 
-Start with the [Astra DB dashboard](https://astra.datastax.com) and for the database workshops,
+> The secure bundle, a zipfile containing certificates and server address information,
+> will have to be provided to the Cassandra driver when the connection is established
+> (see later steps).
 
-1. Click on `Connect` tab.
-2. Click on Connect using any of the drivers `Node.js` (`javascript`), `Python` or `Java`.
-3. Click on `Download Bundle`.
-4. Click on `Secure Connect Bundle` to be able to copy the link locally.
+Go to the Astra DB UI, find the `workshops` database and click on it:
 
-as shown below.
+1. click on `Connect` tab;
+2. click on `Connect using a driver` (any language will do);
+3. click on the `Download Bundle` drop-down on the right;
+4. finally click on `Secure Connect Bundle (<region>)` to start the download. The bundle file should have a name such as `secure-connect-workshops.zip` and be around 12KB in size.
 
-![gitpod](images/secureconnectbundle1.png?raw=true) 
-
-Locate the file locally in the finder/explorer window. Drag and drop the file into the Gitpod explorer window (on the left side, making sure that the cursor, indicating the drop, is positioned in the Gitpod explorer window as shown below.
-
-![gitpod](images/secureconnectbundle3.png?raw=true)
-
-In the Gitpod terminal window, verify that you dropped the right file and at the top level directory
-
-```bash
-ls -l /workspace/bootcamp-fullstack-apps-with-cassandra/secure-connect-workshops.zip
-```
-
-If you get a message `cannot access` or the file size is not roughly 12K, something may have gone wrong in the process and you need to repeat this step (step 5b).
-
-**👁️ Expected output**
-
-```
--rw-r--r-- 1 gitpod gitpod 12261 Jan 12 23:34 /workspace/bootcamp-fullstack-apps-with-cassandra/secure-connect-workshops.zip
-```
+<details><summary>Show me how to get the Astra DB bundle</summary>
+    <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/astra_bundle.png?raw=true" />
+</details>
 
 
 ## Configure and run the application
@@ -326,13 +314,16 @@ will start in the `api` and `client` subdirectories for you).
 
 ### 4. API setup
 
-There are a couple of things to do before you can launch the API:
+Before you can launch the API, you have to configure connection details to it:
+you will do it through the dotenv file `.env`.
 
-#### 4a. Environment variables
+#### 4a. Streaming environment variables (`.env`, part I)
 
-You need to pass the connection URL and secret to the API for it to be able
-to speak to the Streaming topic. To do so, first **go to the API console**
+You need to pass the streaming connection URL and streaming token to the API for
+it to be able to speak to the Streaming topic. To do so, first **go to the API console**
 and make sure you are in the `api` subdirectory.
+
+> The `pwd` command should output `/workspace/workshop-streaming-game/api`.
 
 Then create a file `.env` by copying the `.env.sample` in the same directory,
 with the commands
@@ -341,8 +332,8 @@ with the commands
     gp open .env
 
 (the second line will simply open the `.env` file in the editor).
-Fill the file with the values found earlier
-on your Astra Streaming "Connect" tab (leave the other lines unchanged; _keep the quotes in the file_):
+Fill the first lines in the file with the values found earlier
+on your Astra Streaming "Connect" tab (_keep the quotes in the file_):
 
 - `STREAMING_TENANT`: your very own tenant name as chosen earlier when creating the topic (step `1b`); it should be something like `gameserver-abc`.
 - `SERVICE_URL`: it looks similar to `pulsar+ssl://pulsar-aws-useast2.streaming.datastax.com:6651`
@@ -354,7 +345,49 @@ on your Astra Streaming "Connect" tab (leave the other lines unchanged; _keep th
 > If, moreover, you work locally you may have to check the `TRUST_CERTS` variable as well, depending
 > on your OS distribution. Look into the `.env` file for some suggestions.
 
-#### 4b. Start the API
+#### 4b. Upload the DB secure bundle (`.env`, part II)
+
+Remember the secure connect bundle you downloaded earlier from the Astra DB UI?
+It's time to upload it to Gitpod.
+
+> If you work locally, skip the upload and just be aware of the full path to it for what comes next in the `.env` file.
+
+Locate the file on your computer using the "finder/explorer".
+Drag and drop the bundle into the Gitpod explorer window: _make sure you drop it on the
+file explorer window in Gitpod._
+
+<details><summary>Show me how to drag-and-drop the bundle to Gitpod</summary>
+    <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/drag-and-drop-bundle.png?raw=true" />
+</details>
+
+As a check, you may want to verify the file is available in the right location with:
+
+    ls -lh /workspace/workshop-streaming-game/secure-connect-*.zip
+
+The output should tell you the exact path to the file (you can also make sure the file size is around 12KB
+while you are at it).
+
+**This exact path to the file must go to line `ASTRA_DB_SECURE_CONNECT_BUNDLE` of the `.env` file.**
+The line has been pre-filled for you already, but if the bundle has a different name or is at a
+different location (e.g. if you work locally, or your DB has another name),
+make sure you change the value accordingly.
+
+#### 4c. Database access secrets (`.env`, part III)
+
+With the secure bundle in place and set up in the `.env`, you can turn to the last missing
+piece: the secrets to access the DB.
+
+Insert the Astra DB `Client ID` and `Client Secret` you obtained earlier as parts of the "Astra DB Token"
+in the `.env` file (again, keep the quotes around the values):
+
+    ASTRA_DB_USERNAME="tByuQfj..."
+    ASTRA_DB_PASSWORD="lGzF5,L..."
+
+> In case your keyspace has a name other than `drapetisca`, check the `ASTRA_DB_KEYSPACE` in your `.env` as well.
+
+Congratulations: you should now have completed the `.env` setup!
+
+#### 4d. Start the API
 
 Make sure you are in the API console and in the `api` subdirectory.
 You can now **start the API**:
@@ -429,6 +462,7 @@ We finally have all pieces in place:
 - an Astra Streaming topic;
 - an API bridging it to ...
 - ... a client ready to establish WebSocket connections.
+- (and an Astra DB instance acting as persistent storage to back the API)
 
 It is time to play!
 
@@ -458,7 +492,8 @@ Well done: you are in the game. You should see your player appear in the arena!
 </details>
 
 Anything your player does is sent to the API through a WebSocket in the form of an "update message";
-from there, it is published to the Astra Streaming topic. The API will then pick up the update
+from there, it is published to the Astra Streaming topic (and persisted to the database).
+The API will then pick up the update
 and broadcast to all players, whose client will process it, eventually leading to a refresh of the game status
 on the front-end. All this happens in a near-real-time fashion at every action by every player.
 
@@ -476,7 +511,9 @@ But as soon as you release the key, the position bounces back to a valid state.
 Here's the trick: this "position", shown in the client, is nothing more than a variable
 in the client's memory. Every update (including `(-1, 0)`) is sent to the API, which
 is the sole actor in charge of validation: an illegal value will be corrected and sent back
-to all clients. In particular, your own client will adjust knowledge of its own position
+to all clients (_consider the API has access to the game-world state persisted on DB
+and can handle collisions and the like_).
+In particular, your own client will adjust knowledge of its own position
 based on this feedback from the API - which is why you see the illegal value only briefly.
 
 All of this must happen asynchronously, as is the nature of the communication between client
@@ -518,8 +555,9 @@ Hooray! As soon as you move around with this new player,
 you will see the whole architecture at work:
 
 - client sends updates on your player's position through the "player websocket"
-- API validates this update and publishes it to the Astra Streaming topic
-- API receives new messages by listening to this same Astra Streaming topic
+- API checks game state on DB and validates this update, taking action if needed
+- API (1) publishes the validated player update to the Astra Streaming topic and (2) persists new game-state to DB
+- API receives back new messages by listening to this same Astra Streaming topic
 - API broadcasts updates on any player to all connected clients through the "world websocket"
 - at each such update, the client's game arena is adjusted (for all connected clients)
 
@@ -535,12 +573,16 @@ The Astra Streaming interface makes it possible to eavesdrop on the topic and
 observe the messages passing through it. This may prove very useful for
 debugging.
 
-In the Astra Streaming UI, head to the "Try Me" tab and make sure the namespace
-and the (producer, consumer) topics are set to the values used earlier. Also
-ensure the connection is of type "Consume" before clicking "Connect".
+In the Astra Streaming UI, head to the "Try Me" tab and make sure:
+
+- the namespace and the (producer, consumer) topics are set to the values used earlier;
+- connection type is "Read";
+- read positionh is "Latest"
+
+Good, now click "Connect".
 
 <details><summary>Show me the "Try Me" interface</summary>
-    <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/eavesdrop-marked.png?raw=true" />
+    <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/eavesdrop_streaming.png?raw=true" />
 </details>
 
 You now have a privileged view over the messages flowing through the Streaming
@@ -553,34 +595,60 @@ But wait, there's more: now you can **hack the system**! Indeed, this same inter
 produce surreptitious messages into the topic ("Send" button on the Streaming UI).
 Try to insert a message such as:
 
-    {
-        "playerID": "nonexistent",
-        "messageType": "chat",
-        "payload": {
-            "id": "000",
-            "playerName": "Phantom Player",
-            "text": "Booo!"
+        {
+            "messageType": "chat",
+            "payload": {
+                "id": "000",
+                "name": "Phantom!",
+                "text": "Booo!"
+            },
+            "playerID": "nonexistent"
         }
-    }
 
-Or even something like
+and keep an eye on the chat box.
 
-    {
-        "playerID": "nonexistent",
-        "messageType": "player",
-        "payload": {
-            "h": false,
-            "x": 2,
-            "y": 2,
-            "generation": 0,
-            "playerName": "Phantom Player"
+Even better, try to inject a message such as _(you may have to adjust the `x`, `y` coordinates for this to be real fun)_:
+
+        {
+            "messageType": "brick",
+            "payload": {
+                "name": "phantom brick!",
+                "x": 0,
+                "y": 0
+            }
         }
-    }
 
-What happens in the game UI when you to this?
+what happens in the game UI when you to this? Can you walk to that spot? (Why?)
 
-Now, you just had a little fun: but this ability to manually intervene in the stream
-of messages makes for a valuable debugging tool.
+Now, you just had a little fun: but, seriously speaking, this ability to manually intervene in the stream of messages makes for a valuable debugging tool.
+
+#### 6e. A quick look at the data on DB
+
+Any change to the game-world, either originated in the API or coming from
+a player (and then just validated at API level) is persisted on database.
+If you are curious, you can look at the raw data directly within the Astra DB UI.
+
+Each time the API starts, it will generate a new "game ID", under which all info
+pertaining to this particular game will be stored. In fact, `game_id` plays the
+role of
+[partition key](https://docs.datastax.com/en/astra-cql/doc/cql/ddl/dataModelingApproach.html) in the underlying `drapetisca.objects_by_game_id`.
+
+> The topic of data storage and data modeling in Cassandra is huge and we won't
+> do it justice here. Just bear with us to see the game data, and if you want
+> to know more you can start from [Data modeling by example](https://www.datastax.com/learn/data-modeling-by-example) and [What is Cassandra?](https://www.datastax.com/cassandra). You will embark on a long and exciting journey!
+
+Locate the "CQL Console" tab for the `workshops` database in your Astra DB dashboard
+and click on it. An interactive shell will be spawned for you, to type the following commands:
+
+        USE drapetisca ;
+        SELECT * FROM objects_by_gane_id ;
+
+You should see several lines in the output, corresponding to the objects present in the game(s)
+and their properties.
+
+<details><summary>Show me the game data in the Astra DB CQL Console</summary>
+    <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/cql_console.gif?raw=true" />
+</details>
 
 ### 7. Homework instructions
 
@@ -594,6 +662,8 @@ it to us!
 We want a greeting message to be sent from the API to a new client right after
 they join. To do so, the `api.py` already imports a function `makeWelcomeUpdate`
 that returns a "chat message" ready to be sent through the WebSocket.
+You may also want to make use of variable `newPlayerName` that is made available
+in the API code.
 
 **You should add a line in the function `worldWSRoute` that creates the welcome
 chat message and sends it to the WebSocket**. _Suggestion: this is really not

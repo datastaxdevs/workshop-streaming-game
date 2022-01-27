@@ -193,11 +193,12 @@ def makeServerChatUpdate(client_id, text):
     }
 
 
-def makeWelcomeUpdate(client_id):
+def makeWelcomeUpdate(client_id, name='Unnamed'):
     """
     A server-generated chat message to greet a new player
     """
-    return makeServerChatUpdate(client_id, 'Welcome to the game!')
+    return makeServerChatUpdate(client_id, 'Welcome to the game, %s!' % name)
+
 
 def makeGeometryUpdate(hsX, hsY):
     """
