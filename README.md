@@ -221,6 +221,9 @@ with `Database Administrator` roles.
     <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/astra-create-token.gif?raw=true" />
 </details>
 
+> **Tip**: you can quickly get to the "Token Management" also through the "..."
+> menu next to the list of databases in your main Astra DB UI.
+
 The "token" is composed by three parts:
 
 - `Client ID`: it plays the role of _username_ to connect to Astra DB;
@@ -275,7 +278,7 @@ Ctrl-click (or right-click and open in new tab) on the following button:
 Then wait a couple of minutes for the installations to complete, at which point you
 will see a message such as `CLIENT/API READY TO START` in the Gitpod console.
 
-<details><summary>Show me what the Gitpod button does</summary>
+<details><summary>Tell me what the Gitpod button does</summary>
 
 - An IDE is started on a containerized machine image in the cloud
 - there, this repo is cloned
@@ -554,12 +557,12 @@ browser tab, then enter the game as someone else.
 Hooray! As soon as you move around with this new player,
 you will see the whole architecture at work:
 
-- client sends updates on your player's position through the "player websocket"
-- API checks game state on DB and validates this update, taking action if needed
-- API (1) publishes the validated player update to the Astra Streaming topic and (2) persists new game-state to DB
-- API receives back new messages by listening to this same Astra Streaming topic
-- API broadcasts updates on any player to all connected clients through the "world websocket"
-- at each such update, the client's game arena is adjusted (for all connected clients)
+1. client sends updates on your player's position through the "player websocket";
+2. API checks game state on DB and validates this update, taking action if needed;
+3. API (a) publishes the validated player update to the Astra Streaming topic and (b) persists new game-state to DB;
+4. API receives back new messages by listening to this same Astra Streaming topic;
+5. API broadcasts updates on any player to all connected clients through the "world websocket";
+6. at each such update, the client's game arena is adjusted (for all connected clients).
 
 What is really cool is that **you can give this URL to your friends** and have them
 enter your very own game!
@@ -582,7 +585,7 @@ In the Astra Streaming UI, head to the "Try Me" tab and make sure:
 Good, now click "Connect".
 
 <details><summary>Show me the "Try Me" interface</summary>
-    <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/eavesdrop_streaming.png?raw=true" />
+    <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/eavesdrop_streaming.gif?raw=true" />
 </details>
 
 You now have a privileged view over the messages flowing through the Streaming
