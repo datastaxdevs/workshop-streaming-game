@@ -138,15 +138,19 @@ async def playerWSRoute(playerWS: WebSocket, client_id: str):
                 fieldOccupancy = retrieveFieldOccupancy(gameID)
                 playerPrevCoords = makeCoordPair(plStatus)
                 if plStatus is not None and playerPrevCoords not in fieldOccupancy:
-                    await playerWS.send_text(json.dumps(plStatus))
+                    renamedPlStatus = dictMerge(
+                        {'payload': {'name': newPlayerName}},
+                        plStatus,
+                    )
+                    await playerWS.send_text(json.dumps(renamedPlStatus))
                     # returning players: we want to route their return to pulsar as well
-                    pulsarProducer.send((json.dumps(plStatus)).encode('utf-8'))
+                    pulsarProducer.send((json.dumps(renamedPlStatus)).encode('utf-8'))
                     # and we also want to mark them as active
                     storeGameActivePlayer(gameID, client_id)
                 else:
                     firstPos = makeEnteringPositionUpdate(
                         client_id=client_id,
-                        client_name=updateMsg['payload']['name'],
+                        client_name=newPlayerName,
                         halfX=HALF_SIZE_X,
                         halfY=HALF_SIZE_Y,
                         occupancyMap=fieldOccupancy,
