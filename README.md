@@ -710,8 +710,11 @@ WebSockets follow a robust and standardized [protocol](https://datatracker.ietf.
 which makes it possible for us developers to concentrate on our game logic
 instead of having to worry about the communication internals.
 
-In particular, this game uses two WebSockets, a "player" one for client-to-server
-data transmission and a "world" one for server-to-client (i.e. game status updates).
+In particular, this game uses two WebSockets:
+
+- a "player" one for bidirectional client/server data transmission in a direct fashion;
+- a "world" one where the API route all messages picked up by the streaming topic. Most game status updates go through this route (with the exception of those directed at an individual player).
+
 You can find the corresponding variables `pws` and `wws` in the client code, respectively.
 
 In Javascript, one _subscribes to an event_ on an open WebSocket, providing
@@ -724,7 +727,7 @@ updated value of the state, we declare a React "reference" with `useRef`
 and, after linking it to the state we want to read, we use this reference
 within the callback to dynamically retrieve the current value of the state.
 
-Look at lines 42-43 and then 109 of `App.js`, for example.
+Look at lines 49-50 and then 103 of `App.js`, for example.
 
 #### 8b. FastAPI
 
