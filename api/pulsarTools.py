@@ -12,13 +12,13 @@ try:
     STREAMING_TENANT = os.environ['STREAMING_TENANT']
     STREAMING_NAMESPACE = os.environ['STREAMING_NAMESPACE']
     STREAMING_TOPIC = os.environ['STREAMING_TOPIC']
-    SERVICE_URL = os.environ['SERVICE_URL']
+    STREAMING_SERVICE_URL = os.environ['STREAMING_SERVICE_URL']
     TRUST_CERTS = os.environ['TRUST_CERTS']
-    ASTRA_TOKEN = os.environ['ASTRA_TOKEN']
+    ASTRA_STREAMING_TOKEN = os.environ['ASTRA_STREAMING_TOKEN']
     #
     client = pulsar.Client(
-        SERVICE_URL,
-        authentication=pulsar.AuthenticationToken(ASTRA_TOKEN),
+        STREAMING_SERVICE_URL,
+        authentication=pulsar.AuthenticationToken(ASTRA_STREAMING_TOKEN),
         tls_trust_certs_file_path=TRUST_CERTS,
     )
 except KeyError:

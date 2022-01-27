@@ -339,8 +339,8 @@ Fill the first lines in the file with the values found earlier
 on your Astra Streaming "Connect" tab (_keep the quotes in the file_):
 
 - `STREAMING_TENANT`: your very own tenant name as chosen earlier when creating the topic (step `1b`); it should be something like `gameserver-abc`.
-- `SERVICE_URL`: it looks similar to `pulsar+ssl://pulsar-aws-useast2.streaming.datastax.com:6651`
-- `ASTRA_TOKEN`: a very long string (about 500 random-looking chars), see step `1c`. You can copy it on the Astra UI without showing it.
+- `STREAMING_SERVICE_URL`: it looks similar to `pulsar+ssl://pulsar-aws-useast2.streaming.datastax.com:6651`
+- `ASTRA_STREAMING_TOKEN`: a very long string (about 500 random-looking chars), see step `1c`. You can copy it on the Astra UI without showing it.
 
 > Note: treat your token as a personal secret: do not share it, do not commit it to the repo, store it in a safe place!
 
