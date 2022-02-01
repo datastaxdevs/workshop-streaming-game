@@ -8,95 +8,72 @@
         row and 'player' message, in a more structured application).
 """
 
+import os
 import uuid
+from dotenv import load_dotenv
 
 from messaging import (makePositionUpdate, pickBrickPositions, makeBrickUpdate,
                        pickFoodPositions, makeFoodUpdate)
-from database.session import session
+
+###
 
 
-# prepared statements are created here for later usage:
-psInsertObjectCQL = session.prepare(
-    'INSERT INTO objects_by_game_id (game_id, kind, object_id, active, '
-    'x, y, h, generation, name) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ? );'
-)
-psInsertObjectCoordinatesCQL = session.prepare(
-    'INSERT INTO objects_by_game_id (game_id, kind, object_id, '
-    'x, y) VALUES ( ?, ?, ?, ?, ? );'
-)
-psSelectObjectByIDCQL = session.prepare(
-    'SELECT object_id, x, y, h, generation, name FROM objects_by_game_id WHERE '
-    'game_id = ? AND kind = ? AND object_id = ?'
-)
-psSelectObjectsCQL = session.prepare(
-    'SELECT kind, object_id, active, x, y, h, generation, name FROM '
-    'objects_by_game_id WHERE game_id = ?;'
-)
-psInsertObjectActivenessCQL = session.prepare(
-    'INSERT INTO objects_by_game_id (game_id, kind, object_id, active) VALUES '
-    '(?, ?, ?, ?);'
-)
-psSelectObjectsShortCQL = session.prepare(
-    'SELECT kind, object_id, active, x, y, name FROM '
-    'objects_by_game_id WHERE game_id = ?;'
-)
-psSelectObjectsShortByKindCQL = session.prepare(
-    'SELECT object_id, active, x, y FROM '
-    'objects_by_game_id WHERE game_id = ? AND kind = ?;'
-)
+load_dotenv()
+USE_IN_MEMORY_STORAGE = int(os.environ.get('USE_IN_MEMORY_STORAGE', '0')) != 0
+
+
+if USE_IN_MEMORY_STORAGE:
+    from inmemory.dal import (storeActivity, storeObject, storeCoordinates,
+                              retrieveByGameID, retrieveShortByGameID,
+                              retrieveObjectByID, retrieveOneShortByKind)
+    print('\n\n*** USING IN-MEMORY STORAGE ***\n\n')
+else:
+    from database.dal import (storeActivity, storeObject, storeCoordinates,
+                              retrieveByGameID, retrieveShortByGameID,
+                              retrieveObjectByID, retrieveOneShortByKind)
+
 
 def _dbRowToPlayerMessage(row):
     # args are: client_id, client_name, x, y, h, generation
+    # leaky defaults are treated here (name, generation)
     return makePositionUpdate(
-        str(row.object_id),
-        row.name,
-        row.x,
-        row.y,
-        row.h,
-        row.generation,
+        str(row['object_id']),
+        row.get('name', 'unnamed'),
+        row['x'],
+        row['y'],
+        row.get('h', False),
+        row.get('generation', 0),
     )
 
 
 def _dbRowToBrickMessage(row):
     return makeBrickUpdate(
-        row.name,
-        row.x,
-        row.y,
+        row['name'],
+        row['x'],
+        row['y'],
     )
 
 
 def _dbRowToFoodMessage(row):
     return makeFoodUpdate(
-        row.object_id,
-        row.name,
-        row.x,
-        row.y,
+        row['object_id'],
+        row['name'],
+        row['x'],
+        row['y'],
     )
 
 
 def _dbRowToMessage(row):
-    if row.kind == 'player':
+    if row['kind'] == 'player':
         return _dbRowToPlayerMessage(row)
-    elif row.kind == 'brick':
+    elif row['kind'] == 'brick':
         return _dbRowToBrickMessage(row)
-    elif row.kind == 'food':
+    elif row['kind'] == 'food':
         return _dbRowToFoodMessage(row)
     else:
-        raise NotImplementedError('Unknown row kind "%s"' % row.kind)
+        raise NotImplementedError('Unknown row kind "%s"' % row['kind'])
 
 ###
-
-
-def _storeGameActivityForPlayer(gameID, playerID, active):
-    session.execute(
-        psInsertObjectActivenessCQL,
-        (
-            uuid.UUID(gameID),
-            'player',
-            uuid.UUID(playerID),
-            active,
-        ),
-    )
 
 
 def storeGameActivePlayer(gameID, playerID):
@@ -104,15 +81,24 @@ def storeGameActivePlayer(gameID, playerID):
         Side-effect only: marking a player as 'active (again) on board'
         (i.e. when coming back to same game).
     """
-    _storeGameActivityForPlayer(gameID, playerID, True)
-
+    storeActivity(
+        uuid.UUID(gameID),
+        'player',
+        uuid.UUID(playerID),
+        True,
+    )
 
 def storeGameInactivePlayer(gameID, playerID):
     """
         Side-effect only: marking a player as 'inactive from board'
         (i.e. when disconnecting from game).
     """
-    _storeGameActivityForPlayer(gameID, playerID, False)
+    storeActivity(
+        uuid.UUID(gameID),
+        'player',
+        uuid.UUID(playerID),
+        False,
+    )
 
 
 def storeFoodItemStatus(gameID, foodUpdate):
@@ -125,21 +111,17 @@ def storeFoodItemStatus(gameID, foodUpdate):
     #
     pLoad = foodUpdate['payload']
     foodID = foodUpdate['foodID']
-    session.execute(
-        psInsertObjectCQL,
-        (
-            uuid.UUID(gameID),
-            'food',
-            uuid.UUID(foodID),
-            True,
-            pLoad['x'],
-            pLoad['y'],
-            False,
-            0,
-            pLoad['name'],
-        ),
+    storeObject(
+        uuid.UUID(gameID),
+        'food',
+        uuid.UUID(foodID),
+        True,
+        pLoad['x'],
+        pLoad['y'],
+        False,
+        0,
+        pLoad['name'],
     )
-
 
 
 def storeGamePlayerStatus(gameID, playerUpdate):
@@ -152,35 +134,30 @@ def storeGamePlayerStatus(gameID, playerUpdate):
     #
     pLoad = playerUpdate['payload']
     playerID = playerUpdate['playerID']
-    session.execute(
-        psInsertObjectCQL,
-        (
-            uuid.UUID(gameID),
-            'player',
-            uuid.UUID(playerID),
-            True,
-            pLoad['x'],
-            pLoad['y'],
-            pLoad['h'],
-            pLoad['generation'],
-            pLoad['name'],
-        ),
+    storeObject(
+        uuid.UUID(gameID),
+        'player',
+        uuid.UUID(playerID),
+        True,
+        pLoad['x'],
+        pLoad['y'],
+        pLoad['h'],
+        pLoad['generation'],
+        pLoad['name'],
     )
 
 
-def storeGamePlayerPosition(gameID, playerID, x, y):
+def storeGamePlayerPosition(gameID, playerID, active, x, y):
     """
         Store new coordinates (server-forced), for later validation etc.
     """
-    session.execute(
-        psInsertObjectCoordinatesCQL,
-        (
-            uuid.UUID(gameID),
-            'player',
-            uuid.UUID(playerID),
-            x,
-            y,
-        ),
+    storeCoordinates(
+        uuid.UUID(gameID),
+        'player',
+        uuid.UUID(playerID),
+        active,
+        x,
+        y,
     )
 
 
@@ -188,15 +165,13 @@ def retrieveActiveGameItems(gameID, excludedPlayerIDs = set()):
     """
         Return active players only. Output are 'player' messages ready-to-send.
     """
-    results = session.execute(
-        psSelectObjectsCQL,
-        (uuid.UUID(gameID), ),
-    )
+    results = retrieveByGameID(uuid.UUID(gameID))
+    #
     return (
         _dbRowToMessage(row)
         for row in results
-        if row.active
-        if row.kind != 'player' or str(row.object_id) not in excludedPlayerIDs
+        if row['active']
+        if row['kind'] != 'player' or str(row['object_id']) not in excludedPlayerIDs
     )
 
 
@@ -204,18 +179,16 @@ def retrieveFieldOccupancy(gameID):
     """
         Return a map (x, y) -> {kind: ... , object_id: ...}, skips inactives
     """
-    results = session.execute(
-        psSelectObjectsShortCQL,
-        (uuid.UUID(gameID), ),
-    )
+    results = retrieveShortByGameID(uuid.UUID(gameID))
+    #
     return {
-        (row.x, row.y): {
-            'kind': row.kind,
-            'object_id': row.object_id,
-            'name': row.name,
+        (row['x'], row['y']): {
+            'kind': row['kind'],
+            'object_id': row['object_id'],
+            'name': row.get('name'),
         }
         for row in results
-        if row.active
+        if row['active']
     }
 
 
@@ -224,14 +197,12 @@ def retrieveGamePlayerStatus(gameID, playerID):
         Return None if no info found,
         else a 'player' message (which, as such, knows of no 'active' flag).
     """
-    result = session.execute(
-        psSelectObjectByIDCQL,
-        (
-            uuid.UUID(gameID),
-            'player',
-            uuid.UUID(playerID),
-        ),
-    ).one()
+    result = retrieveObjectByID(
+        uuid.UUID(gameID),
+        'player',
+        uuid.UUID(playerID),
+    )
+    #
     if result is None:
         return None
     else:
@@ -246,13 +217,11 @@ def layBricks(gameID, HALF_SIZE_X, HALF_SIZE_Y, BRICK_FRACTION):
     """
 
     # first check if there are bricks already (even just one)
-    prevBrick = session.execute(
-        psSelectObjectsShortByKindCQL,
-        (
-            uuid.UUID(gameID),
-            'brick',
-        ),
-    ).one()
+    prevBrick = retrieveOneShortByKind(
+        uuid.UUID(gameID),
+        'brick',
+    )
+    #
     if prevBrick is not None:
         # bricks already present
         return
@@ -266,20 +235,18 @@ def layBricks(gameID, HALF_SIZE_X, HALF_SIZE_Y, BRICK_FRACTION):
         # we store the bricks for this game
         _gameID = uuid.UUID(gameID)
         for bi, (bx, by) in enumerate(brickPositions):
-            session.execute(
-                psInsertObjectCQL,
-                (
-                    _gameID,
-                    'brick',
-                    uuid.uuid4(),
-                    True,
-                    bx,
-                    by,
-                    False,
-                    0,
-                    'brick_%04i' % bi,
-                ),
+            storeObject(
+                _gameID,
+                'brick',
+                uuid.uuid4(),
+                True,
+                bx,
+                by,
+                False,
+                0,
+                'brick_%04i' % bi,
             )
+
 
 def layFood(gameID, HALF_SIZE_X, HALF_SIZE_Y, NUM_FOOD_ITEMS):
     """
@@ -287,13 +254,11 @@ def layFood(gameID, HALF_SIZE_X, HALF_SIZE_Y, NUM_FOOD_ITEMS):
         items on the board, unless there are already some.
     """
     # first check if there are food items already (even just one)
-    prevFood = session.execute(
-        psSelectObjectsShortByKindCQL,
-        (
-            uuid.UUID(gameID),
-            'food',
-        ),
-    ).one()
+    prevFood = retrieveOneShortByKind(
+        uuid.UUID(gameID),
+        'food',
+    )
+    #
     if prevFood is not None:
         # food already present
         return
@@ -310,17 +275,14 @@ def layFood(gameID, HALF_SIZE_X, HALF_SIZE_Y, NUM_FOOD_ITEMS):
         # we store the bricks for this game
         _gameID = uuid.UUID(gameID)
         for fi, (fx, fy) in enumerate(foodPositions):
-            session.execute(
-                psInsertObjectCQL,
-                (
-                    _gameID,
-                    'food',
-                    uuid.uuid4(),
-                    True,
-                    fx,
-                    fy,
-                    False,
-                    0,
-                    'food_%04i' % fi,
-                ),
+            storeObject(
+                _gameID,
+                'food',
+                uuid.uuid4(),
+                True,
+                fx,
+                fy,
+                False,
+                0,
+                'food_%04i' % fi,
             )

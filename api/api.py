@@ -156,7 +156,7 @@ async def playerWSRoute(playerWS: WebSocket, client_id: str):
                         occupancyMap=fieldOccupancy,
                     )
                     await playerWS.send_text(json.dumps(firstPos))
-                    storeGamePlayerPosition(gameID, client_id, *makeCoordPair(firstPos))
+                    storeGamePlayerPosition(gameID, client_id, True, *makeCoordPair(firstPos))
             else:
                 # other types of message undergo no validation whatsoever:
                 # we simply add the player ID to the message and publish
