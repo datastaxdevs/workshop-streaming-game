@@ -177,7 +177,7 @@ You will now create a database with a keyspace in it (a _keyspace_ can contain _
 Today's application needs just a single table: it will be created for you the first time you
 will launch it, so don't worry too much).
 
-<img src="images/create_database_button.png" width="200" align=right />
+<img src="images/create_database_button.png" width="250" align=right />
 
 To create the database, locate the "Create database" button on the navigation bar on the left of the Astra UI, click on it and fill the required
 values:
@@ -213,7 +213,9 @@ You need to create a **DB token**, which the API will later use as credentials t
 From the Astra DB UI, [create a token](https://docs.datastax.com/en/astra/docs/manage-application-tokens.html)
 with `Database Administrator` roles.
 
-- Go the `Organization Settings`
+<img src="images/orgsettings.png" width="250" align=right />
+
+- Locate the "Current Organization" menu in the top-left of the Astra UI and select `Organization Settings`
 - Go to `Token Management`
 - Pick the role `Database Administrator` on the select box
 - Click Generate token
@@ -255,7 +257,7 @@ Go to the Astra DB UI, find the `workshops` database and click on it:
 1. click on `Connect` tab;
 2. click on `Connect using a driver` (any language will do);
 3. click on the `Download Bundle` drop-down on the right;
-4. finally click on `Secure Connect Bundle (<region>)` to start the download. The bundle file should have a name such as `secure-connect-workshops.zip` and be around 12KB in size.
+4. finally click on `Secure Connect Bundle (<region>)` to start the download. The bundle file should have a name such as `secure-connect-workshops.zip` and be around 12KB in size. _Note: make sure you "Save" the zipfile whole, without unzipping/opening it (as some browser might suggest you to do._
 
 <details><summary>Show me how to get the Astra DB bundle</summary>
     <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/astra_bundle.png?raw=true" />
@@ -341,7 +343,7 @@ with the commands
     cp .env.sample .env
     gp open .env
 
-(the second line will simply open the `.env` file in the editor).
+(the second line will simply open the `.env` file in the editor: you can also simply locate the file in Gitpod's file explorer and click on it).
 Fill the first lines in the file with the values found earlier
 on your Astra Streaming "Connect" tab (_keep the quotes in the file_):
 
@@ -422,7 +424,7 @@ Leave it running and turn your attention to the client.
 
 Make sure you **go to the client console** for the following
 (to switch consoles, look at the lower-right panel in your Gitpod layout).
-You should be in the `client` project subdirectory.
+You should be in the `client` project subdirectory (i.e. the `pwd` command should print `/workspace/workshop-streaming-game/client`).
 
 #### 5a. Install dependencies
 
@@ -632,6 +634,9 @@ Even better, try to inject a message such as _(you may have to adjust the `x`, `
     }
 
 what happens in the game UI when you to this? Can you walk to that spot? (Why?)
+
+> Also, have you noticed that the "Try Me" interface shows how each message you publish to the topic is echoed back to you?
+> This is done by the API logic and is part of the game design.
 
 Now, you just had a little fun: but, seriously speaking, this ability to manually intervene in the stream of messages makes for a valuable debugging tool.
 
