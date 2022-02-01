@@ -31,7 +31,7 @@ A simple multiplayer online game featuring
 
 - *Can I run the workshop on my computer?*
 
-> There is nothing preventing you from running the workshop on your own machine.
+> You don't have to, it's all already in the cloud! But there is nothing preventing you from running the workshop on your own machine.
 > If you do so, you will need
 > * git installed on your local system
 > * [node 15 and npm 7 or later](https://www.whitesourcesoftware.com/free-developer-tools/blog/update-node-js/)
