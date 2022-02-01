@@ -328,9 +328,15 @@ and make sure you are in the `api` subdirectory.
 
 > The `pwd` command should output `/workspace/workshop-streaming-game/api`.
 
+> If you are working locally, make sure you are in the `/api` subdirectory
+> of the project for the following commands to work properly. Later anyway,
+> in order to have both the API and the client running, you will need two
+> consoles, one in each of the two `api` and `client` subdirectories.
+
 Then create a file `.env` by copying the `.env.sample` in the same directory,
 with the commands
 
+    # In the 'api' subdirectory
     cp .env.sample .env
     gp open .env
 
@@ -395,6 +401,7 @@ Congratulations: you should now have completed the `.env` setup!
 Make sure you are in the API console and in the `api` subdirectory.
 You can now **start the API**:
 
+    # In the 'api' subdirectory
     uvicorn api:app
 
 You should see the API start and log some messages in the console, in particular
@@ -420,6 +427,7 @@ You should be in the `client` project subdirectory.
 
 First ensure all required dependencies are installed:
 
+    # In the 'client' subdirectory
     npm install
 
 > Note: the command would take a few minutes on a fresh directory; we secretly instructed Gitpod
@@ -431,6 +439,7 @@ First ensure all required dependencies are installed:
 
 The client is ready to go! **Launch it** in development mode with:
 
+    # In the 'client' subdirectory
     npm start
 
 Let's assume you are working within Gitpod, which wraps locally-exposed ports
@@ -598,28 +607,28 @@ But wait, there's more: now you can **hack the system**! Indeed, this same inter
 produce surreptitious messages into the topic ("Send" button on the Streaming UI).
 Try to insert a message such as:
 
-        {
-            "messageType": "chat",
-            "payload": {
-                "id": "000",
-                "name": "Phantom!",
-                "text": "Booo!"
-            },
-            "playerID": "nonexistent"
-        }
+    {
+        "messageType": "chat",
+        "payload": {
+            "id": "000",
+            "name": "Phantom!",
+            "text": "Booo!"
+        },
+        "playerID": "nonexistent"
+    }
 
 and keep an eye on the chat box.
 
 Even better, try to inject a message such as _(you may have to adjust the `x`, `y` coordinates for this to be real fun)_:
 
-        {
-            "messageType": "brick",
-            "payload": {
-                "name": "phantom brick!",
-                "x": 0,
-                "y": 0
-            }
+    {
+        "messageType": "brick",
+        "payload": {
+            "name": "phantom brick!",
+            "x": 0,
+            "y": 0
         }
+    }
 
 what happens in the game UI when you to this? Can you walk to that spot? (Why?)
 
