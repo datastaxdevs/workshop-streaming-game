@@ -214,7 +214,7 @@ with `Database Administrator` roles.
 
 - Go the `Organization Settings`
 - Go to `Token Management`
-- Pick the role `Database Admnistrator` on the select box
+- Pick the role `Database Administrator` on the select box
 - Click Generate token
 
 <details><summary>Show me the Astra DB token creation</summary>
