@@ -8,7 +8,7 @@
 Time: *50 minutes*. Difficulty: *Intermediate*. [Start Building!](#lets-start)
 
 A simple multiplayer online game featuring
-* Astra Streaming (built on top of Apache Pulsar)
+* Astra Streaming (a messaging system in the cloud, built on top of Apache Pulsar)
 * Astra DB (a Database-as-a-service built on Apache Cassandra)
 * WebSockets
 * React.js for the front-end
