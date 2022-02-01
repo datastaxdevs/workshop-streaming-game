@@ -112,7 +112,7 @@ For more information on Apache Pulsar, here is [the documentation](https://pulsa
 
 #### 1a. Register
 
-Register and sign in to Astra at `https://astra.datastax.com` by clicking this button (better in a new tab with Ctrl-click or right-click):
+Register and sign in to Astra at `astra.datastax.com` by clicking this button (better in a new tab with Ctrl-click or right-click):
 
 <a href="https://astra.dev/2-2"><img src="images/create_astra_button.png" /></a>
 
@@ -126,9 +126,7 @@ You may be asked to verify your email, so make sure you have access to it._
 
 #### 1b. Create streaming
 
-Once registered and logged in, you will be able to create a streaming topic for use in this workshop.
-
-Now it's time to create a new Astra Streaming topic, that will convey all messages for this app.
+Once registered and logged in, you will be able to create a new Astra Streaming topic: it will convey all messages for this app.
 
 - Go to your Astra console, locate the "Create Streaming" button on the left window and to the right of Streaming. Click on it.
 - Set up a new Tenant (remember Pulsar has a multi-tenant architecture): _you have to find a globally unique name for it_,
@@ -155,7 +153,7 @@ from the API code. While still in the tenant dashboard, find the "Connect" tab a
 - the "Broker service URL" is given in the "Connect" tab;
 - the "Token" is a secret string needed to connect to the topic and is reached by clicking on "Token Manager" and then, once you locate your token in the list, can be directly copied to your clipboard with the "clipboard" icon next to it. _Note: a token is created for you automatically at this point._
 
-<details><summary>Show me the how to get the topic connection parameters</summary>
+<details><summary>Show me how to get the topic connection parameters</summary>
     <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/streaming_secrets.png?raw=true" />
 </details>
 
@@ -176,10 +174,12 @@ to later be able to access the database.
 _**`ASTRA DB`** is the simplest way to run Cassandra with zero operations at all - just push the button and get your cluster. No credit card required, $25.00 USD credit every month, roughly 20M read/write operations and 80GB storage monthly - sufficient to run small production workloads._
 
 You will now create a database with a keyspace in it (a _keyspace_ can contain _tables_.
-Today's application needs a table: it will be created for you the first time you
+Today's application needs just a single table: it will be created for you the first time you
 will launch it, so don't worry too much).
 
-To create the database, locate the "Create database" button on the navigation bar on the left and fill the required
+<img src="images/create_database_button.png" width="200" align=right />
+
+To create the database, locate the "Create database" button on the navigation bar on the left of the Astra UI, click on it and fill the required
 values:
 
 - **For the database name** - use `workshops`. While Astra DB allows you to fill in these fields with values of your own choosing, please follow our recommendations to ensure the application runs properly.
