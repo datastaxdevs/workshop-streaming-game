@@ -50,7 +50,7 @@ A simple multiplayer online game featuring
 
 - *Will I get a certificate if I attend this workshop?*
 
-> Attending the session is not enough. You need to complete the homeworks detailed below and you will get a nice badge.
+> Attending the session is not enough. You need to complete the homeworks detailed below and you will get a nice participation certificate a.k.a. badge.
 
 - *Why "Drapetisca"?*
 
