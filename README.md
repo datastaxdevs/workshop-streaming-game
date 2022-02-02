@@ -506,7 +506,7 @@ Well done: you are in the game. You should see your player appear in the arena!
     <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/drapetisca_3_v2.png?raw=true" />
 </details>
 
-> **Note**: if you experience a laggy gaming experience, especially with there are several players at once,
+> **Note**: if you experience a laggy game, especially with several players at once,
 > it is probably due to the fact that you have no control over the physical location of your Gitpod instance:
 > it may have been deployed far from the database. Remember that in a real-life online game great care
 > is taken to keep all parts close to each other to keep latencies under control.
