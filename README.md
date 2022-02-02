@@ -310,9 +310,13 @@ will start in the `api` and `client` subdirectories for you).
 **You can switch between consoles by clicking on the items in the lower-right panels in your Gitpod**.
 
 <details><summary>Show me a map of the Gitpod starting layout</summary>
-1 = file explorer, 2 = editor, 3 = panel for console(s), 4 = console switcher.
 
 <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/gitpod_view.png?raw=true" />
+
+1. File explorer
+2. Editor
+3. Panel for console(s)
+4. Console switcher
 </details>
 
 > Note: for your convenience, you find this very README open within the Gitpod
