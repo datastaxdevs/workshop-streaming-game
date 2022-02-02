@@ -506,6 +506,15 @@ Well done: you are in the game. You should see your player appear in the arena!
     <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/drapetisca_3_v2.png?raw=true" />
 </details>
 
+> **Note**: if you experience a laggy gaming experience, especially with there are several players at once,
+> it is probably due to the fact that you have no control over the physical location of your Gitpod instance:
+> it may have been deployed far from the database. Remember that in a real-life online game great care
+> is taken to keep all parts close to each other to keep latencies under control.
+> If you want to play the game nevertheless, you can set the `USE_IN_MEMORY_STORAGE` variable
+> to `"1"` in your `.env` and then stop-and-restart the API: this will replace usage of Astra DB
+> with an in-memory local store; it is a development-only solution, however, that would of course
+> not work were you to scale to several running instances of the API.
+
 Anything your player does is sent to the API through a WebSocket in the form of an "update message";
 from there, it is published to the Astra Streaming topic (and persisted to the database).
 The API will then pick up the update
