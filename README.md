@@ -128,15 +128,11 @@ You may be asked to verify your email, so make sure you have access to it._
 
 Once registered and logged in, you will be able to create a new Astra Streaming topic: it will convey all messages for this app.
 
-- Go to your Astra console, locate the "Create Streaming" button on the left window and to the right of Streaming. Click on it.
-- Set up a new Tenant (remember Pulsar has a multi-tenant architecture): _you have to find a globally unique name for it_,
-so for instance if `gameserver` is already taken by someone, try `gameserver0`, `gameserver-abc` or something similar.
-Pick the provider/region you like (_try to have it close to you for reduced latency_) and finally hit "Create Tenant". **Remember the name of your tenant for the API setup step later**.
-- You'll shortly see the dashboard for your newly-created Tenant. Go to the "Topics" tab to create a new one (we will stay in the "default" namespace).
-- In the "Topics" tab, click "Add Topic" and name it `worldupdates` (persistent = yes, partitioned = no). Click "Save" to confirm topic creation.
+You can find the instructions in [this wiki](https://github.com/datastaxdevs/awesome-astra/wiki/Create-an-AstraStreaming-Topic): in our case, the parameters to use are:
 
-Congratulations! Your topic is being created, which takes less than one minute, and is now ready to receive and
-dispatch the stream of messages that will make your game work!
+- tenant name: `gameserver-<something>` (you have to make it unique, so attach a suffix of your choice)
+- namespace: `default` (we will NOT need to create a new one)
+- topic name: `worldupdates` (persistent=yes, partitioned=no)
 
 > Note: technically you can name your namespace and topic anything you want - but then you have to make sure
 > the environment settings for your API code are changed accordingly (see later).
@@ -147,11 +143,8 @@ dispatch the stream of messages that will make your game work!
 
 #### 1c. Retrieve streaming connection parameters
 
-While you are at it, you should get two pieces of information needed later to connect to the topic
-from the API code. While still in the tenant dashboard, find the "Connect" tab and click on it: you will see a listing of "Tenant Details". You will later need the "Broker Service URL" and the "Token" values:
-
-- the "Broker service URL" is given in the "Connect" tab;
-- the "Token" is a secret string needed to connect to the topic and is reached by clicking on "Token Manager" and then, once you locate your token in the list, can be directly copied to your clipboard with the "clipboard" icon next to it. _Note: a token is created for you automatically at this point._
+While you are at it, you should get two pieces of information needed later to connect to the topic from the API code. Those are the "Broker Service URL" and the "Token",
+which can be obtained as described in [this wiki article](https://github.com/datastaxdevs/awesome-astra/wiki/Create-an-AstraStreaming-Topic#-step-4-retrieve-the-broker-url).
 
 <details><summary>Show me how to get the topic connection parameters</summary>
     <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/streaming_secrets.png?raw=true" />
