@@ -693,7 +693,7 @@ that returns a "chat message" ready to be sent through the WebSocket.
 You may also want to make use of variable `newPlayerName` that is made available
 in the API code.
 
-**You should add a line in the function `worldWSRoute` that creates the welcome
+**You should add a line in the function `playerWSRoute` that creates the welcome
 chat message and sends it to the WebSocket**. _Suggestion: this is really not
 so different from the geometry update any new client receives upon connecting._
 
