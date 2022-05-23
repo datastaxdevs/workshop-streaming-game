@@ -114,7 +114,7 @@ For more information on Apache Pulsar, here is [the documentation](https://pulsa
 
 Register and sign in to Astra at `astra.datastax.com` by clicking this button (better in a new tab with Ctrl-click or right-click):
 
-<a href="https://astra.dev/2-2"><img src="images/create_astra_button.png" /></a>
+<a href="(https://astra.dev/multiplayer-game)"><img src="images/create_astra_button.png" /></a>
 
 _you can use your `Github`, `Google` accounts or register with an `email`.
 Choose a password with minimum 8 characters, containing upper and lowercase letters, at least one number and special character.
