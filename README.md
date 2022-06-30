@@ -606,6 +606,12 @@ Good, now click "Connect".
     <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/eavesdrop_streaming.gif?raw=true" />
 </details>
 
+<details><summary>A demo video of the "Try Me" feature (Youtube)</summary>
+    <a href="https://youtu.be/WWYXeZh0S9k">
+        <img src="https://github.com/datastaxdevs/workshop-streaming-game/raw/main/images/try-me-demo-video-thumbnail.png?raw=true" />
+    </a>
+</details>
+
 You now have a privileged view over the messages flowing through the Streaming
 topic. Now try writing something in the Chat box: can you see the corresponding
 message in the Streaming UI?
