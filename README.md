@@ -235,6 +235,12 @@ The "token" is composed by three parts:
 > Make sure you download the CSV or copy the token values you need: once this page is closed,
 > you won't be able to see your token again for security reasons! (then again, you can always issue a new token).
 
+> **⚠️ Important**
+> ```
+> The instructor will show you on screen how to create a token 
+> but will have to destroy to token immediately for security reasons.
+> ```
+
 #### 2c. Download the DB Secure Connection Bundle
 
 There's a last missing piece needed for the application to successfully connect
