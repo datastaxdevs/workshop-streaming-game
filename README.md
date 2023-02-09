@@ -237,8 +237,8 @@ The "token" is composed by three parts:
 
 > **⚠️ Important**
 > ```
-> The instructor will show you on screen how to create a token 
-> but will have to destroy to token immediately for security reasons.
+> The instructor will show token creation on screen,
+> but will then immediately destroy the token for security reasons.
 > ```
 
 #### 2c. Download the DB Secure Connection Bundle
